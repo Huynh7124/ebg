@@ -11,12 +11,12 @@ npm run dev
 
 Máy chủ dùng cổng `3000`, có thể thay bằng biến `PORT`. `npm run build` tạo bản production; `npm start` phục vụ bản build. `npm test` kiểm tra đăng nhập, phân quyền, chống CSRF, nhập xuất tồn, phiếu chờ, sản phẩm khóa và nhật ký trên cơ sở dữ liệu tạm biệt lập.
 
-Lần chạy đầu tạo 3 tài khoản mẫu: `admin` (Admin), `it` (IT), `kho` (nhân viên kho). Đặt biến `INITIAL_ADMIN_PASSWORD` trước lần chạy đầu để chọn mật khẩu khởi tạo; nếu không, hệ thống sinh mật khẩu ngẫu nhiên và hiển thị **một lần ở terminal máy chủ**. Biến này không thay đổi mật khẩu tài khoản đã tồn tại. Đăng nhập và đổi mật khẩu tại **Tài khoản & bảo mật**. Admin có thể cấp tài khoản cùng vai trò tại đây.
+Lần chạy đầu tạo 2 tài khoản mẫu: `admin` (Admin), `kho` (Nhân viên). Đặt biến `INITIAL_ADMIN_PASSWORD` trước lần chạy đầu để chọn mật khẩu khởi tạo; nếu không, hệ thống sinh mật khẩu ngẫu nhiên và hiển thị **một lần ở terminal máy chủ**. Biến này không thay đổi mật khẩu tài khoản đã tồn tại. Đăng nhập và đổi mật khẩu tại **Tài khoản & bảo mật**. Admin có thể cấp tài khoản cùng vai trò tại đây.
 
 ## Chức năng
 
 - Tổng quan, cảnh báo sản phẩm chạm mức tồn tối thiểu, thông báo và lịch sử thao tác.
-- Danh mục phụ kiện và dòng xe do Admin hoặc IT tạo; máy chủ kiểm tra quyền.
+- Danh mục phụ kiện và dòng xe do Admin tạo; máy chủ kiểm tra quyền.
 - Thêm/sửa/khóa sản phẩm; chỉ chọn danh mục có sẵn; không có giá tiền.
 - Tìm tên, mã, màu; lọc danh mục và dòng xe.
 - Nhập/xuất theo nhóm hàng kho, hàng sửa/lỗi, Anote. Phiếu chờ cho hàng sửa/Anote không thay đổi tồn cho đến khi hoàn tất. Ngăn xuất quá tồn và hoàn tất một phiếu hai lần.
@@ -32,10 +32,10 @@ Trước khi mở cho người dùng thật:
 
 - Đặt `SESSION_SECRET` ngẫu nhiên, ổn định (ít nhất 32 byte), lấy từ hệ thống quản lý secrets. Không commit mật khẩu hoặc secret.
 - Cấu hình HTTPS và đặt `COOKIE_SECURE=true`. Nếu reverse proxy kết thúc TLS, cấu hình `TRUST_PROXY=1` **chỉ khi** máy chủ nằm sau đúng một proxy tin cậy và không truy cập trực tiếp từ Internet.
-- Đổi mật khẩu của cả 3 tài khoản mẫu, tạo tài khoản cá nhân, không dùng tài khoản chung cho vận hành thực tế.
+- Đổi mật khẩu của cả 2 tài khoản mẫu, tạo tài khoản cá nhân, không dùng tài khoản chung cho vận hành thực tế.
 - Thiết lập sao lưu định kỳ và kiểm thử phục hồi dữ liệu.
 
-Có cookie HttpOnly/SameSite, phiên 8 giờ, bcrypt, giới hạn thử đăng nhập, chống CSRF, Helmet, truy vấn SQL có tham số, kiểm tra số lượng và quyền tại API. Đây là phiên bản đầu cho một kho: chưa có MFA, quy trình khôi phục mật khẩu/email, giao diện chỉnh sửa/thu hồi quyền tài khoản, hay đánh giá bảo mật độc lập. Đổi mật khẩu hiện không thu hồi các phiên khác. Khởi động lại không giữ phiên nếu chưa cấu hình `SESSION_SECRET` ổn định.
+Có cookie HttpOnly/SameSite, phiên 8 giờ, bcrypt, giới hạn thử đăng nhập, chống CSRF, Helmet, truy vấn SQL có tham số, kiểm tra số lượng và quyền tại API. Đây là phiên bản đầu cho một kho: chưa có MFA, quy trình khôi phục mật khẩu/email, đánh giá bảo mật độc lập. Đổi mật khẩu hiện không thu hồi các phiên khác. Khởi động lại không giữ phiên nếu chưa cấu hình `SESSION_SECRET` ổn định.
 
 “Anote” được giữ nguyên theo yêu cầu như một nhóm hàng riêng, có trạng thái chờ. Xuất phiếu hiện ở định dạng CSV; chưa có mẫu PDF/in theo biểu mẫu doanh nghiệp. Biểu trưng giao diện là wordmark EBG dựng bằng chữ, chưa thay thế bằng tệp logo gốc.
 
@@ -54,3 +54,11 @@ Chỉ cache file giao diện công khai, không cache API, thông tin đăng nh�
 Kiểm tra trình duyệt bằng `npm run test:pwa` sau build (cần Chromium của Playwright; có thể đặt `CHROMIUM_PATH` tới Chromium sẵn có). Bài kiểm tra dùng database tạm, xác minh manifest/icon, service worker, hướng dẫn cài đặt, API không bị cache, trạng thái offline và màn hình mobile.
 
 Ứng dụng vẫn dùng SQLite cho đến khi có cấu hình dự án Firebase và hoàn tất chuyển đổi. Xem [hướng dẫn chuẩn bị Firebase Spark](docs/FIREBASE-SPARK.md). Chưa có chức năng backup tự động hoặc triển khai Firebase ở bản này.
+
+## Hai vai trò Admin / Nhân viên
+
+Chỉ Admin được thêm, sửa, khóa/mở khóa nhân viên và danh mục (dòng xe, dòng phụ kiện). Mục **Nhân viên** cho phép quản lý họ tên, tên đăng nhập, đặt lại mật khẩu và trạng thái tài khoản; API không trả mật khẩu hoặc hash. Khóa nhân viên thu hồi phiên hiện có và chặn đăng nhập mới. Đặt lại mật khẩu nhân viên cũng thu hồi phiên. Không có thao tác thay đổi hoặc khóa tài khoản Admin trong màn hình này.
+
+Nhân viên vẫn quản lý sản phẩm và nhập/xuất kho, xem danh mục, tồn kho và lịch sử. Nhân viên không truy cập được danh sách tài khoản hoặc API quản lý danh mục. Khóa danh mục ngăn gán danh mục đó cho sản phẩm mới hoặc đổi một sản phẩm sang danh mục đó; sản phẩm đã thuộc danh mục vẫn giữ liên kết và giao dịch bình thường. Đổi tên danh mục tự cập nhật liên kết sản phẩm trong cùng transaction.
+
+Khi khởi động bản mới, migration tự thêm cột trạng thái nếu chưa có, chuyển vai trò `it` và `warehouse` cũ thành `staff` (Nhân viên), giữ ID, mật khẩu và dữ liệu. Tài khoản có tên đăng nhập `it` cũ vẫn tồn tại nhưng chỉ còn quyền Nhân viên; Admin có thể sửa tên đăng nhập hoặc khóa tài khoản này. Trước khi cập nhật máy thật, dừng ứng dụng và sao lưu thư mục `data/`; không xóa database để cập nhật vai trò.

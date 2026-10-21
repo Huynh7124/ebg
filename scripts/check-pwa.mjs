@@ -22,11 +22,26 @@ try{
  for(const icon of manifest.icons){const r=await context.request.get('http://localhost:3195'+icon.src);assert.equal(r.status(),200);assert.equal(r.headers()['content-type'],'image/png')}
  await page.getByRole('button',{name:'Cài ứng dụng EBG'}).click();await page.getByRole('dialog',{name:'Cài EBG lên thiết bị'}).waitFor();await page.getByRole('button',{name:'Đã hiểu'}).click();
  await page.locator('[name=username]').fill('admin');await page.locator('[name=password]').fill(password);await page.getByRole('button',{name:'Đăng nhập',exact:true}).click();await page.getByRole('heading',{name:'Tổng quan kho.'}).waitFor();
+
+ await page.locator('.mobile-menu').click();await page.locator('nav').getByRole('button',{name:'Nhân viên',exact:true}).click();
+ await page.getByRole('button',{name:'Thêm nhân viên',exact:true}).click();
+ let dialog=page.getByRole('dialog',{name:'Thêm nhân viên'});await dialog.locator('[name=name]').fill('Nhân viên kiểm thử');await dialog.locator('[name=username]').fill('ui_staff');await dialog.locator('[name=password]').fill(password);await dialog.getByRole('button',{name:'Lưu nhân viên'}).click();await dialog.waitFor({state:'hidden'});
+ await page.getByRole('button',{name:'Sửa nhân viên ui_staff',exact:true}).click();dialog=page.getByRole('dialog',{name:'Sửa nhân viên'});await dialog.locator('[name=name]').fill('Nhân viên đã sửa');await dialog.getByRole('button',{name:'Lưu nhân viên'}).click();await dialog.waitFor({state:'hidden'});await page.getByText('Nhân viên đã sửa',{exact:true}).waitFor();
+ await page.getByRole('button',{name:'Khóa nhân viên ui_staff',exact:true}).click();await page.getByRole('button',{name:'Mở khóa nhân viên ui_staff',exact:true}).waitFor();
+ await page.getByRole('button',{name:'Mở khóa nhân viên ui_staff',exact:true}).click();await page.getByRole('button',{name:'Khóa nhân viên ui_staff',exact:true}).waitFor();
+ await page.locator('.mobile-menu').click();await page.locator('nav').getByRole('button',{name:'Danh mục',exact:true}).click();
+ await page.getByRole('button',{name:'Sửa danh mục Hệ thống phanh',exact:true}).click();dialog=page.getByRole('dialog');await dialog.locator('[name=name]').fill('Phanh đã sửa');await dialog.getByRole('button',{name:'Lưu danh mục'}).click();await dialog.waitFor({state:'hidden'});
+ await page.getByRole('button',{name:'Khóa danh mục Phanh đã sửa',exact:true}).click();await page.getByRole('button',{name:'Mở khóa danh mục Phanh đã sửa',exact:true}).waitFor();
+ await page.getByRole('button',{name:'Mở khóa danh mục Phanh đã sửa',exact:true}).click();await page.getByRole('button',{name:'Khóa danh mục Phanh đã sửa',exact:true}).waitFor();
+ await page.locator('.mobile-menu').click();await page.getByRole('button',{name:'Đăng xuất',exact:true}).click();
+ await page.locator('[name=username]').fill('ui_staff');await page.locator('[name=password]').fill(password);await page.getByRole('button',{name:'Đăng nhập',exact:true}).click();await page.getByRole('heading',{name:'Tổng quan kho.'}).waitFor();
+ assert.equal(await page.locator('nav').getByRole('button',{name:'Nhân viên',exact:true}).count(),0);
+ await page.locator('.mobile-menu').click();await page.locator('nav').getByRole('button',{name:'Danh mục',exact:true}).click();assert.equal(await page.getByRole('button',{name:'Thêm danh mục',exact:true}).count(),0);assert.equal(await page.getByRole('button',{name:'Sửa danh mục Phanh đã sửa',exact:true}).count(),0);
  const cached=await page.evaluate(async()=>{const result=[];for(const name of await caches.keys())for(const req of await(await caches.open(name)).keys())result.push(new URL(req.url).pathname);return result});
  assert.ok(cached.includes('/index.html'));assert.ok(cached.some(p=>p.endsWith('.js')));assert.ok(cached.every(p=>!p.startsWith('/api')&&!p.includes('/data/')));
  await context.setOffline(true);await page.getByRole('status').filter({hasText:'Bạn đang ngoại tuyến'}).waitFor();await page.reload();await page.getByRole('heading',{name:'Chào mừng trở lại'}).waitFor();assert.equal(await page.getByRole('heading',{name:'Tổng quan kho.'}).count(),0);
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);assert.deepEqual(errors,[]);
- console.log('PASS: production manifest/icons, active service worker, install help, authenticated API stays out of cache, offline shell without inventory, mobile layout.');
+ console.log('PASS: admin employee/category create/edit/lock, staff controls hidden, production manifest/icons, active service worker, install help, authenticated API stays out of cache, offline shell without inventory, mobile layout.');
 }finally{
  await browser?.close();if(child.exitCode===null){child.kill();await new Promise(r=>child.once('exit',r))}await rm(root,{recursive:true,force:true});
 }
