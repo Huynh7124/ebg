@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "dev": "node server.js",
-    "build": "vite build",
+    "build": "vite build && node scripts/build-pwa.mjs",
     "start": "node server.js --production",
-    "test": "node --test"
+    "test": "node --test",
+    "test:pwa": "node scripts/check-pwa.mjs"
   },
   "repository": {
     "type": "git",

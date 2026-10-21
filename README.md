@@ -44,3 +44,13 @@ Có cookie HttpOnly/SameSite, phiên 8 giờ, bcrypt, giới hạn thử đăng 
 Bản sửa chặn truy cập trực tiếp `data/`, cơ sở dữ liệu SQLite, mã máy chủ, `.env`, thư mục test và các đường dẫn `/@fs` tới file riêng tư ở cả chế độ phát triển và production. API đặt `Cache-Control: no-store`; `/api/data` yêu cầu đăng nhập. JSON của dữ liệu mà tài khoản được phép xem vẫn xuất hiện trong tab Network, đây là cơ chế hoạt động của ứng dụng web.
 
 Sau khi cập nhật mã nguồn, dừng tiến trình cũ rồi chạy lại. Trên Windows cũng có thể dùng `npm run build` rồi `npm start` để chạy production. Chỉ phục vụ thư mục `dist` cho tài nguyên tĩnh; không cấu hình hosting/IIS/Nginx phục vụ toàn bộ thư mục dự án. Giữ nguyên `data/` khi cập nhật. Nếu bản cũ từng truy cập được từ Internet và có khả năng file riêng tư đã bị tải, cần đánh giá phạm vi lộ dữ liệu, đổi mật khẩu các tài khoản và thay `SESSION_SECRET`, sau đó khởi động lại máy chủ.
+
+## Cài ứng dụng lên điện thoại / máy tính (PWA)
+
+`npm run build` tạo manifest, icon và service worker có phiên bản theo nội dung build. Chạy `npm start` để kiểm tra bản production. Trên một máy chủ có HTTPS, Chrome/Edge hỗ trợ cài ứng dụng; trên iPhone/iPad dùng Safari → Chia sẻ → Thêm vào Màn hình chính. Nút **Cài ứng dụng EBG** sẽ mở lời mời cài hoặc hướng dẫn theo trình duyệt. Localhost được dùng cho kiểm thử, không phải đường dẫn chia sẻ cho điện thoại khác.
+
+Chỉ cache file giao diện công khai, không cache API, thông tin đăng nhập hay dữ liệu kho. Khi mất mạng có thể mở khung ứng dụng và hướng dẫn, nhưng không thể đăng nhập, đọc kho hoặc ghi nhập/xuất. Thông báo sẽ yêu cầu kết nối lại. Bản service worker mới có thể cần đóng hết cửa sổ ứng dụng rồi mở lại để kích hoạt.
+
+Kiểm tra trình duyệt bằng `npm run test:pwa` sau build (cần Chromium của Playwright; có thể đặt `CHROMIUM_PATH` tới Chromium sẵn có). Bài kiểm tra dùng database tạm, xác minh manifest/icon, service worker, hướng dẫn cài đặt, API không bị cache, trạng thái offline và màn hình mobile.
+
+Ứng dụng vẫn dùng SQLite cho đến khi có cấu hình dự án Firebase và hoàn tất chuyển đổi. Xem [hướng dẫn chuẩn bị Firebase Spark](docs/FIREBASE-SPARK.md). Chưa có chức năng backup tự động hoặc triển khai Firebase ở bản này.
