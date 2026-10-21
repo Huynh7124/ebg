@@ -8,7 +8,7 @@ import {randomBytes} from 'node:crypto';
 const root=await mkdtemp(join(tmpdir(),'ebg-pwa-'));
 const password=randomBytes(16).toString('hex');
 await cp('dist',join(root,'dist'),{recursive:true});
-const child=spawn(process.execPath,[resolve('server.js'),'--production'],{cwd:root,env:{...process.env,PORT:'3195',INITIAL_ADMIN_PASSWORD:password},stdio:['ignore','pipe','pipe']});
+const child=spawn(process.execPath,[resolve('server.js'),'--production'],{cwd:root,env:{...process.env,DATA_DIR:join(root,'data'),PORT:'3195',INITIAL_ADMIN_PASSWORD:password},stdio:['ignore','pipe','pipe']});
 let browser;
 try{
  await new Promise((ok,fail)=>{const timer=setTimeout(()=>fail(Error('Startup timeout')),15000);child.stdout.on('data',d=>{if(String(d).includes('server ready')){clearTimeout(timer);ok()}});child.on('exit',()=>{clearTimeout(timer);fail(Error('Server exited'))});child.stderr.resume()});

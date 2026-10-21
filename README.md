@@ -62,3 +62,9 @@ Chỉ Admin được thêm, sửa, khóa/mở khóa nhân viên và danh mục (
 Nhân viên vẫn quản lý sản phẩm và nhập/xuất kho, xem danh mục, tồn kho và lịch sử. Nhân viên không truy cập được danh sách tài khoản hoặc API quản lý danh mục. Khóa danh mục ngăn gán danh mục đó cho sản phẩm mới hoặc đổi một sản phẩm sang danh mục đó; sản phẩm đã thuộc danh mục vẫn giữ liên kết và giao dịch bình thường. Đổi tên danh mục tự cập nhật liên kết sản phẩm trong cùng transaction.
 
 Khi khởi động bản mới, migration tự thêm cột trạng thái nếu chưa có, chuyển vai trò `it` và `warehouse` cũ thành `staff` (Nhân viên), giữ ID, mật khẩu và dữ liệu. Tài khoản có tên đăng nhập `it` cũ vẫn tồn tại nhưng chỉ còn quyền Nhân viên; Admin có thể sửa tên đăng nhập hoặc khóa tài khoản này. Trước khi cập nhật máy thật, dừng ứng dụng và sao lưu thư mục `data/`; không xóa database để cập nhật vai trò.
+
+## Khắc phục trang trắng khi chạy dev
+
+Bản sửa cho phép Vite phục vụ đúng các module giao diện công khai ở `/node_modules/.vite/deps/*.js` mà vẫn chặn file riêng tư, file metadata và đường dẫn database. Kênh cập nhật giao diện Vite dùng chung HTTP server với Express. Nếu đã gặp 404 với `react.js`, `react-dom_client.js` hoặc `react_jsx-dev-runtime.js`, cập nhật mã nguồn rồi dừng và khởi động lại `npm run dev`, sau đó tải lại trang.
+
+Có thể chạy `npm run test:dev` để kiểm tra giao diện dev bằng Chromium (hỗ trợ `CHROMIUM_PATH`); kiểm thử dùng thư mục dữ liệu tạm, không dùng database kho. Biến `DATA_DIR` cho phép chỉ định thư mục lưu SQLite, mặc định vẫn là `data/`; không đổi biến này trên máy thật nếu chưa chuyển dữ liệu sang thư mục tương ứng.

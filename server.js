@@ -1,14 +1,17 @@
 import express from 'express';
+import {createServer as createHttpServer} from 'node:http';
 import session from 'express-session';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import bcrypt from 'bcryptjs';
 import {DatabaseSync} from 'node:sqlite';
 import {mkdirSync} from 'node:fs';
+import {join} from 'node:path';
 import {randomBytes} from 'node:crypto';
 if(process.argv.includes('--production'))process.env.NODE_ENV='production';
-mkdirSync('data',{recursive:true});
-const db=new DatabaseSync('data/ebg.db');
+const dataDir=process.env.DATA_DIR||'data';
+mkdirSync(dataDir,{recursive:true});
+const db=new DatabaseSync(join(dataDir,'ebg.db'));
 db.exec(`PRAGMA journal_mode=WAL; CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY,name TEXT,username TEXT UNIQUE,password TEXT,role TEXT); CREATE TABLE IF NOT EXISTS categories(id INTEGER PRIMARY KEY,name TEXT UNIQUE,type TEXT); CREATE TABLE IF NOT EXISTS products(id INTEGER PRIMARY KEY,name TEXT,code TEXT UNIQUE,category TEXT,vehicle TEXT,color TEXT,stock INTEGER DEFAULT 0,repair INTEGER DEFAULT 0,anote INTEGER DEFAULT 0,min INTEGER DEFAULT 5,locked INTEGER DEFAULT 0,image TEXT); CREATE TABLE IF NOT EXISTS movements(id INTEGER PRIMARY KEY,productId INTEGER,kind TEXT,bucket TEXT,quantity INTEGER,note TEXT,status TEXT,user TEXT,date TEXT); CREATE TABLE IF NOT EXISTS audit(id INTEGER PRIMARY KEY,user TEXT,action TEXT,date TEXT);`);
 for(const table of ['users','categories'])if(!db.prepare(`PRAGMA table_info(${table})`).all().some(c=>c.name==='locked'))db.exec(`ALTER TABLE ${table} ADD COLUMN locked INTEGER NOT NULL DEFAULT 0`);
 db.prepare("UPDATE users SET role='staff' WHERE role IN ('it','warehouse')").run();
@@ -56,7 +59,8 @@ app.post('/api/products/:id/lock',(req,res)=>{const p=db.prepare('SELECT * FROM 
 app.post('/api/movements',(req,res)=>{const {productId,kind,bucket,quantity,note,status}=req.body;const p=db.prepare('SELECT * FROM products WHERE id=?').get(productId);if(!p||p.locked)return res.status(400).json({error:'Sản phẩm không tồn tại hoặc đã khóa'});if(!['in','out'].includes(kind)||!['stock','repair','anote'].includes(bucket)||!Number.isInteger(+quantity)||+quantity<=0||!['completed','pending'].includes(status)||status==='pending'&&bucket==='stock')return res.status(400).json({error:'Thông tin phiếu không hợp lệ'});const delta=kind==='in'?+quantity:-quantity;if(status==='completed'&&p[bucket]+delta<0)return res.status(400).json({error:'Số lượng xuất vượt quá tồn hiện có'});db.exec('BEGIN IMMEDIATE');try{if(status==='completed')db.prepare(`UPDATE products SET ${bucket}=${bucket}+? WHERE id=?`).run(delta,p.id);db.prepare('INSERT INTO movements(productId,kind,bucket,quantity,note,status,user,date) VALUES(?,?,?,?,?,?,?,?)').run(p.id,kind,bucket,+quantity,String(note||'').slice(0,500),status,req.session.user.name,new Date().toISOString());audit(req,`${kind==='in'?'Nhập':'Xuất'} ${quantity} × ${p.code}${status==='pending'?' (chờ xử lý)':''}`);db.exec('COMMIT');res.json({ok:true})}catch(e){db.exec('ROLLBACK');throw e}});
 app.post('/api/movements/:id/complete',(req,res)=>{const m=db.prepare('SELECT * FROM movements WHERE id=?').get(req.params.id);if(!m||m.status!=='pending')return res.status(400).json({error:'Phiếu không ở trạng thái chờ'});const p=db.prepare('SELECT * FROM products WHERE id=?').get(m.productId);const delta=m.kind==='in'?m.quantity:-m.quantity;if(p.locked||p[m.bucket]+delta<0)return res.status(400).json({error:'Sản phẩm bị khóa hoặc không đủ tồn kho'});db.exec('BEGIN IMMEDIATE');try{db.prepare(`UPDATE products SET ${m.bucket}=${m.bucket}+? WHERE id=?`).run(delta,p.id);db.prepare('UPDATE movements SET status=? WHERE id=?').run('completed',m.id);audit(req,`Hoàn tất phiếu #${m.id}`);db.exec('COMMIT');res.json({ok:true})}catch(e){db.exec('ROLLBACK');throw e}});
 app.use('/api',(req,res)=>res.status(404).json({error:'Không tìm thấy API'}));
-app.use((req,res,next)=>{let path;try{path=decodeURIComponent(req.path).replaceAll('\\','/')}catch{return res.sendStatus(400)}if(path.split('/').some(segment=>segment.startsWith('.')&&segment!=='.well-known')||/(?:^|\/)(?:data|test)(?:\/|$)|(?:^|\/)(?:server\.js|package(?:-lock)?\.json)$|\.(?:db|sqlite|sqlite3|db-wal|db-shm|log|pem|key|crt)$/i.test(path))return res.sendStatus(404);next()});
-if(process.env.NODE_ENV==='production'){app.use(express.static('dist'));app.get('/{*path}',(req,res)=>res.sendFile(process.cwd()+'/dist/index.html'))}else{const {createServer}=await import('vite');const vite=await createServer({server:{middlewareMode:true,fs:{strict:true,deny:['.env','.env.*','*.{crt,pem,key}','**/.git/**','**/data/**','**/*.{db,sqlite,sqlite3,db-wal,db-shm,log}','**/server.js','**/test/**','**/package.json','**/package-lock.json']}},appType:'spa'});app.use(vite.middlewares)}
+app.use((req,res,next)=>{let path;try{path=decodeURIComponent(req.path).replaceAll('\\','/')}catch{return res.sendStatus(400)}const publicViteDependency=process.env.NODE_ENV!=='production'&&/^\/node_modules\/\.vite\/deps\/[^/]+\.(?:js|css|map)$/.test(path);if(path.split('/').some(segment=>segment.startsWith('.')&&segment!=='.well-known'&&!(segment==='.vite'&&publicViteDependency))||/(?:^|\/)(?:data|test)(?:\/|$)|(?:^|\/)(?:server\.js|package(?:-lock)?\.json)$|\.(?:db|sqlite|sqlite3|db-wal|db-shm|log|pem|key|crt)$/i.test(path))return res.sendStatus(404);next()});
+const httpServer=createHttpServer(app);
+if(process.env.NODE_ENV==='production'){app.use(express.static('dist'));app.get('/{*path}',(req,res)=>res.sendFile(process.cwd()+'/dist/index.html'))}else{const {createServer}=await import('vite');const vite=await createServer({server:{middlewareMode:true,hmr:{server:httpServer},fs:{strict:true,deny:['.env','.env.*','*.{crt,pem,key}','**/.git/**','**/data/**','**/*.{db,sqlite,sqlite3,db-wal,db-shm,log}','**/server.js','**/test/**','**/package.json','**/package-lock.json']}},appType:'spa'});app.use(vite.middlewares)}
 app.use((err,req,res,next)=>{console.error(err.message);res.status(500).json({error:'Không thể xử lý yêu cầu'})});
-app.listen(process.env.PORT||3000,'0.0.0.0',()=>console.log('EBG server ready on port '+(process.env.PORT||3000)));
+httpServer.listen(process.env.PORT||3000,'0.0.0.0',()=>console.log('EBG server ready on port '+(process.env.PORT||3000)));

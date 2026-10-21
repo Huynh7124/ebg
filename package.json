@@ -8,7 +8,8 @@
     "build": "vite build && node scripts/build-pwa.mjs",
     "start": "node server.js --production",
     "test": "node --test",
-    "test:pwa": "node scripts/check-pwa.mjs"
+    "test:pwa": "node scripts/check-pwa.mjs",
+    "test:dev": "node scripts/check-dev.mjs"
   },
   "repository": {
     "type": "git",
