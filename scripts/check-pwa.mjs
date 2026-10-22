@@ -45,11 +45,19 @@ try{
  await page.locator('[name=username]').fill('ui_staff');await page.locator('[name=password]').fill(password);await page.getByRole('button',{name:'Đăng nhập',exact:true}).click();await page.getByRole('heading',{name:'Tổng quan kho.'}).waitFor();
  assert.equal(await page.locator('nav').getByRole('button',{name:'Nhân viên',exact:true}).count(),0);
  await page.locator('.mobile-menu').click();await page.locator('nav').getByRole('button',{name:'Danh mục',exact:true}).click();assert.equal(await page.getByRole('button',{name:'Thêm danh mục',exact:true}).count(),0);assert.equal(await page.getByRole('button',{name:'Sửa danh mục Phanh đã sửa',exact:true}).count(),0);
+
+ await page.locator('.mobile-menu').click();await page.locator('nav').getByRole('button',{name:'Nhập kho',exact:true}).click();await page.getByRole('button',{name:'Tạo phiếu nhập',exact:true}).click();dialog=page.getByRole('dialog');
+ assert.deepEqual(await dialog.locator('[name=operation] option').allTextContents(),['Nhập kho','Nhập lỗi']);assert.equal(await dialog.locator('[name=bucket],[name=status]').count(),0);
+ await dialog.locator('[name=operation]').selectOption('receive_faulty');await dialog.locator('[name=productId]').selectOption('1');await dialog.locator('[name=quantity]').fill('2');await dialog.getByRole('button',{name:'Tạo phiếu nhập',exact:true}).click();await dialog.waitFor({state:'hidden'});
+ await page.getByRole('cell',{name:'Nhập lỗi',exact:true}).waitFor();
+ await page.locator('.mobile-menu').click();await page.locator('nav').getByRole('button',{name:'Xuất kho',exact:true}).click();await page.getByRole('button',{name:'Tạo phiếu xuất',exact:true}).click();dialog=page.getByRole('dialog');assert.deepEqual(await dialog.locator('[name=operation] option').allTextContents(),['Xuất kho','Xuất kho đi Anode','Xuất kho đi sửa']);
+ await dialog.locator('[name=operation]').selectOption('send_anode');await dialog.locator('[name=productId]').selectOption('1');await dialog.locator('[name=quantity]').fill('1');await dialog.getByRole('button',{name:'Tạo phiếu xuất',exact:true}).click();await dialog.waitFor({state:'hidden'});
+ const dispatch=page.locator('tbody tr').filter({has:page.getByRole('cell',{name:'Xuất kho đi Anode',exact:true})});await dispatch.getByRole('button',{name:'Nhận về kho',exact:true}).click();await dispatch.getByText('Hoàn tất',{exact:true}).waitFor();
  const cached=await page.evaluate(async()=>{const result=[];for(const name of await caches.keys())for(const req of await(await caches.open(name)).keys())result.push(new URL(req.url).pathname);return result});
  assert.ok(cached.includes('/index.html'));assert.ok(cached.some(p=>p.endsWith('.js')));assert.ok(cached.every(p=>!p.startsWith('/api')&&!p.includes('/data/')));
  await context.setOffline(true);await page.getByRole('status').filter({hasText:'Bạn đang ngoại tuyến'}).waitFor();await page.reload();await page.getByRole('heading',{name:'Chào mừng trở lại'}).waitFor();assert.equal(await page.getByRole('heading',{name:'Tổng quan kho.'}).count(),0);
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);assert.deepEqual(errors,[]);
- console.log('PASS: admin employee/category create/edit/lock, staff controls hidden, production brand logo/favicon/manifest/icons, active service worker, install help, authenticated API stays out of cache, offline shell without inventory, mobile layout.');
+ console.log('PASS: simplified inbound/outbound choices and Anode return, admin employee/category create/edit/lock, staff controls hidden, production brand logo/favicon/manifest/icons, active service worker, install help, authenticated API stays out of cache, offline shell without inventory, mobile layout.');
 }finally{
  await browser?.close();if(child.exitCode===null){child.kill();await new Promise(r=>child.once('exit',r))}await rm(root,{recursive:true,force:true});
 }

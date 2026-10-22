@@ -1,3 +1,4 @@
+import {movementTypes} from './shared/movements.js';
 import express from 'express';
 import {createServer as createHttpServer} from 'node:http';
 import session from 'express-session';
@@ -20,6 +21,8 @@ db.exec("CREATE UNIQUE INDEX IF NOT EXISTS users_email_unique ON users(email COL
 const normalizeEmail=value=>typeof value==='string'?value.trim().toLowerCase():'';
 const validEmail=value=>value.length<=254&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
+if(!db.prepare('PRAGMA table_info(products)').all().some(c=>c.name==='faulty'))db.exec('ALTER TABLE products ADD COLUMN faulty INTEGER NOT NULL DEFAULT 0');
+if(!db.prepare('PRAGMA table_info(movements)').all().some(c=>c.name==='operation'))db.exec('ALTER TABLE movements ADD COLUMN operation TEXT');
 const initialPassword=process.env.INITIAL_ADMIN_PASSWORD||randomBytes(12).toString('base64url');
 if(!db.prepare('SELECT id FROM users LIMIT 1').get()){
 for(const [name,username,role] of [['Nguyễn Minh','admin','admin'],['Nhân viên kho','kho','staff']])db.prepare('INSERT INTO users(name,username,password,role) VALUES(?,?,?,?)').run(name,username,bcrypt.hashSync(initialPassword,12),role);
@@ -61,8 +64,45 @@ app.post('/api/categories/:id',adminOnly,(req,res)=>{const c=db.prepare('SELECT 
 app.post('/api/categories/:id/lock',adminOnly,(req,res)=>{const c=db.prepare('SELECT * FROM categories WHERE id=?').get(req.params.id);if(!c)return res.status(404).json({error:'Không tìm thấy danh mục'});db.prepare('UPDATE categories SET locked=? WHERE id=?').run(c.locked?0:1,c.id);audit(req,`${c.locked?'Mở khóa':'Khóa'} danh mục ${c.name}`);res.json({ok:true})});
 app.post('/api/products',(req,res)=>{const p=req.body;const existing=p.id?db.prepare('SELECT * FROM products WHERE id=?').get(p.id):null;if(p.id&&!existing)return res.status(404).json({error:'Không tìm thấy sản phẩm'});if(!p.name?.trim()||!p.code?.trim()||!Number.isInteger(+p.min)||+p.min<0||!(existing?.category===p.category||db.prepare('SELECT id FROM categories WHERE name=? AND type=? AND locked=0').get(p.category,'accessory'))||!(existing?.vehicle===p.vehicle||db.prepare('SELECT id FROM categories WHERE name=? AND type=? AND locked=0').get(p.vehicle,'vehicle')))return res.status(400).json({error:'Vui lòng nhập đủ thông tin và chọn danh mục có sẵn'});try{if(existing)db.prepare('UPDATE products SET name=?,code=?,category=?,vehicle=?,color=?,min=? WHERE id=?').run(p.name,p.code,p.category,p.vehicle,p.color,+p.min,p.id);else db.prepare('INSERT INTO products(name,code,category,vehicle,color,min,image) VALUES(?,?,?,?,?,?,?)').run(p.name,p.code,p.category,p.vehicle,p.color,+p.min,'gear');audit(req,`${existing?'Sửa':'Thêm'} sản phẩm ${p.code}`);res.json({ok:true})}catch{res.status(400).json({error:'Mã sản phẩm đã tồn tại'})}});
 app.post('/api/products/:id/lock',(req,res)=>{const p=db.prepare('SELECT * FROM products WHERE id=?').get(req.params.id);if(!p)return res.sendStatus(404);db.prepare('UPDATE products SET locked=? WHERE id=?').run(p.locked?0:1,p.id);audit(req,`${p.locked?'Mở khóa':'Khóa'} sản phẩm ${p.code}`);res.json({ok:true})});
-app.post('/api/movements',(req,res)=>{const {productId,kind,bucket,quantity,note,status}=req.body;const p=db.prepare('SELECT * FROM products WHERE id=?').get(productId);if(!p||p.locked)return res.status(400).json({error:'Sản phẩm không tồn tại hoặc đã khóa'});if(!['in','out'].includes(kind)||!['stock','repair','anote'].includes(bucket)||!Number.isInteger(+quantity)||+quantity<=0||!['completed','pending'].includes(status)||status==='pending'&&bucket==='stock')return res.status(400).json({error:'Thông tin phiếu không hợp lệ'});const delta=kind==='in'?+quantity:-quantity;if(status==='completed'&&p[bucket]+delta<0)return res.status(400).json({error:'Số lượng xuất vượt quá tồn hiện có'});db.exec('BEGIN IMMEDIATE');try{if(status==='completed')db.prepare(`UPDATE products SET ${bucket}=${bucket}+? WHERE id=?`).run(delta,p.id);db.prepare('INSERT INTO movements(productId,kind,bucket,quantity,note,status,user,date) VALUES(?,?,?,?,?,?,?,?)').run(p.id,kind,bucket,+quantity,String(note||'').slice(0,500),status,req.session.user.name,new Date().toISOString());audit(req,`${kind==='in'?'Nhập':'Xuất'} ${quantity} × ${p.code}${status==='pending'?' (chờ xử lý)':''}`);db.exec('COMMIT');res.json({ok:true})}catch(e){db.exec('ROLLBACK');throw e}});
-app.post('/api/movements/:id/complete',(req,res)=>{const m=db.prepare('SELECT * FROM movements WHERE id=?').get(req.params.id);if(!m||m.status!=='pending')return res.status(400).json({error:'Phiếu không ở trạng thái chờ'});const p=db.prepare('SELECT * FROM products WHERE id=?').get(m.productId);const delta=m.kind==='in'?m.quantity:-m.quantity;if(p.locked||p[m.bucket]+delta<0)return res.status(400).json({error:'Sản phẩm bị khóa hoặc không đủ tồn kho'});db.exec('BEGIN IMMEDIATE');try{db.prepare(`UPDATE products SET ${m.bucket}=${m.bucket}+? WHERE id=?`).run(delta,p.id);db.prepare('UPDATE movements SET status=? WHERE id=?').run('completed',m.id);audit(req,`Hoàn tất phiếu #${m.id}`);db.exec('COMMIT');res.json({ok:true})}catch(e){db.exec('ROLLBACK');throw e}});
+app.post('/api/movements',(req,res)=>{
+ const {productId,operation,quantity,note}=req.body;const type=movementTypes[operation];
+ if(!type||!Object.hasOwn(movementTypes,operation)||req.body.kind&&req.body.kind!==type.kind||!Number.isSafeInteger(+quantity)||+quantity<=0)return res.status(400).json({error:'Chọn đúng loại phiếu và nhập số lượng nguyên dương'});
+ const waiting=['send_anode','send_repair'].includes(operation),status=waiting?'pending':'completed';
+ // No client-supplied status/bucket can change the stock effect of a receipt.
+ if(req.body.status&&req.body.status!==status||req.body.bucket&&req.body.bucket!==type.bucket)return res.status(400).json({error:'Trạng thái hoặc nhóm hàng không khớp loại phiếu'});
+ db.exec('BEGIN IMMEDIATE');
+ try{
+  const p=db.prepare('SELECT * FROM products WHERE id=?').get(productId);if(!p||p.locked){db.exec('ROLLBACK');return res.status(400).json({error:'Sản phẩm không tồn tại hoặc đã khóa'})}
+  const q=+quantity;
+  if(type.kind==='out'&&p.stock<q){db.exec('ROLLBACK');return res.status(400).json({error:'Số lượng xuất vượt quá tồn kho chính'})}
+  if(type.kind==='in')db.prepare(`UPDATE products SET ${type.bucket}=${type.bucket}+? WHERE id=?`).run(q,p.id);
+  else if(waiting)db.prepare(`UPDATE products SET stock=stock-?,${type.bucket}=${type.bucket}+? WHERE id=?`).run(q,q,p.id);
+  else db.prepare('UPDATE products SET stock=stock-? WHERE id=?').run(q,p.id);
+  db.prepare('INSERT INTO movements(productId,kind,bucket,quantity,note,status,user,date,operation) VALUES(?,?,?,?,?,?,?,?,?)').run(p.id,type.kind,type.bucket,q,String(note||'').slice(0,500),status,req.session.user.name,new Date().toISOString(),operation);
+  audit(req,`${type.label}: ${q} × ${p.code}${waiting?' (chờ nhận về kho)':''}`);db.exec('COMMIT');res.json({ok:true});
+ }catch(e){db.exec('ROLLBACK');throw e}
+});
+app.post('/api/movements/:id/complete',(req,res)=>{
+ db.exec('BEGIN IMMEDIATE');
+ try{
+  const m=db.prepare('SELECT * FROM movements WHERE id=?').get(req.params.id);
+  if(!m||m.status!=='pending'){db.exec('ROLLBACK');return res.status(400).json({error:'Phiếu không ở trạng thái chờ'})}
+  const p=db.prepare('SELECT * FROM products WHERE id=?').get(m.productId);
+  if(!p||p.locked){db.exec('ROLLBACK');return res.status(400).json({error:'Sản phẩm không tồn tại hoặc đã khóa'})}
+  if(['send_anode','send_repair'].includes(m.operation)){
+   if(p[m.bucket]<m.quantity){db.exec('ROLLBACK');return res.status(400).json({error:'Không đủ số lượng đang gửi ngoài kho'})}
+   db.prepare(`UPDATE products SET stock=stock+?,${m.bucket}=${m.bucket}-? WHERE id=?`).run(m.quantity,m.quantity,p.id);
+   // A returned lot is represented as a normal inbound receipt, linked to its dispatch.
+   db.prepare('INSERT INTO movements(productId,kind,bucket,quantity,note,status,user,date,operation) VALUES(?,?,?,?,?,?,?,?,?)').run(p.id,'in','stock',m.quantity,`Nhận về từ phiếu #${m.id}`,'completed',req.session.user.name,new Date().toISOString(),'receive_stock');
+   audit(req,`Nhận về kho ${m.quantity} × ${p.code} từ phiếu #${m.id}`);
+  }else{
+   // Preserve the original stock semantics of pending legacy receipts.
+   const delta=m.kind==='in'?m.quantity:-m.quantity;if(p[m.bucket]+delta<0){db.exec('ROLLBACK');return res.status(400).json({error:'Không đủ tồn cho phiếu cũ'})}
+   db.prepare(`UPDATE products SET ${m.bucket}=${m.bucket}+? WHERE id=?`).run(delta,p.id);audit(req,`Hoàn tất phiếu #${m.id}`);
+  }
+  db.prepare('UPDATE movements SET status=? WHERE id=?').run('completed',m.id);db.exec('COMMIT');res.json({ok:true});
+ }catch(e){db.exec('ROLLBACK');throw e}
+});
 app.use('/api',(req,res)=>res.status(404).json({error:'Không tìm thấy API'}));
 app.use((req,res,next)=>{let path;try{path=decodeURIComponent(req.path).replaceAll('\\','/')}catch{return res.sendStatus(400)}const publicViteDependency=process.env.NODE_ENV!=='production'&&/^\/node_modules\/\.vite\/deps\/[^/]+\.(?:js|css|map)$/.test(path);if(path.split('/').some(segment=>segment.startsWith('.')&&segment!=='.well-known'&&!(segment==='.vite'&&publicViteDependency))||/(?:^|\/)(?:data|test)(?:\/|$)|(?:^|\/)(?:server\.js|package(?:-lock)?\.json)$|\.(?:db|sqlite|sqlite3|db-wal|db-shm|log|pem|key|crt)$/i.test(path))return res.sendStatus(404);next()});
 const httpServer=createHttpServer(app);
