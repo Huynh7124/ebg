@@ -27,6 +27,9 @@ try{
  await page.getByRole('button',{name:'Cài ứng dụng EBG'}).click();await page.getByRole('dialog',{name:'Cài EBG lên thiết bị'}).waitFor();await page.getByRole('button',{name:'Đã hiểu'}).click();
  await page.locator('[name=username]').fill('admin');await page.locator('[name=password]').fill(password);await page.getByRole('button',{name:'Đăng nhập',exact:true}).click();await page.getByRole('heading',{name:'Tổng quan kho.'}).waitFor();
 
+ assert.equal(await page.locator('header').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(194, 53, 56)');assert.equal(await page.locator('.header-logo').isVisible(),true);
+ await page.setViewportSize({width:1440,height:1000});const band=await page.locator('header').boundingBox(),logoBand=await page.locator('.sidebar-brand').boundingBox();assert.equal(band.y,logoBand.y);assert.equal(band.height,logoBand.height);assert.ok(Math.abs(band.x-(logoBand.x+logoBand.width))<=1);await page.screenshot({path:'/tmp/ebg-red-header-desktop.png',fullPage:true});
+ await page.setViewportSize({width:390,height:844});await page.screenshot({path:'/tmp/ebg-red-header-mobile.png',fullPage:true});
  assert.equal(await page.locator('.workspace,.welcome-banner,.help,.eyebrow,.live-dot,.live-label').count(),0);assert.equal(await page.locator('.sidebar-brand img').count(),1);
  await page.locator('.mobile-menu').click();await page.locator('nav').getByRole('button',{name:'Nhân viên',exact:true}).click();
  await page.getByRole('button',{name:'Thêm nhân viên',exact:true}).click();
