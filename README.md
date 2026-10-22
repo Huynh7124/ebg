@@ -116,3 +116,9 @@ Danh sách nhập/xuất hiển thị mỗi phiếu một dòng, đếm số phi
 Hàng đi Anode/sửa: nút **Nhận về kho** nhận về toàn bộ sản phẩm trên phiếu trong một transaction, tạo một phiếu nhập nhiều dòng liên kết với phiếu gốc. Nếu một dòng không đủ điều kiện, chưa nhận về dòng nào. Chưa hỗ trợ nhận về từng phần. Gọi URL hoàn tất theo một dòng của phiếu cũng xử lý cả phiếu, không tách lẻ hoặc cộng tồn hai lần.
 
 Migration thêm bảng header và cột `receiptId`, không gộp hoặc sửa các phiếu lịch sử. Phiếu cũ chưa có header hiển thị mã `CŨ-...` và tiếp tục xem/in/xuất được dưới dạng phiếu một sản phẩm. Giữ nguyên thư mục `data/` khi cập nhật và sao lưu trước khi nâng cấp.
+
+## Tự mở phiếu sau mỗi giao dịch
+
+Mọi lần lưu nhập/xuất mới đều lập phiếu có mã riêng. Sau khi lưu thành công và tải lại dữ liệu, giao diện tự mở ngay phiếu vừa lập để xem, in hoặc xuất CSV; không cần tìm lại trong danh sách. Nhận hàng về từ Anode/sửa cũng tự mở phiếu nhập liên kết vừa tạo. Không tự bật hộp thoại in để tránh in ngoài ý muốn; người dùng bấm **In phiếu** khi cần. Nếu lưu thất bại, form giữ nguyên các dòng để sửa và thử lại.
+
+Chữ nội dung, mô tả, tiêu đề bảng, trạng thái và số liệu đã được tăng độ đậm và tương phản; giữ chữ trắng trên nền đỏ của công ty.

@@ -15,6 +15,7 @@ export default function MovementForm({kind,product,products,action,onClose}){
   <button className="secondary add-receipt-line" type="button" disabled={saving||items.length>=100} onClick={()=>{const key=nextKey.current++;setItems(rows=>[...rows,{key,productId:'',quantity:'1'}])}}><Plus size={16}/>Thêm sản phẩm</button>
   <div className="receipt-total"><span>{items.length} loại sản phẩm</span><b>Tổng số lượng: {total}</b></div>
   <label>Ghi chú chung<textarea name="note" value={note} onChange={e=>setNote(e.target.value)} disabled={saving} placeholder="Thông tin bổ sung cho phiếu (không bắt buộc)..." maxLength={500}/></label>
+  <p className="receipt-required-note">Mỗi lần lưu sẽ lập một phiếu mới có mã riêng và mở phiếu để bạn xem hoặc in ngay.</p>
   <p className="form-hint">{waiting?'Trừ tồn kho ngay cho cả phiếu. Khi hàng trả lại đầy đủ, chọn “Nhận về kho” trên phiếu.':operation==='receive_faulty'?'Hàng lỗi được theo dõi riêng, không cộng vào tồn kho chính.':kind==='in'?'Cộng số lượng từng sản phẩm vào tồn kho chính.':'Trừ số lượng từng sản phẩm từ tồn kho chính.'} Nếu có dòng không hợp lệ, toàn bộ phiếu sẽ chưa được lưu.</p>
   <div className="modal-actions"><button type="button" className="secondary" onClick={onClose} disabled={saving}>Hủy</button><button className="primary" disabled={saving}>{saving?'Đang lưu...':'Tạo phiếu '+(kind==='in'?'nhập':'xuất')}</button></div>
  </form>
