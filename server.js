@@ -1,3 +1,4 @@
+import {validateOutboundPrint} from './shared/outbound-print.js';
 import {movementTypes,receiptCode} from './shared/movements.js';
 import express from 'express';
 import {createServer as createHttpServer} from 'node:http';
@@ -27,6 +28,7 @@ db.exec('CREATE TABLE IF NOT EXISTS receipts(id INTEGER PRIMARY KEY AUTOINCREMEN
 if(!db.prepare('PRAGMA table_info(movements)').all().some(c=>c.name==='receiptId'))db.exec('ALTER TABLE movements ADD COLUMN receiptId INTEGER');
 db.exec('CREATE INDEX IF NOT EXISTS movements_receipt_idx ON movements(receiptId)');
 if(!db.prepare('PRAGMA table_info(products)').all().some(c=>c.name==='unitType'))db.exec("ALTER TABLE products ADD COLUMN unitType TEXT NOT NULL DEFAULT ''");
+for(const table of ['receipts','movements'])if(!db.prepare(`PRAGMA table_info(${table})`).all().some(c=>c.name==='printData'))db.exec(`ALTER TABLE ${table} ADD COLUMN printData TEXT`);
 const initialPassword=process.env.INITIAL_ADMIN_PASSWORD||randomBytes(12).toString('base64url');
 if(!db.prepare('SELECT id FROM users LIMIT 1').get()){
 for(const [name,username,role] of [['Nguyễn Minh','admin','admin'],['Nhân viên kho','kho','staff']])db.prepare('INSERT INTO users(name,username,password,role) VALUES(?,?,?,?)').run(name,username,bcrypt.hashSync(initialPassword,12),role);
@@ -46,7 +48,7 @@ class SQLiteStore extends session.Store {
  set(sid,value,cb){try{db.prepare('INSERT OR REPLACE INTO sessions(sid,data,expires) VALUES(?,?,?)').run(sid,JSON.stringify(value),value.cookie.expires?new Date(value.cookie.expires).getTime():Date.now()+8*3600000);db.prepare('DELETE FROM sessions WHERE expires<?').run(Date.now());cb?.()}catch(e){cb?.(e)}}
  destroy(sid,cb){try{db.prepare('DELETE FROM sessions WHERE sid=?').run(sid);cb?.()}catch(e){cb?.(e)}}
 }
-const app=express();if(process.env.TRUST_PROXY==='1')app.set('trust proxy',1);app.disable('x-powered-by');app.use(helmet({contentSecurityPolicy:process.env.NODE_ENV==='production'?undefined:false}));app.use('/api',(req,res,next)=>{res.set('Cache-Control','no-store');next()});app.use(express.json({limit:'100kb'}));app.use(session({store:new SQLiteStore(),secret:process.env.SESSION_SECRET||randomBytes(32).toString('hex'),resave:false,saveUninitialized:false,cookie:{httpOnly:true,sameSite:'strict',secure:process.env.COOKIE_SECURE==='true',maxAge:8*3600000}}));
+const app=express();if(process.env.TRUST_PROXY==='1')app.set('trust proxy',1);app.disable('x-powered-by');app.use(helmet({contentSecurityPolicy:process.env.NODE_ENV==='production'?undefined:false}));app.use('/api',(req,res,next)=>{res.set('Cache-Control','no-store');next()});app.use(express.json({limit:'512kb'}));app.use(session({store:new SQLiteStore(),secret:process.env.SESSION_SECRET||randomBytes(32).toString('hex'),resave:false,saveUninitialized:false,cookie:{httpOnly:true,sameSite:'strict',secure:process.env.COOKIE_SECURE==='true',maxAge:8*3600000}}));
 const publicUser=user=>user?{name:user.name,role:user.role}:null;
 const audit=(req,action)=>db.prepare('INSERT INTO audit(user,action,date) VALUES(?,?,?)').run(req.session.user.name,action,new Date().toISOString());
 app.use('/api',(req,res,next)=>{if(req.session.user){const current=db.prepare('SELECT id,name,role,locked FROM users WHERE id=?').get(req.session.user.id);if(!current||current.locked)delete req.session.user;else req.session.user={id:current.id,name:current.name,role:current.role}}next()});
@@ -131,6 +133,20 @@ app.post(['/api/receipts/:id/complete','/api/movements/:id/complete'],(req,res)=
   if(header)db.prepare('UPDATE receipts SET status=? WHERE id=?').run('completed',header.id);
   audit(req,`${isReturn?'Nhận về kho':'Hoàn tất phiếu cũ'} ${source}: ${lines.map((m,i)=>`${m.quantity} × ${products[i].code}`).join(', ')}`);
   db.exec('COMMIT');res.json({ok:true,receiptId:returnedId});
+ }catch(e){db.exec('ROLLBACK');throw e}
+});
+app.post(['/api/receipts/:id/print','/api/movements/:id/print'],(req,res)=>{
+ db.exec('BEGIN IMMEDIATE');
+ try{
+  let header,items;
+  if(req.path.startsWith('/api/receipts/')){header=db.prepare('SELECT * FROM receipts WHERE id=?').get(req.params.id);items=header?db.prepare('SELECT * FROM movements WHERE receiptId=? ORDER BY id').all(header.id):[]}
+  else{const m=db.prepare('SELECT * FROM movements WHERE id=?').get(req.params.id);header=m?.receiptId?db.prepare('SELECT * FROM receipts WHERE id=?').get(m.receiptId):null;items=m?(header?db.prepare('SELECT * FROM movements WHERE receiptId=? ORDER BY id').all(header.id):[m]):[]}
+  if(!items.length){db.exec('ROLLBACK');return res.status(404).json({error:'Không tìm thấy phiếu'})}
+  if((header||items[0]).kind!=='out'){db.exec('ROLLBACK');return res.status(400).json({error:'Mẫu này chỉ dành cho phiếu xuất kho'})}
+  let clean;try{clean=validateOutboundPrint(req.body.printData,items)}catch(e){db.exec('ROLLBACK');return res.status(400).json({error:e.message})}
+  const table=header?'receipts':'movements',id=header?.id||items[0].id;
+  db.prepare(`UPDATE ${table} SET printData=? WHERE id=?`).run(JSON.stringify(clean),id);
+  const code=header?receiptCode(header):`CŨ-${String(id).padStart(6,'0')}`;audit(req,`Chỉnh thông tin bản in phiếu ${code}`);db.exec('COMMIT');res.json({ok:true,receiptKey:header?`receipt:${id}`:`movement:${id}`});
  }catch(e){db.exec('ROLLBACK');throw e}
 });
 app.use('/api',(req,res)=>res.status(404).json({error:'Không tìm thấy API'}));

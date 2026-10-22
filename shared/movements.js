@@ -15,5 +15,5 @@ export function groupReceipts(movements,headers=[]){
   if(!groups.has(key))groups.set(key,{...(header||m),key,legacy:!header,code:header?receiptCode(header):`CŨ-${String(m.id).padStart(6,'0')}`,completePath:header?`receipts/${header.id}/complete`:`movements/${m.id}/complete`,items:[],quantity:0});
   const r=groups.get(key);r.items.push(m);r.quantity+=m.quantity;
  }
- return [...groups.values()];
+ return [...groups.values()].map(r=>({...r,items:r.items.sort((a,b)=>a.id-b.id)}));
 }

@@ -26,6 +26,7 @@
   "homepage": "https://github.com/Huynh7124/ebg#readme",
   "dependencies": {
     "@fontsource/be-vietnam-pro": "^5.3.0",
+    "@fontsource/k2d": "^5.3.0",
     "bcryptjs": "^3.0.3",
     "express": "^5.3.0",
     "express-rate-limit": "^8.7.1",

@@ -136,3 +136,13 @@ Danh sách phiếu giữ nguyên toàn bộ phiếu khi có ít nhất một dò
 Màn hình chưa đăng nhập chỉ có một hộp thoại ở giữa với logo gốc trên nền đỏ, Gmail/email, mật khẩu tài khoản kho và nút Đăng nhập. Không có banner, khẩu hiệu hay nút cài ứng dụng nổi ở màn hình này. Nút cài ứng dụng xuất hiện sau đăng nhập; thông báo mất mạng vẫn hoạt động.
 
 Đăng nhập hiện vẫn xác thực tài khoản trong SQLite, chưa phải OAuth/Google Sign-In. Nhập mật khẩu của tài khoản kho được Admin cấp, không nhập mật khẩu hộp thư Google. Tên đăng nhập cũ vẫn được backend chấp nhận để không khóa người dùng hiện có. Tích hợp popup Google cần cấu hình dự án Firebase/OAuth và kiểm tra quyền tài khoản trước khi cho truy cập kho.
+
+## Mẫu in phiếu xuất theo Excel nội bộ
+
+Phiếu xuất dùng bố cục của sheet **PXK (MẪU)** trong file `Xuất kho nội bộ.xlsx` do chủ kho cung cấp: logo và thông tin công ty/MST/địa chỉ/liên hệ, tiêu đề Phiếu Xuất Kho, số/ngày phiếu, kho, phòng ban giao–nhận, lý do; bảng **No – Nhóm – Tên hàng – ĐVT – SL – Ghi chú**; nội dung xác nhận và hai ô ký Người lập phiếu / Người nhận hàng. Font K2D được phục vụ cục bộ. Bản in A4 dọc, tối thiểu 5 dòng như mẫu; nhiều sản phẩm sẽ tiếp tục sang trang sau, không cắt bớt dòng. Phiếu nhập giữ mẫu trước đây.
+
+Mở phiếu xuất → **Chỉnh thông tin trước khi in** để sửa thông tin công ty, tiêu đề, số/ngày trên bản in, kho, bên giao/nhận, lý do, người ký, nội dung xác nhận và tên/nhóm/ĐVT/ghi chú hiển thị từng dòng. Có thể lưu rồi mở lại. Bấm **In phiếu** cũng tự lưu các thay đổi hợp lệ trước khi mở hộp thoại in; dùng Lưu thành PDF của trình duyệt nếu cần. Mã hệ thống luôn in cuối phiếu để đối chiếu kể cả khi đổi số phiếu hiển thị.
+
+Số lượng, sản phẩm gốc và tác động tồn kho không thay đổi bởi chỉnh bản in. Không cho thêm/xóa dòng hoặc đổi số lượng qua API mẫu in; cần nghiệp vụ điều chỉnh kho riêng nếu giao dịch sai số lượng. CSV vẫn xuất dữ liệu giao dịch gốc, không dùng tên/ghi chú ghi đè của mẫu in.
+
+Thông tin in lưu dưới dạng `printData` trên header `receipts`, hoặc dòng `movements` cho phiếu cũ, có nhật ký ai chỉnh. Dùng API `POST /api/receipts/:id/print` hoặc `/api/movements/:id/print`, yêu cầu đăng nhập và CSRF như các thao tác kho khác. Chỉ lưu các trường bản in đã kiểm tra độ dài, ngày, đúng ID dòng; không cập nhật tồn. Migration thêm cột nếu thiếu, giữ nguyên `data/`. File Excel đính kèm và các dữ liệu lịch sử trong các sheet khác không được đưa lên repository.
