@@ -68,3 +68,17 @@ Khi khởi động bản mới, migration tự thêm cột trạng thái nếu c
 Bản sửa cho phép Vite phục vụ đúng các module giao diện công khai ở `/node_modules/.vite/deps/*.js` mà vẫn chặn file riêng tư, file metadata và đường dẫn database. Kênh cập nhật giao diện Vite dùng chung HTTP server với Express. Nếu đã gặp 404 với `react.js`, `react-dom_client.js` hoặc `react_jsx-dev-runtime.js`, cập nhật mã nguồn rồi dừng và khởi động lại `npm run dev`, sau đó tải lại trang.
 
 Có thể chạy `npm run test:dev` để kiểm tra giao diện dev bằng Chromium (hỗ trợ `CHROMIUM_PATH`); kiểm thử dùng thư mục dữ liệu tạm, không dùng database kho. Biến `DATA_DIR` cho phép chỉ định thư mục lưu SQLite, mặc định vẫn là `data/`; không đổi biến này trên máy thật nếu chưa chuyển dữ liệu sang thư mục tương ứng.
+
+## Đăng nhập bằng email và tạo tài khoản chủ kho trên máy chạy ứng dụng
+
+Admin có thể gán email cho nhân viên trong màn hình Nhân viên. Email là duy nhất (không phân biệt hoa/thường), dùng được thay cho tên đăng nhập; tên đăng nhập cũ vẫn hoạt động. Email chưa được xác minh và chưa có chức năng gửi thư tự động. Email không được dùng để tự cấp quyền.
+
+Để tạo một tài khoản Admin mới trên chính máy chứa database, chạy bản mới một lần để cập nhật schema, dừng máy chủ rồi mở Terminal/PowerShell trong thư mục dự án:
+
+```sh
+npm run account:create -- --email owner@example.com --name "Chủ kho" --role admin
+```
+
+Nhập mật khẩu 12–128 ký tự và xác nhận khi được hỏi. Mật khẩu được che bằng dấu `*`, chỉ lưu bcrypt, không ghi vào mã nguồn hoặc in ra log. Lệnh không ghi đè tài khoản có sẵn và không gửi email. Có thể dùng `--role staff` để tạo Nhân viên. Lệnh áp dụng cho database trên máy đang chạy lệnh (`DATA_DIR` hoặc thư mục `data/` mặc định); tạo trên một máy không tự tạo tài khoản trên máy khác. Khởi động lại ứng dụng rồi đăng nhập bằng email và mật khẩu vừa nhập.
+
+Việc tải ZIP từ GitHub không mang theo tài khoản hoặc database. Không đặt email/mật khẩu của chủ kho cố định trong source. Muốn dùng thư xác minh/đặt mật khẩu cần tích hợp Firebase Authentication hoặc dịch vụ gửi thư riêng; hiện chưa cấu hình hoặc gửi bất kỳ email nào.

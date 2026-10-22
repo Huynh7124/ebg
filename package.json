@@ -9,7 +9,8 @@
     "start": "node server.js --production",
     "test": "node --test",
     "test:pwa": "node scripts/check-pwa.mjs",
-    "test:dev": "node scripts/check-dev.mjs"
+    "test:dev": "node scripts/check-dev.mjs",
+    "account:create": "node scripts/create-account.mjs"
   },
   "repository": {
     "type": "git",
