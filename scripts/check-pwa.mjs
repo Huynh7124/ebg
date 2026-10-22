@@ -31,7 +31,7 @@ try{
  await page.getByRole('button',{name:'Cài ứng dụng EBG'}).click();await page.getByRole('dialog',{name:'Cài EBG lên thiết bị'}).waitFor();await page.getByRole('button',{name:'Đã hiểu'}).click();
  assert.equal(await page.locator('header').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(194, 53, 56)');assert.equal(await page.locator('.header-logo').isVisible(),true);
  await page.setViewportSize({width:1440,height:1000});const band=await page.locator('header').boundingBox(),navBand=await page.locator('.top-nav').boundingBox();assert.equal(band.x,0);assert.equal(band.width,1440);assert.ok(navBand.y>=band.y+band.height);assert.equal(await page.locator('aside,.sidebar,.mobile-menu').count(),0);assert.equal(await page.locator('.top-nav svg').count(),0);await page.screenshot({path:'/tmp/ebg-red-header-desktop.png',fullPage:true});
- await page.setViewportSize({width:390,height:844});await page.screenshot({path:'/tmp/ebg-red-header-mobile.png',fullPage:true});
+ await page.setViewportSize({width:390,height:844});await page.screenshot({path:'/tmp/ebg-red-header-mobile.png',fullPage:true});await page.evaluate(()=>window.scrollTo(0,500));const pinnedHeader=await page.locator('header').boundingBox(),pinnedNav=await page.locator('.top-nav').boundingBox();assert.equal(pinnedHeader.y,0);assert.equal(pinnedNav.y,pinnedHeader.height);assert.ok((await page.locator('.top-nav button').first().boundingBox()).height>=44);await page.evaluate(()=>window.scrollTo(0,0));
  assert.equal(await page.locator('.page-heading h1 + p,.heading-dot').count(),0);
  assert.equal(await page.locator('.workspace,.welcome-banner,.help,.eyebrow,.live-dot,.live-label').count(),0);assert.equal(await page.locator('.header-logo img').count(),1);
 
