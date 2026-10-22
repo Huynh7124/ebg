@@ -99,8 +99,20 @@ Logo trong web dùng `public/brand/Asset-4.png.webp`. Favicon, Apple Touch Icon 
 | Xuất kho đi Anode | Trừ kho chính ngay, cộng số lượng đang Anode, phiếu chờ |
 | Xuất kho đi sửa | Trừ kho chính ngay, cộng số lượng đang sửa, phiếu chờ |
 
-Form chỉ chọn loại phiếu, sản phẩm, số lượng và ghi chú. API dùng `operation` tương ứng `receive_stock`, `receive_faulty`, `issue_stock`, `send_anode`, `send_repair`. Không cho tạo loại nhập Anode hoặc xuất lỗi; không tin `bucket`/`status` do client gửi để thay đổi tác động tồn. Cả ba loại xuất trong phiên bản này đều lấy hàng từ kho chính.
+Form chọn một loại phiếu, thêm nhiều dòng sản phẩm và số lượng bằng nút Thêm sản phẩm, cùng một ghi chú chung. API dùng `operation` tương ứng `receive_stock`, `receive_faulty`, `issue_stock`, `send_anode`, `send_repair`. Không cho tạo loại nhập Anode hoặc xuất lỗi; không tin `bucket`/`status` do client gửi để thay đổi tác động tồn. Cả ba loại xuất trong phiên bản này đều lấy hàng từ kho chính.
 
 Khi hàng gửi Anode/sửa thực sự trả lại, bấm **Nhận về kho** trên phiếu chờ. Thao tác giảm số đang gửi, cộng kho chính, hoàn tất phiếu gốc và tạo phiếu Nhập kho có ghi rõ số phiếu nguồn. Toàn bộ thao tác nằm trong cùng transaction; bấm lại bị từ chối, không cộng tồn hai lần. Hiện nhận về toàn bộ số lượng của phiếu, chưa hỗ trợ nhận về từng phần.
 
 Khi nâng cấp, giữ nguyên `data/`. Migration thêm trường `faulty` cho sản phẩm và `operation` cho phiếu, không tính lại số dư cũ hoặc đổi nội dung phiếu cũ. Phiếu lịch sử chưa có `operation` hiển thị nhãn “phiếu cũ”, giữ nguyên cơ chế hoàn tất trước đây để không sai tồn. Không tự chuyển số dư nhóm “sửa/lỗi” cũ sang hàng lỗi vì không có đủ thông tin để phân loại chính xác.
+
+## Một phiếu nhiều sản phẩm
+
+Form nhập/xuất có nút **Thêm sản phẩm**, số lượng riêng từng dòng, nút xóa dòng và tổng số lượng. Mỗi phiếu có một loại nhập/xuất chung, một ghi chú chung, từ 1 đến 100 sản phẩm không trùng nhau. Một lần lưu tạo một header trong `receipts`, các dòng trong `movements` cùng `receiptId` và một bản ghi lịch sử. Mã phiếu dạng `PN-000001` / `PX-000002`.
+
+API `POST /api/movements` nhận `{ operation, items: [{ productId, quantity }], note }`; định dạng một dòng cũ vẫn được hỗ trợ để tương thích. API kiểm tra tất cả dòng bên trong transaction trước khi ghi. Nếu có sản phẩm khóa, thiếu tồn, số lượng sai hoặc trùng sản phẩm, không dòng nào được cập nhật, không tạo phiếu hoặc lịch sử dở dang.
+
+Danh sách nhập/xuất hiển thị mỗi phiếu một dòng, đếm số phiếu thay vì số dòng sản phẩm. **Xem phiếu** mở chi tiết tất cả sản phẩm, tổng số lượng, người lập, ngày và ghi chú. Có thể **In phiếu** (hoặc lưu PDF trong hộp thoại in) và **Xuất CSV phiếu** riêng. CSV theo ngày/tuần/tháng/năm vẫn có từng dòng sản phẩm, dùng chung mã phiếu để đối chiếu.
+
+Hàng đi Anode/sửa: nút **Nhận về kho** nhận về toàn bộ sản phẩm trên phiếu trong một transaction, tạo một phiếu nhập nhiều dòng liên kết với phiếu gốc. Nếu một dòng không đủ điều kiện, chưa nhận về dòng nào. Chưa hỗ trợ nhận về từng phần. Gọi URL hoàn tất theo một dòng của phiếu cũng xử lý cả phiếu, không tách lẻ hoặc cộng tồn hai lần.
+
+Migration thêm bảng header và cột `receiptId`, không gộp hoặc sửa các phiếu lịch sử. Phiếu cũ chưa có header hiển thị mã `CŨ-...` và tiếp tục xem/in/xuất được dưới dạng phiếu một sản phẩm. Giữ nguyên thư mục `data/` khi cập nhật và sao lưu trước khi nâng cấp.
