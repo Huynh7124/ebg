@@ -27,6 +27,7 @@ try{
  await page.getByRole('button',{name:'Cài ứng dụng EBG'}).click();await page.getByRole('dialog',{name:'Cài EBG lên thiết bị'}).waitFor();await page.getByRole('button',{name:'Đã hiểu'}).click();
  await page.locator('[name=username]').fill('admin');await page.locator('[name=password]').fill(password);await page.getByRole('button',{name:'Đăng nhập',exact:true}).click();await page.getByRole('heading',{name:'Tổng quan kho.'}).waitFor();
 
+ assert.equal(await page.locator('.workspace,.welcome-banner,.help,.eyebrow,.live-dot,.live-label').count(),0);assert.equal(await page.locator('.sidebar-brand img').count(),1);
  await page.locator('.mobile-menu').click();await page.locator('nav').getByRole('button',{name:'Nhân viên',exact:true}).click();
  await page.getByRole('button',{name:'Thêm nhân viên',exact:true}).click();
  let dialog=page.getByRole('dialog',{name:'Thêm nhân viên'});await dialog.locator('[name=name]').fill('Nhân viên kiểm thử');await dialog.locator('[name=username]').fill('ui_staff');await dialog.locator('[name=password]').fill(password);await dialog.getByRole('button',{name:'Lưu nhân viên'}).click();await dialog.waitFor({state:'hidden'});
