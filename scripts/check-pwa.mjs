@@ -18,6 +18,10 @@ try{
  await page.evaluate(async()=>{await navigator.serviceWorker.ready});
  await page.reload();
  assert.equal(await page.evaluate(()=>Boolean(navigator.serviceWorker.controller)),true);
+ await page.getByRole('heading',{name:'Chào mừng trở lại'}).waitFor();
+ const brand=page.locator('.brand img').first();assert.equal(await brand.getAttribute('src'),'/brand/ebg-logo.webp');assert.ok(await brand.evaluate(img=>img.complete&&img.naturalWidth>0));
+ const logoResponse=await context.request.get('http://localhost:3195/brand/ebg-logo.webp');assert.equal(logoResponse.status(),200);assert.equal(logoResponse.headers()['content-type'],'image/webp');
+ const favicon=page.locator('link[rel="icon"]');assert.equal(await favicon.getAttribute('href'),'/icons/favicon-32.png');assert.equal((await context.request.get('http://localhost:3195/icons/favicon-32.png')).status(),200);
  const manifest=await(await context.request.get('http://localhost:3195/manifest.webmanifest')).json();assert.equal(manifest.display,'standalone');
  for(const icon of manifest.icons){const r=await context.request.get('http://localhost:3195'+icon.src);assert.equal(r.status(),200);assert.equal(r.headers()['content-type'],'image/png')}
  await page.getByRole('button',{name:'Cài ứng dụng EBG'}).click();await page.getByRole('dialog',{name:'Cài EBG lên thiết bị'}).waitFor();await page.getByRole('button',{name:'Đã hiểu'}).click();
@@ -41,7 +45,7 @@ try{
  assert.ok(cached.includes('/index.html'));assert.ok(cached.some(p=>p.endsWith('.js')));assert.ok(cached.every(p=>!p.startsWith('/api')&&!p.includes('/data/')));
  await context.setOffline(true);await page.getByRole('status').filter({hasText:'Bạn đang ngoại tuyến'}).waitFor();await page.reload();await page.getByRole('heading',{name:'Chào mừng trở lại'}).waitFor();assert.equal(await page.getByRole('heading',{name:'Tổng quan kho.'}).count(),0);
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);assert.deepEqual(errors,[]);
- console.log('PASS: admin employee/category create/edit/lock, staff controls hidden, production manifest/icons, active service worker, install help, authenticated API stays out of cache, offline shell without inventory, mobile layout.');
+ console.log('PASS: admin employee/category create/edit/lock, staff controls hidden, production brand logo/favicon/manifest/icons, active service worker, install help, authenticated API stays out of cache, offline shell without inventory, mobile layout.');
 }finally{
  await browser?.close();if(child.exitCode===null){child.kill();await new Promise(r=>child.once('exit',r))}await rm(root,{recursive:true,force:true});
 }
