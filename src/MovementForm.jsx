@@ -1,15 +1,19 @@
+import ProductSearchFilters from './ProductSearchFilters.jsx';
+import {emptyProductFilters,matchesProduct,unitTypeNames} from '../shared/product-filters.js';
 import React,{useRef,useState} from 'react';
 import {Plus,Trash2} from 'lucide-react';
 import {movementTypes} from '../shared/movements.js';
 export default function MovementForm({kind,product,products,action,onClose}){
- const [operation,setOperation]=useState(kind==='in'?'receive_stock':'issue_stock'),[items,setItems]=useState([{key:1,productId:String(product?.id||''),quantity:'1'}]),[saving,setSaving]=useState(false),[note,setNote]=useState('');const nextKey=useRef(2);
+ const [operation,setOperation]=useState(kind==='in'?'receive_stock':'issue_stock'),[items,setItems]=useState([{key:1,productId:String(product?.id||''),quantity:'1'}]),[saving,setSaving]=useState(false),[note,setNote]=useState(''),[filters,setFilters]=useState({...emptyProductFilters});const nextKey=useRef(2);
  const waiting=['send_anode','send_repair'].includes(operation),total=items.reduce((sum,item)=>sum+(Number(item.quantity)||0),0);
  const update=(key,field,value)=>setItems(rows=>rows.map(row=>row.key===key?{...row,[field]:value}:row));
  return <form onSubmit={async e=>{e.preventDefault();if(saving)return;setSaving(true);try{await action('movements',{kind,operation,note,items:items.map(({productId,quantity})=>({productId,quantity}))})}finally{setSaving(false)}}}>
   <label>Loại {kind==='in'?'nhập':'xuất'}<select name="operation" value={operation} onChange={e=>setOperation(e.target.value)} disabled={saving}>{Object.entries(movementTypes).filter(([,type])=>type.kind===kind).map(([value,type])=><option key={value} value={value}>{type.label}</option>)}</select></label>
+  <ProductSearchFilters products={products.filter(p=>!p.locked)} value={filters} onChange={setFilters} disabled={saving}/>
+  <p className="form-hint">Có {products.filter(p=>!p.locked&&matchesProduct(p,filters)).length} sản phẩm phù hợp. Đổi bộ lọc không xóa các sản phẩm đã chọn trên phiếu.</p>
   <div className="receipt-lines">{items.map((item,index)=>{const selected=products.find(p=>String(p.id)===item.productId);return <div className="receipt-line" key={item.key}>
    <div className="line-heading"><b>Sản phẩm {index+1}</b><button className="icon-button" type="button" aria-label={'Xóa dòng '+(index+1)} disabled={items.length===1||saving} onClick={()=>setItems(rows=>rows.filter(row=>row.key!==item.key))}><Trash2 size={17}/></button></div>
-   <label>Sản phẩm<select name="productId" aria-label={'Sản phẩm dòng '+(index+1)} required value={item.productId} onChange={e=>update(item.key,'productId',e.target.value)} disabled={saving}><option value="">Chọn sản phẩm</option>{products.filter(p=>!p.locked).map(p=><option value={p.id} key={p.id} disabled={items.some(other=>other.key!==item.key&&other.productId===String(p.id))}>{p.code} — {p.name}</option>)}</select></label>
+   <label>Sản phẩm<select name="productId" aria-label={'Sản phẩm dòng '+(index+1)} required value={item.productId} onChange={e=>update(item.key,'productId',e.target.value)} disabled={saving}><option value="">Chọn sản phẩm</option>{products.filter(p=>!p.locked&&(String(p.id)===item.productId||matchesProduct(p,filters))).map(p=><option value={p.id} key={p.id} disabled={items.some(other=>other.key!==item.key&&other.productId===String(p.id))}>{p.code} — {p.name} · {p.color} · {unitTypeNames[p.unitType||'']}</option>)}</select></label>
    <div className="line-quantity"><label>Số lượng<input name="quantity" aria-label={'Số lượng dòng '+(index+1)} type="number" min="1" max={kind==='out'&&selected?selected.stock:undefined} step="1" required value={item.quantity} onChange={e=>update(item.key,'quantity',e.target.value)} disabled={saving}/></label>{selected&&<p className="form-hint">Tồn kho: <b>{selected.stock}</b><br/>Hàng lỗi: <b>{selected.faulty||0}</b></p>}</div>
   </div>})}</div>
   <button className="secondary add-receipt-line" type="button" disabled={saving||items.length>=100} onClick={()=>{const key=nextKey.current++;setItems(rows=>[...rows,{key,productId:'',quantity:'1'}])}}><Plus size={16}/>Thêm sản phẩm</button>

@@ -122,3 +122,11 @@ Migration thêm bảng header và cột `receiptId`, không gộp hoặc sửa c
 Mọi lần lưu nhập/xuất mới đều lập phiếu có mã riêng. Sau khi lưu thành công và tải lại dữ liệu, giao diện tự mở ngay phiếu vừa lập để xem, in hoặc xuất CSV; không cần tìm lại trong danh sách. Nhận hàng về từ Anode/sửa cũng tự mở phiếu nhập liên kết vừa tạo. Không tự bật hộp thoại in để tránh in ngoài ý muốn; người dùng bấm **In phiếu** khi cần. Nếu lưu thất bại, form giữ nguyên các dòng để sửa và thử lại.
 
 Chữ nội dung, mô tả, tiêu đề bảng, trạng thái và số liệu đã được tăng độ đậm và tương phản; giữ chữ trắng trên nền đỏ của công ty.
+
+## Tìm sản phẩm / phiếu theo dòng xe, màu và Đơn/Đôi
+
+Form lập phiếu nhập/xuất và danh sách phiếu có bộ lọc tên/mã sản phẩm, dòng xe, màu sắc và Đơn/Đôi. Các điều kiện kết hợp trên cùng một sản phẩm. Khi đổi bộ lọc trong form, sản phẩm đã chọn vẫn được giữ trên dòng, không bị xóa hoặc mất số lượng. Có nút Xóa bộ lọc và số sản phẩm phù hợp để chọn nhanh.
+
+Thêm/sửa sản phẩm có trường `unitType`: Chưa phân loại (`''`), Đơn (`single`), Đôi (`double`). Migration để trống cho sản phẩm cũ, không tự đoán phân loại; hãy cập nhật trường này nếu cần lọc Đơn/Đôi. Phân loại không tự nhân đôi số lượng nhập/xuất. API xác thực giá trị và giữ phân loại hiện có khi client cũ không gửi trường này.
+
+Danh sách phiếu giữ nguyên toàn bộ phiếu khi có ít nhất một dòng sản phẩm khớp đủ điều kiện. Nút Xuất phiếu CSV ở danh sách kết hợp bộ lọc hiện tại với kỳ ngày/tuần/tháng/năm; xuất tất cả dòng của các phiếu khớp, không tách hoặc cắt mất các sản phẩm còn lại trong phiếu. Chi tiết phiếu và CSV có dòng xe, màu và Đơn/Đôi. Tìm kiếm dùng thuộc tính hiện tại của sản phẩm.

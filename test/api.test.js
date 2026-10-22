@@ -63,4 +63,12 @@ now=(await req('data')).data.products.find(p=>p.id===target.id);const [left,righ
 // Legacy pending receipts still apply their original bucket changes exactly once.
 d=(await req('data')).data;const legacy=d.movements.find(m=>!m.operation&&m.status==='pending');assert.ok(legacy);const oldProduct=d.products.find(p=>p.id===legacy.productId);assert.equal((await req('movements/'+legacy.id+'/complete',{})).status,200);assert.equal((await req('data')).data.products.find(p=>p.id===legacy.productId)[legacy.bucket],oldProduct[legacy.bucket]+legacy.quantity);
 
+// Unit type is a classification, never a quantity multiplier; legacy updates preserve it.
+let classified=(await req('data')).data.products.find(p=>!p.locked);
+assert.equal(classified.unitType,'');assert.equal((await req('products',{...classified,unitType:'double'})).status,200);
+assert.equal((await req('data')).data.products.find(p=>p.id===classified.id).unitType,'double');
+const {unitType:discard,...oldClient}=classified;assert.equal((await req('products',oldClient)).status,200);assert.equal((await req('data')).data.products.find(p=>p.id===classified.id).unitType,'double');
+assert.equal((await req('products',{...classified,unitType:'invalid'})).status,400);
+assert.equal((await req('products',{...classified,id:undefined,code:'UNIT-SINGLE',unitType:'single'})).status,200);assert.equal((await req('data')).data.products.find(p=>p.code==='UNIT-SINGLE').unitType,'single');
+
 });
