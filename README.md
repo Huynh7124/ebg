@@ -130,3 +130,9 @@ Form lập phiếu nhập/xuất và danh sách phiếu có bộ lọc tên/mã 
 Thêm/sửa sản phẩm có trường `unitType`: Chưa phân loại (`''`), Đơn (`single`), Đôi (`double`). Migration để trống cho sản phẩm cũ, không tự đoán phân loại; hãy cập nhật trường này nếu cần lọc Đơn/Đôi. Phân loại không tự nhân đôi số lượng nhập/xuất. API xác thực giá trị và giữ phân loại hiện có khi client cũ không gửi trường này.
 
 Danh sách phiếu giữ nguyên toàn bộ phiếu khi có ít nhất một dòng sản phẩm khớp đủ điều kiện. Nút Xuất phiếu CSV ở danh sách kết hợp bộ lọc hiện tại với kỳ ngày/tuần/tháng/năm; xuất tất cả dòng của các phiếu khớp, không tách hoặc cắt mất các sản phẩm còn lại trong phiếu. Chi tiết phiếu và CSV có dòng xe, màu và Đơn/Đôi. Tìm kiếm dùng thuộc tính hiện tại của sản phẩm.
+
+## Giao diện đăng nhập tối giản
+
+Màn hình chưa đăng nhập chỉ có một hộp thoại ở giữa với logo gốc trên nền đỏ, Gmail/email, mật khẩu tài khoản kho và nút Đăng nhập. Không có banner, khẩu hiệu hay nút cài ứng dụng nổi ở màn hình này. Nút cài ứng dụng xuất hiện sau đăng nhập; thông báo mất mạng vẫn hoạt động.
+
+Đăng nhập hiện vẫn xác thực tài khoản trong SQLite, chưa phải OAuth/Google Sign-In. Nhập mật khẩu của tài khoản kho được Admin cấp, không nhập mật khẩu hộp thư Google. Tên đăng nhập cũ vẫn được backend chấp nhận để không khóa người dùng hiện có. Tích hợp popup Google cần cấu hình dự án Firebase/OAuth và kiểm tra quyền tài khoản trước khi cho truy cập kho.
