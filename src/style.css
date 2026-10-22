@@ -26,3 +26,5 @@
 .brand{width:180px;max-width:100%;line-height:0;background:#000;border-radius:7px;overflow:hidden}.brand img{display:block;width:100%;height:auto;aspect-ratio:2 / 1;object-fit:contain;background:#000}.login-art .brand{width:225px;max-width:100%}@media(max-width:700px){.login-art .brand{display:block;width:132px;margin:0 0 16px}.login-art{gap:0}}
 
 .sidebar-brand{margin-bottom:24px}.sidebar-brand .brand{margin-bottom:0}.heading-actions{padding-top:0}
+
+.brand img{aspect-ratio:630 / 321}

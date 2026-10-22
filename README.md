@@ -37,7 +37,7 @@ Trước khi mở cho người dùng thật:
 
 Có cookie HttpOnly/SameSite, phiên 8 giờ, bcrypt, giới hạn thử đăng nhập, chống CSRF, Helmet, truy vấn SQL có tham số, kiểm tra số lượng và quyền tại API. Đây là phiên bản đầu cho một kho: chưa có MFA, quy trình khôi phục mật khẩu/email, đánh giá bảo mật độc lập. Đổi mật khẩu hiện không thu hồi các phiên khác. Khởi động lại không giữ phiên nếu chưa cấu hình `SESSION_SECRET` ổn định.
 
-“Anote” được giữ nguyên theo yêu cầu như một nhóm hàng riêng, có trạng thái chờ. Xuất phiếu hiện ở định dạng CSV; chưa có mẫu PDF/in theo biểu mẫu doanh nghiệp. Logo giao diện dùng bản ảnh EBG xử lý từ ảnh tham chiếu; các biểu tượng trình duyệt và cài ứng dụng được đóng gói từ cùng bản logo.
+“Anote” được giữ nguyên theo yêu cầu như một nhóm hàng riêng, có trạng thái chờ. Xuất phiếu hiện ở định dạng CSV; chưa có mẫu PDF/in theo biểu mẫu doanh nghiệp. Logo giao diện dùng nguyên tệp Asset-4.png.webp do chủ kho cung cấp; các biểu tượng trình duyệt và cài ứng dụng được đóng gói từ cùng ảnh gốc.
 
 ## Cập nhật bảo mật máy chủ phát triển
 
@@ -85,4 +85,6 @@ Việc tải ZIP từ GitHub không mang theo tài khoản hoặc database. Khô
 
 ## Logo và biểu tượng
 
-Logo trong web dùng `public/brand/ebg-logo.webp`. Favicon, Apple Touch Icon và các icon PWA 192/512 pixel trong `public/icons/` dùng cùng hình EBG trên nền đen, giữ tỷ lệ logo; icon maskable có khoảng trống để hệ điều hành cắt góc mà không mất nội dung. Không sử dụng wordmark dựng bằng chữ hoặc icon tia sét cũ. Các ký hiệu thao tác như tìm kiếm, khóa và chuông vẫn giữ nguyên. Sau khi cập nhật, cần build lại; trình duyệt hoặc ứng dụng PWA đã cài có thể cần đóng/mở lại hoặc cài lại để cập nhật biểu tượng hệ điều hành.
+Logo trong web dùng `public/brand/Asset-4.png.webp`. Favicon, Apple Touch Icon và các icon PWA 192/512 pixel trong `public/icons/` dùng cùng hình EBG trên nền đen, giữ tỷ lệ logo; icon maskable có khoảng trống để hệ điều hành cắt góc mà không mất nội dung. Không sử dụng wordmark dựng bằng chữ hoặc icon tia sét cũ. Các ký hiệu thao tác như tìm kiếm, khóa và chuông vẫn giữ nguyên. Sau khi cập nhật, cần build lại; trình duyệt hoặc ứng dụng PWA đã cài có thể cần đóng/mở lại hoặc cài lại để cập nhật biểu tượng hệ điều hành.
+
+Ảnh `Asset-4.png.webp` được giữ nguyên byte như bản chủ kho tải lên. Logo và favicon WebP tham chiếu trực tiếp ảnh gốc; các icon PNG chỉ thu/phóng theo tỷ lệ và thêm nền đen để đủ kích thước vuông theo yêu cầu của hệ điều hành. Không vẽ lại, đổi màu hoặc cắt nội dung. Khi cần đóng gói lại icon: chạy `CHROMIUM_PATH=/path/to/chromium node scripts/build-brand-icons.mjs` hoặc dùng Chromium của Playwright nếu không đặt biến. Icon đã được commit nên chạy ứng dụng/build thông thường không cần Chromium.

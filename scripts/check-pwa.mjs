@@ -19,9 +19,9 @@ try{
  await page.reload();
  assert.equal(await page.evaluate(()=>Boolean(navigator.serviceWorker.controller)),true);
  await page.getByRole('heading',{name:'Chào mừng trở lại'}).waitFor();
- const brand=page.locator('.brand img').first();assert.equal(await brand.getAttribute('src'),'/brand/ebg-logo.webp');assert.ok(await brand.evaluate(img=>img.complete&&img.naturalWidth>0));
- const logoResponse=await context.request.get('http://localhost:3195/brand/ebg-logo.webp');assert.equal(logoResponse.status(),200);assert.equal(logoResponse.headers()['content-type'],'image/webp');
- const favicon=page.locator('link[rel="icon"]');assert.equal(await favicon.getAttribute('href'),'/icons/favicon-32.png');assert.equal((await context.request.get('http://localhost:3195/icons/favicon-32.png')).status(),200);
+ const brand=page.locator('.brand img').first();assert.equal(await brand.getAttribute('src'),'/brand/Asset-4.png.webp');assert.ok(await brand.evaluate(img=>img.complete&&img.naturalWidth>0));
+ const logoResponse=await context.request.get('http://localhost:3195/brand/Asset-4.png.webp');assert.equal(logoResponse.status(),200);assert.equal(logoResponse.headers()['content-type'],'image/webp');
+ const original=await readFile('public/brand/Asset-4.png.webp');assert.deepEqual(Buffer.from(await logoResponse.body()),original);const favicon=page.locator('link[rel="icon"][type="image/webp"]');assert.equal(await favicon.getAttribute('href'),'/brand/Asset-4.png.webp');assert.equal((await context.request.get('http://localhost:3195/icons/ebg-favicon-32.png')).status(),200);
  const manifest=await(await context.request.get('http://localhost:3195/manifest.webmanifest')).json();assert.equal(manifest.display,'standalone');
  for(const icon of manifest.icons){const r=await context.request.get('http://localhost:3195'+icon.src);assert.equal(r.status(),200);assert.equal(r.headers()['content-type'],'image/png')}
  await page.getByRole('button',{name:'Cài ứng dụng EBG'}).click();await page.getByRole('dialog',{name:'Cài EBG lên thiết bị'}).waitFor();await page.getByRole('button',{name:'Đã hiểu'}).click();
