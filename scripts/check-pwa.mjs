@@ -25,11 +25,12 @@ try{
  const manifest=await(await context.request.get('http://localhost:3195/manifest.webmanifest')).json();assert.equal(manifest.display,'standalone');
  for(const icon of manifest.icons){const r=await context.request.get('http://localhost:3195'+icon.src);assert.equal(r.status(),200);assert.equal(r.headers()['content-type'],'image/png')}
  await page.getByRole('button',{name:'Cài ứng dụng EBG'}).click();await page.getByRole('dialog',{name:'Cài EBG lên thiết bị'}).waitFor();await page.getByRole('button',{name:'Đã hiểu'}).click();
- await page.locator('[name=username]').fill('admin');await page.locator('[name=password]').fill(password);await page.getByRole('button',{name:'Đăng nhập',exact:true}).click();await page.getByRole('heading',{name:'Tổng quan kho.'}).waitFor();
+ await page.locator('[name=username]').fill('admin');await page.locator('[name=password]').fill(password);await page.getByRole('button',{name:'Đăng nhập',exact:true}).click();await page.getByRole('heading',{name:'Tổng quan kho'}).waitFor();
 
  assert.equal(await page.locator('header').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(194, 53, 56)');assert.equal(await page.locator('.header-logo').isVisible(),true);
  await page.setViewportSize({width:1440,height:1000});const band=await page.locator('header').boundingBox(),logoBand=await page.locator('.sidebar-brand').boundingBox();assert.equal(band.y,logoBand.y);assert.equal(band.height,logoBand.height);assert.ok(Math.abs(band.x-(logoBand.x+logoBand.width))<=1);await page.screenshot({path:'/tmp/ebg-red-header-desktop.png',fullPage:true});
  await page.setViewportSize({width:390,height:844});await page.screenshot({path:'/tmp/ebg-red-header-mobile.png',fullPage:true});
+ assert.equal(await page.locator('.page-heading h1 + p,.heading-dot').count(),0);
  assert.equal(await page.locator('.workspace,.welcome-banner,.help,.eyebrow,.live-dot,.live-label').count(),0);assert.equal(await page.locator('.sidebar-brand img').count(),1);
  await page.locator('.mobile-menu').click();await page.locator('nav').getByRole('button',{name:'Nhân viên',exact:true}).click();
  await page.getByRole('button',{name:'Thêm nhân viên',exact:true}).click();
@@ -42,11 +43,12 @@ try{
  await page.getByRole('button',{name:'Khóa danh mục Phanh đã sửa',exact:true}).click();await page.getByRole('button',{name:'Mở khóa danh mục Phanh đã sửa',exact:true}).waitFor();
  await page.getByRole('button',{name:'Mở khóa danh mục Phanh đã sửa',exact:true}).click();await page.getByRole('button',{name:'Khóa danh mục Phanh đã sửa',exact:true}).waitFor();
  await page.locator('.mobile-menu').click();await page.getByRole('button',{name:'Đăng xuất',exact:true}).click();
- await page.locator('[name=username]').fill('ui_staff');await page.locator('[name=password]').fill(password);await page.getByRole('button',{name:'Đăng nhập',exact:true}).click();await page.getByRole('heading',{name:'Tổng quan kho.'}).waitFor();
+ await page.locator('[name=username]').fill('ui_staff');await page.locator('[name=password]').fill(password);await page.getByRole('button',{name:'Đăng nhập',exact:true}).click();await page.getByRole('heading',{name:'Tổng quan kho'}).waitFor();
  assert.equal(await page.locator('nav').getByRole('button',{name:'Nhân viên',exact:true}).count(),0);
  await page.locator('.mobile-menu').click();await page.locator('nav').getByRole('button',{name:'Danh mục',exact:true}).click();assert.equal(await page.getByRole('button',{name:'Thêm danh mục',exact:true}).count(),0);assert.equal(await page.getByRole('button',{name:'Sửa danh mục Phanh đã sửa',exact:true}).count(),0);
 
  await page.locator('.mobile-menu').click();await page.locator('nav').getByRole('button',{name:'Nhập kho',exact:true}).click();await page.getByRole('button',{name:'Tạo phiếu nhập',exact:true}).click();dialog=page.getByRole('dialog');
+ await page.setViewportSize({width:1440,height:1000});assert.ok((await dialog.boundingBox()).width>=1000);await page.setViewportSize({width:390,height:844});const formBox=await dialog.boundingBox();assert.ok(formBox.width>=370&&formBox.x>=0&&formBox.x+formBox.width<=390);
  assert.deepEqual(await dialog.locator('[name=operation] option').allTextContents(),['Nhập kho','Nhập lỗi']);assert.equal(await dialog.locator('[name=bucket],[name=status]').count(),0);
  await dialog.locator('[name=operation]').selectOption('receive_faulty');await dialog.getByRole('combobox',{name:'Sản phẩm dòng 1',exact:true}).selectOption('1');await dialog.getByRole('spinbutton',{name:'Số lượng dòng 1',exact:true}).fill('2');
  await dialog.getByRole('button',{name:'Thêm sản phẩm',exact:true}).click();await dialog.getByRole('combobox',{name:'Sản phẩm dòng 2',exact:true}).selectOption('2');await dialog.getByRole('spinbutton',{name:'Số lượng dòng 2',exact:true}).fill('3');await dialog.getByRole('button',{name:'Thêm sản phẩm',exact:true}).click();await dialog.getByRole('button',{name:'Xóa dòng 3',exact:true}).click();assert.equal(await dialog.locator('.receipt-line').count(),2);
@@ -59,7 +61,7 @@ try{
  const dispatch=page.locator('tbody tr').filter({has:page.getByRole('cell',{name:'Xuất kho đi Anode',exact:true})});await dispatch.getByRole('button',{name:'Nhận về kho',exact:true}).click();dialog=page.getByRole('dialog',{name:/Chi tiết phiếu PN-/});await dialog.waitFor();assert.equal(await dialog.locator('tbody tr').count(),2);await dialog.getByRole('button',{name:'Đóng',exact:true}).click();await dispatch.getByText('Hoàn tất',{exact:true}).waitFor();
  const cached=await page.evaluate(async()=>{const result=[];for(const name of await caches.keys())for(const req of await(await caches.open(name)).keys())result.push(new URL(req.url).pathname);return result});
  assert.ok(cached.includes('/index.html'));assert.ok(cached.some(p=>p.endsWith('.js')));assert.ok(cached.every(p=>!p.startsWith('/api')&&!p.includes('/data/')));
- await context.setOffline(true);await page.getByRole('status').filter({hasText:'Bạn đang ngoại tuyến'}).waitFor();await page.reload();await page.getByRole('heading',{name:'Chào mừng trở lại'}).waitFor();assert.equal(await page.getByRole('heading',{name:'Tổng quan kho.'}).count(),0);
+ await context.setOffline(true);await page.getByRole('status').filter({hasText:'Bạn đang ngoại tuyến'}).waitFor();await page.reload();await page.getByRole('heading',{name:'Chào mừng trở lại'}).waitFor();assert.equal(await page.getByRole('heading',{name:'Tổng quan kho'}).count(),0);
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);assert.deepEqual(errors,[]);
  console.log('PASS: automatically opened receipts after inbound/outbound/return, multi-product receipt add/remove/grouping/detail/CSV/print/Anode return, admin employee/category create/edit/lock, staff controls hidden, production brand logo/favicon/manifest/icons, active service worker, install help, authenticated API stays out of cache, offline shell without inventory, mobile layout.');
 }finally{
