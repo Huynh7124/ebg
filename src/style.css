@@ -107,3 +107,5 @@ header{background:var(--red);color:white;border-bottom-color:var(--red)}.breadcr
 
 .inbound-entry-form{padding:0 22px 22px}.inbound-entry .receipt-line{padding:16px}.inbound-entry .line-quantity{display:flex;align-items:center;gap:20px}.inbound-entry .line-quantity label{max-width:160px}
 @media(max-width:700px){.inbound-entry-form{padding:0 14px 18px}}
+
+.anode-return-check{display:flex;align-items:center;gap:8px;margin:12px 0 0;font-size:13px;white-space:nowrap}.anode-return-check input{width:20px;height:20px;accent-color:var(--red);margin:0;cursor:pointer}.anode-return-check input:disabled{cursor:default}

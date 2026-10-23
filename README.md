@@ -161,3 +161,8 @@ npm run account:reset -- --username admin
 Có thể thay `admin` bằng email hoặc tên đăng nhập. Nhập mật khẩu mới và xác nhận trong terminal; không đặt mật khẩu trong tham số lệnh. Lệnh dùng `DATA_DIR` như server và giữ dữ liệu kho, ghi lịch sử, kết thúc phiên cũ; không mở khóa tài khoản đang bị khóa.
 
 Phiếu xuất dùng bố cục A4, logo đen khi in, chữ 13pt; thông tin bản in có thể chỉnh và lưu riêng từng phiếu mà không thay đổi số lượng kho. Nhập hàng không còn yêu cầu xem hay in phiếu.
+
+
+### Theo dõi Anode
+
+Mục **Anode** hiển thị riêng phiếu Xuất kho đi Anode, đơn vị Nam Thái/Bình Phát, sản phẩm, số lượng và trạng thái. Có bộ lọc **Chờ hàng về / Đã về**, xem phiếu và in trực tiếp. Tích **Đã về** để nhận toàn bộ hàng trên phiếu về kho: giảm số đang Anode, cộng tồn kho chính, lưu người thao tác và chuyển phiếu hoàn tất. Không nhận về từng phần. Phiếu đã về giữ ô tích và không được tích lại; dữ liệu được lưu trên máy chủ, không chỉ trên trình duyệt.

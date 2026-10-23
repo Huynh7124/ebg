@@ -4,8 +4,8 @@ import {emptyProductFilters,matchesProduct,unitTypeNames} from '../shared/produc
 import React,{useRef,useState} from 'react';
 import {Plus,Trash2} from 'lucide-react';
 import {movementTypes} from '../shared/movements.js';
-export default function MovementForm({kind,product,products,action,onClose}){
- const [anodeVendor,setAnodeVendor]=useState('nam_thai'),[operation,setOperation]=useState(kind==='in'?'receive_stock':'issue_stock'),[items,setItems]=useState([{key:1,productId:String(product?.id||''),quantity:'1'}]),[saving,setSaving]=useState(false),[note,setNote]=useState(''),[filters,setFilters]=useState({...emptyProductFilters});const nextKey=useRef(2);
+export default function MovementForm({kind,product,products,action,onClose,initialOperation}){
+ const [anodeVendor,setAnodeVendor]=useState('nam_thai'),[operation,setOperation]=useState(initialOperation||(kind==='in'?'receive_stock':'issue_stock')),[items,setItems]=useState([{key:1,productId:String(product?.id||''),quantity:'1'}]),[saving,setSaving]=useState(false),[note,setNote]=useState(''),[filters,setFilters]=useState({...emptyProductFilters});const nextKey=useRef(2);
  const waiting=['send_anode','send_repair'].includes(operation),total=items.reduce((sum,item)=>sum+(Number(item.quantity)||0),0);
  const update=(key,field,value)=>setItems(rows=>rows.map(row=>row.key===key?{...row,[field]:value}:row));
  return <form onSubmit={async e=>{e.preventDefault();if(saving)return;setSaving(true);try{await action('movements',{kind,operation,note,...(operation==='send_anode'?{anodeVendor}:{}),items:items.map(({productId,quantity})=>({productId,quantity}))})}finally{setSaving(false)}}}>
