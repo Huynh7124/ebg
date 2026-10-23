@@ -86,3 +86,5 @@ header{background:var(--red);color:white;border-bottom-color:var(--red)}.breadcr
 /* Company identification uses consistent bold black text on outbound receipts. */
 .outbound-company strong,.outbound-company p,.outbound-company p span{font-size:13px;font-weight:700;color:#000;line-height:1.5}
 @media print{.outbound-company strong,.outbound-company p,.outbound-company p span{font-size:13pt;font-weight:700;color:#000}}
+/* Uniform type size throughout the printed outbound receipt. */
+@media print{.outbound-receipt .outbound-paper,.outbound-receipt .outbound-paper *{font-size:13pt!important}}
