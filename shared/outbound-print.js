@@ -8,7 +8,7 @@ export function validateOutboundPrint(value,items){
  if(!value||Array.isArray(value)||typeof value!=='object'||value.version!==1||Object.keys(value).some(k=>!['version','lines',...Object.keys(outboundPrintFields)].includes(k)))throw Error('Thông tin mẫu in không hợp lệ');
  const clean={version:1};
  for(const[key,max]of Object.entries(outboundPrintFields)){if(typeof value[key]!=='string'||value[key].length>max)throw Error(`Thông tin ${key} không hợp lệ hoặc quá dài`);clean[key]=value[key].trim()}
- if(!clean.companyName||!clean.title||!clean.documentNumber||!/^\d{4}-\d{2}-\d{2}$/.test(clean.date)||!Number.isFinite(Date.parse(clean.date+'T00:00:00Z'))||new Date(clean.date+'T00:00:00Z').toISOString().slice(0,10)!==clean.date)throw Error('Cần tên công ty, tiêu đề, số phiếu và ngày hợp lệ');
+ if(!clean.companyName||!clean.title||!/^\d{4}-\d{2}-\d{2}$/.test(clean.date)||!Number.isFinite(Date.parse(clean.date+'T00:00:00Z'))||new Date(clean.date+'T00:00:00Z').toISOString().slice(0,10)!==clean.date)throw Error('Cần tên công ty, tiêu đề và ngày hợp lệ');
  if(!Array.isArray(value.lines)||value.lines.length!==items.length)throw Error('Không được thêm hoặc xóa sản phẩm trong bản in');
  const ids=new Set(items.map(item=>item.id)),seen=new Set();clean.lines=value.lines.map(line=>{
   if(!line||!Number.isSafeInteger(line.lineId)||!ids.has(line.lineId)||seen.has(line.lineId)||Object.keys(line).some(k=>!['lineId',...Object.keys(lineFields)].includes(k)))throw Error('Dòng sản phẩm của bản in không hợp lệ; số lượng lấy từ phiếu gốc');

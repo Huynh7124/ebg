@@ -72,3 +72,8 @@ header{background:var(--red);color:white;border-bottom-color:var(--red)}.breadcr
 .outbound-company{width:100%;grid-template-columns:148px minmax(0,1fr);gap:36px;align-items:center}.outbound-company>div:last-child{text-align:left;min-width:0}.outbound-company-logo img{height:auto}.outbound-items{width:100%}.outbound-agreement{text-align:justify}
 @media(max-width:700px){.outbound-company{grid-template-columns:86px minmax(0,1fr);gap:14px}}
 @media print{@page{size:A4 portrait;margin:18mm 16mm}.outbound-paper{width:100%;margin:0;padding:0}.outbound-company{grid-template-columns:36mm minmax(0,1fr);gap:12mm}.outbound-company-logo{padding:0}.outbound-company-logo img{width:100%;height:auto}.outbound-company>div:last-child{text-align:left}.outbound-items{margin-inline:0}}
+
+/* More separation in the company heading; document metadata sits on the right. */
+.outbound-company{gap:72px}.outbound-document-fields{width:70%;max-width:510px;margin:0 0 15px auto}
+@media(max-width:700px){.outbound-company{gap:28px}.outbound-document-fields{width:100%;max-width:290px}}
+@media print{.outbound-company{gap:24mm}.outbound-document-fields{width:110mm;max-width:100%;margin:0 0 5mm auto}}
