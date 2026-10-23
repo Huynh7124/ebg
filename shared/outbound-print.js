@@ -1,5 +1,4 @@
 export const anodeVendors={nam_thai:'Nam Thái',binh_phat:'Bình Phát'};
-export const hasReturnDate=receipt=>!(receipt.operation==='send_anode'&&receipt.anodeVendor==='binh_phat');
 function applyAnodeVendor(data,receipt){return receipt.operation==='send_anode'?{...data,receiverName:anodeVendors[receipt.anodeVendor]||anodeVendors.nam_thai,receiver:'ANODE'}:data}
 export function outboundDocumentNumber(receipt,value=''){
  if(receipt.operation==='issue_stock')return '';
