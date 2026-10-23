@@ -146,3 +146,18 @@ Mở phiếu xuất → **Chỉnh thông tin trước khi in** để sửa thôn
 Số lượng, sản phẩm gốc và tác động tồn kho không thay đổi bởi chỉnh bản in. Không cho thêm/xóa dòng hoặc đổi số lượng qua API mẫu in; cần nghiệp vụ điều chỉnh kho riêng nếu giao dịch sai số lượng. CSV vẫn xuất dữ liệu giao dịch gốc, không dùng tên/ghi chú ghi đè của mẫu in.
 
 Thông tin in lưu dưới dạng `printData` trên header `receipts`, hoặc dòng `movements` cho phiếu cũ, có nhật ký ai chỉnh. Dùng API `POST /api/receipts/:id/print` hoặc `/api/movements/:id/print`, yêu cầu đăng nhập và CSRF như các thao tác kho khác. Chỉ lưu các trường bản in đã kiểm tra độ dài, ngày, đúng ID dòng; không cập nhật tồn. Migration thêm cột nếu thiếu, giữ nguyên `data/`. File Excel đính kèm và các dữ liệu lịch sử trong các sheet khác không được đưa lên repository.
+
+### Tài khoản và khôi phục mật khẩu
+
+- Tài khoản & bảo mật: đổi họ tên hiển thị của chính mình hoặc đổi mật khẩu bằng mật khẩu hiện tại. Admin vẫn sửa tên nhân viên trong mục Nhân viên. Các thao tác cũ giữ tên đã ghi trong lịch sử.
+- Nút con mắt hiện/ẩn mật khẩu đang nhập. Không thể xem lại mật khẩu đã lưu vì database chỉ lưu bản băm.
+- Quên mật khẩu ở trang đăng nhập: nhân viên nhập email hoặc tên đăng nhập để gửi yêu cầu. Admin xem yêu cầu ở mục Nhân viên, chọn đặt lại và lưu mật khẩu mới (12–128 ký tự), sau đó cung cấp trực tiếp cho nhân viên. Các phiên đăng nhập cũ bị thu hồi. Không gửi email tự động; chưa cấu hình SMTP.
+- Nếu quên mật khẩu Admin, chủ máy chủ mở terminal trong thư mục ứng dụng và chạy:
+
+```bash
+npm run account:reset -- --username admin
+```
+
+Có thể thay `admin` bằng email hoặc tên đăng nhập. Nhập mật khẩu mới và xác nhận trong terminal; không đặt mật khẩu trong tham số lệnh. Lệnh dùng `DATA_DIR` như server và giữ dữ liệu kho, ghi lịch sử, kết thúc phiên cũ; không mở khóa tài khoản đang bị khóa.
+
+Phiếu nhập và xuất dùng chung bố cục A4, logo đen khi in, chữ 13pt; thông tin bản in có thể chỉnh và lưu riêng từng phiếu mà không thay đổi số lượng kho.

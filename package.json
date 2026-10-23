@@ -10,7 +10,8 @@
     "test": "node --test",
     "test:pwa": "node scripts/check-pwa.mjs",
     "test:dev": "node scripts/check-dev.mjs",
-    "account:create": "node scripts/create-account.mjs"
+    "account:create": "node scripts/create-account.mjs",
+    "account:reset": "node scripts/reset-password.mjs"
   },
   "repository": {
     "type": "git",

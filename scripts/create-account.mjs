@@ -17,7 +17,7 @@ export function createAccount({databasePath,email,name,role='admin',password}){
   return {email,role};
  }finally{db.close()}
 }
-function hiddenQuestion(label){
+export function hiddenQuestion(label){
  return new Promise((ok,fail)=>{const input=process.stdin;let value='';process.stdout.write(label);emitKeypressEvents(input);input.setRawMode(true);input.resume();
  const finish=()=>{input.off('keypress',key);input.setRawMode(false);input.pause();process.stdout.write('\n')};
  function key(str,k={}){if(k.ctrl&&k.name==='c'){finish();fail(Error('Đã hủy.'));return}if(k.name==='return'){finish();ok(value);return}if(k.name==='backspace'){if(value.length){value=value.slice(0,-1);process.stdout.write('\b \b')}return}if(str&&!k.ctrl&&!k.meta&&!str.includes('\u001b')){value+=str;process.stdout.write('*')}}
