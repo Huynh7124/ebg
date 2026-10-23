@@ -66,3 +66,5 @@ header{background:var(--red);color:white;border-bottom-color:var(--red)}.breadcr
 @media(max-width:360px){.main>header{padding-inline:10px}.header-logo .brand{width:88px}.header-right{gap:6px}}
 /* Preserve the original logo outline as black ink on white paper. */
 @media print{.outbound-company-logo{background:#fff!important}.outbound-company-logo img{filter:brightness(0)}}
+
+.print-browser-hint{font-size:12px;line-height:1.8;color:#454950;margin:0 0 18px;padding:12px 14px;background:#f5f6f8;border-radius:7px}
