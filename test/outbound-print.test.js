@@ -9,3 +9,7 @@ test('outbound print defaults follow worksheet and permit editing display inform
 test('print metadata rejects quantity changes, foreign lines, duplicate rows and invalid dates',()=>{
  for(const mutate of [d=>d.lines[0].quantity=99,d=>d.lines[0].lineId=999,d=>d.lines[1].lineId=d.lines[0].lineId,d=>d.lines.pop(),d=>d.date='2026-02-30',d=>d.companyName='',d=>d.reason='x'.repeat(1001),d=>d.stock=50]){const data=defaultOutboundPrint(receipt,products);mutate(data);assert.throws(()=>validateOutboundPrint(data,receipt.items))}
 });
+test('Anode worksheet fields persist and old print drafts remain readable',()=>{
+ const data=defaultOutboundPrint(receipt,products);assert.equal(data.senderName,'EBG');assert.equal(data.receiverName,'Nam Thái');data.lines[0].returnDate='28/10/2026';const clean=validateOutboundPrint(data,receipt.items);assert.equal(clean.lines[0].returnDate,'28/10/2026');assert.equal(clean.receiverName,'Nam Thái');
+ delete data.senderName;delete data.receiverName;for(const line of data.lines)delete line.returnDate;const legacy=validateOutboundPrint(data,receipt.items);assert.equal(legacy.senderName,'');assert.equal(legacy.lines[0].returnDate,'');assert.equal(legacy.documentNumber,receipt.code);
+});
