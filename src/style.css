@@ -68,3 +68,7 @@ header{background:var(--red);color:white;border-bottom-color:var(--red)}.breadcr
 @media print{.outbound-company-logo{background:#fff!important}.outbound-company-logo img{filter:brightness(0)}}
 
 .print-browser-hint{font-size:12px;line-height:1.8;color:#454950;margin:0 0 18px;padding:12px 14px;background:#f5f6f8;border-radius:7px}
+/* Align the company heading and receipt content to the same page edges. */
+.outbound-company{width:100%;grid-template-columns:148px minmax(0,1fr);align-items:center}.outbound-company>div:last-child{text-align:right;min-width:0}.outbound-company-logo img{height:auto}.outbound-items{width:100%}.outbound-agreement{text-align:justify}
+@media(max-width:700px){.outbound-company{grid-template-columns:86px minmax(0,1fr)}}
+@media print{@page{size:A4 portrait;margin:18mm 16mm}.outbound-paper{width:100%;margin:0;padding:0}.outbound-company{grid-template-columns:36mm minmax(0,1fr);gap:4mm}.outbound-company-logo{padding:0}.outbound-company-logo img{width:100%;height:auto}.outbound-company>div:last-child{text-align:right}.outbound-items{margin-inline:0}}
