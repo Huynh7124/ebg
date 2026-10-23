@@ -1,3 +1,6 @@
+export const anodeVendors={nam_thai:'Nam Thái',binh_phat:'Bình Phát'};
+export const hasReturnDate=receipt=>!(receipt.operation==='send_anode'&&receipt.anodeVendor==='binh_phat');
+function applyAnodeVendor(data,receipt){return receipt.operation==='send_anode'?{...data,receiverName:anodeVendors[receipt.anodeVendor]||anodeVendors.nam_thai,receiver:'ANODE'}:data}
 export function outboundDocumentNumber(receipt,value=''){
  if(receipt.operation==='issue_stock')return '';
  return value.trim()||(receipt.operation==='send_anode'?receipt.code:'');
@@ -6,7 +9,7 @@ export const outboundPrintFields={companyName:180,taxId:40,address:400,email:160
 const lineFields={group:160,name:400,unit:30,note:400,returnDate:80};
 export function defaultOutboundPrint(receipt,products){
  const date=new Date(receipt.date),localDate=[date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');
- return {version:1,companyName:'CÔNG TY TNHH EBIKE GARAGE VIỆT NAM',taxId:'0319279878',address:'C7/17F7 ấp 4A Bình Chánh, TP HCM.',email:'ebgketoan@gmail.com',phone:'+84 979 681 368',title:'Phiếu Xuất Kho',documentNumber:outboundDocumentNumber(receipt,receipt.code),date:localDate,warehouse:'Cao Lỗ',senderName:'EBG',receiverName:receipt.operation==='send_anode'?'Nam Thái':'',sender:'Kho EBG (Bên giao)',receiver:receipt.operation==='send_anode'?'ANODE (Bên nhận)':receipt.operation==='send_repair'?'Bộ phận sửa chữa (Bên nhận)':'Gia Công (Bên nhận)',reason:receipt.note||'',preparedBy:receipt.user||'',receivedBy:'',agreement:'Hai bên đồng ý, thống nhất ký tên. Biên bản được lập thành 02 bản, mỗi bên giữ 01 bản có giá trị pháp lý như nhau.',lines:receipt.items.map(item=>{const p=products.find(p=>p.id===item.productId);return {lineId:item.id,group:p?.category||'',name:p?.name||'Sản phẩm cũ',unit:'Cái',note:'',returnDate:''}})};
+ return {version:1,companyName:'CÔNG TY TNHH EBIKE GARAGE VIỆT NAM',taxId:'0319279878',address:'C7/17F7 ấp 4A Bình Chánh, TP HCM.',email:'ebgketoan@gmail.com',phone:'+84 979 681 368',title:'Phiếu Xuất Kho',documentNumber:outboundDocumentNumber(receipt,receipt.code),date:localDate,warehouse:'Cao Lỗ',senderName:'EBG',receiverName:receipt.operation==='send_anode'?(anodeVendors[receipt.anodeVendor]||'Nam Thái'):'',sender:'Kho EBG (Bên giao)',receiver:receipt.operation==='send_anode'?'ANODE':receipt.operation==='send_repair'?'Bộ phận sửa chữa (Bên nhận)':'Gia Công (Bên nhận)',reason:receipt.note||'',preparedBy:receipt.user||'',receivedBy:'',agreement:'Hai bên đồng ý, thống nhất ký tên. Biên bản được lập thành 02 bản, mỗi bên giữ 01 bản có giá trị pháp lý như nhau.',lines:receipt.items.map(item=>{const p=products.find(p=>p.id===item.productId);return {lineId:item.id,group:p?.category||'',name:p?.name||'Sản phẩm cũ',unit:'Cái',note:'',returnDate:''}})};
 }
 export function validateOutboundPrint(value,items){
  if(!value||Array.isArray(value)||typeof value!=='object'||value.version!==1||Object.keys(value).some(k=>!['version','lines',...Object.keys(outboundPrintFields)].includes(k)))throw Error('Thông tin mẫu in không hợp lệ');
@@ -21,5 +24,5 @@ export function validateOutboundPrint(value,items){
 }
 export function outboundPrintData(receipt,products){
  const defaults=defaultOutboundPrint(receipt,products);if(!receipt.printData)return defaults;
- try{return validateOutboundPrint(typeof receipt.printData==='string'?JSON.parse(receipt.printData):receipt.printData,receipt.items)}catch{return defaults}
+ try{return applyAnodeVendor(validateOutboundPrint(typeof receipt.printData==='string'?JSON.parse(receipt.printData):receipt.printData,receipt.items),receipt)}catch{return defaults}
 }

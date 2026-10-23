@@ -28,6 +28,7 @@ db.exec('CREATE TABLE IF NOT EXISTS receipts(id INTEGER PRIMARY KEY AUTOINCREMEN
 if(!db.prepare('PRAGMA table_info(movements)').all().some(c=>c.name==='receiptId'))db.exec('ALTER TABLE movements ADD COLUMN receiptId INTEGER');
 db.exec('CREATE INDEX IF NOT EXISTS movements_receipt_idx ON movements(receiptId)');
 if(!db.prepare('PRAGMA table_info(products)').all().some(c=>c.name==='unitType'))db.exec("ALTER TABLE products ADD COLUMN unitType TEXT NOT NULL DEFAULT ''");
+if(!db.prepare('PRAGMA table_info(receipts)').all().some(c=>c.name==='anodeVendor'))db.exec('ALTER TABLE receipts ADD COLUMN anodeVendor TEXT');
 for(const table of ['receipts','movements'])if(!db.prepare(`PRAGMA table_info(${table})`).all().some(c=>c.name==='printData'))db.exec(`ALTER TABLE ${table} ADD COLUMN printData TEXT`);
 const initialPassword=process.env.INITIAL_ADMIN_PASSWORD||randomBytes(12).toString('base64url');
 if(!db.prepare('SELECT id FROM users LIMIT 1').get()){
@@ -71,6 +72,8 @@ app.post('/api/categories/:id/lock',adminOnly,(req,res)=>{const c=db.prepare('SE
 app.post('/api/products',(req,res)=>{const p=req.body;const existing=p.id?db.prepare('SELECT * FROM products WHERE id=?').get(p.id):null;if(p.id&&!existing)return res.status(404).json({error:'Không tìm thấy sản phẩm'});const unitType=p.unitType===undefined?(existing?.unitType||''):p.unitType;if(!['','single','double'].includes(unitType))return res.status(400).json({error:'Loại Đơn/Đôi không hợp lệ'});if(!p.name?.trim()||!p.code?.trim()||!Number.isInteger(+p.min)||+p.min<0||!(existing?.category===p.category||db.prepare('SELECT id FROM categories WHERE name=? AND type=? AND locked=0').get(p.category,'accessory'))||!(existing?.vehicle===p.vehicle||db.prepare('SELECT id FROM categories WHERE name=? AND type=? AND locked=0').get(p.vehicle,'vehicle')))return res.status(400).json({error:'Vui lòng nhập đủ thông tin và chọn danh mục có sẵn'});try{if(existing)db.prepare('UPDATE products SET name=?,code=?,category=?,vehicle=?,color=?,min=?,unitType=? WHERE id=?').run(p.name,p.code,p.category,p.vehicle,p.color,+p.min,unitType,p.id);else db.prepare('INSERT INTO products(name,code,category,vehicle,color,min,image,unitType) VALUES(?,?,?,?,?,?,?,?)').run(p.name,p.code,p.category,p.vehicle,p.color,+p.min,'gear',unitType);audit(req,`${existing?'Sửa':'Thêm'} sản phẩm ${p.code}`);res.json({ok:true})}catch{res.status(400).json({error:'Mã sản phẩm đã tồn tại'})}});
 app.post('/api/products/:id/lock',(req,res)=>{const p=db.prepare('SELECT * FROM products WHERE id=?').get(req.params.id);if(!p)return res.sendStatus(404);db.prepare('UPDATE products SET locked=? WHERE id=?').run(p.locked?0:1,p.id);audit(req,`${p.locked?'Mở khóa':'Khóa'} sản phẩm ${p.code}`);res.json({ok:true})});
 app.post('/api/movements',(req,res)=>{
+ const anodeVendor=req.body.operation==='send_anode'?(req.body.anodeVendor===undefined?'nam_thai':req.body.anodeVendor):null;
+ if(req.body.operation==='send_anode'&&!['nam_thai','binh_phat'].includes(anodeVendor))return res.status(400).json({error:'Chọn đơn vị Anode Nam Thái hoặc Bình Phát'});
  const {operation,note}=req.body,type=movementTypes[operation];
  const items=req.body.items===undefined?[{productId:req.body.productId,quantity:req.body.quantity}]:req.body.items;
  if(!type||!Object.hasOwn(movementTypes,operation)||req.body.kind&&req.body.kind!==type.kind||!Array.isArray(items)||items.length<1||items.length>100)return res.status(400).json({error:'Chọn loại phiếu và thêm từ 1 đến 100 sản phẩm'});
@@ -93,7 +96,7 @@ app.post('/api/movements',(req,res)=>{
    products.push(p);
   }
   const date=new Date().toISOString(),cleanNote=String(note||'').slice(0,500);
-  const id=Number(db.prepare('INSERT INTO receipts(kind,operation,note,status,user,date) VALUES(?,?,?,?,?,?)').run(type.kind,operation,cleanNote,status,req.session.user.name,date).lastInsertRowid);
+  const id=Number(db.prepare('INSERT INTO receipts(kind,operation,note,status,user,date,anodeVendor) VALUES(?,?,?,?,?,?,?)').run(type.kind,operation,cleanNote,status,req.session.user.name,date,anodeVendor).lastInsertRowid);
   lines.forEach((line,i)=>{
    const q=line.quantity,p=products[i];
    if(type.kind==='in')db.prepare(`UPDATE products SET ${type.bucket}=${type.bucket}+? WHERE id=?`).run(q,p.id);

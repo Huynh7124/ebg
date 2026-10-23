@@ -1,14 +1,16 @@
+import {anodeVendors} from '../shared/outbound-print.js';
 import ProductSearchFilters from './ProductSearchFilters.jsx';
 import {emptyProductFilters,matchesProduct,unitTypeNames} from '../shared/product-filters.js';
 import React,{useRef,useState} from 'react';
 import {Plus,Trash2} from 'lucide-react';
 import {movementTypes} from '../shared/movements.js';
 export default function MovementForm({kind,product,products,action,onClose}){
- const [operation,setOperation]=useState(kind==='in'?'receive_stock':'issue_stock'),[items,setItems]=useState([{key:1,productId:String(product?.id||''),quantity:'1'}]),[saving,setSaving]=useState(false),[note,setNote]=useState(''),[filters,setFilters]=useState({...emptyProductFilters});const nextKey=useRef(2);
+ const [anodeVendor,setAnodeVendor]=useState('nam_thai'),[operation,setOperation]=useState(kind==='in'?'receive_stock':'issue_stock'),[items,setItems]=useState([{key:1,productId:String(product?.id||''),quantity:'1'}]),[saving,setSaving]=useState(false),[note,setNote]=useState(''),[filters,setFilters]=useState({...emptyProductFilters});const nextKey=useRef(2);
  const waiting=['send_anode','send_repair'].includes(operation),total=items.reduce((sum,item)=>sum+(Number(item.quantity)||0),0);
  const update=(key,field,value)=>setItems(rows=>rows.map(row=>row.key===key?{...row,[field]:value}:row));
- return <form onSubmit={async e=>{e.preventDefault();if(saving)return;setSaving(true);try{await action('movements',{kind,operation,note,items:items.map(({productId,quantity})=>({productId,quantity}))})}finally{setSaving(false)}}}>
+ return <form onSubmit={async e=>{e.preventDefault();if(saving)return;setSaving(true);try{await action('movements',{kind,operation,note,...(operation==='send_anode'?{anodeVendor}:{}),items:items.map(({productId,quantity})=>({productId,quantity}))})}finally{setSaving(false)}}}>
   <label>Loại {kind==='in'?'nhập':'xuất'}<select name="operation" value={operation} onChange={e=>setOperation(e.target.value)} disabled={saving}>{Object.entries(movementTypes).filter(([,type])=>type.kind===kind).map(([value,type])=><option key={value} value={value}>{type.label}</option>)}</select></label>
+  {operation==='send_anode'&&<label>Đơn vị Anode<select name="anodeVendor" value={anodeVendor} required onChange={e=>setAnodeVendor(e.target.value)} disabled={saving}>{Object.entries(anodeVendors).map(([value,name])=><option key={value} value={value}>{name}</option>)}</select></label>}
   <ProductSearchFilters products={products.filter(p=>!p.locked)} value={filters} onChange={setFilters} disabled={saving}/>
   <p className="form-hint">Có {products.filter(p=>!p.locked&&matchesProduct(p,filters)).length} sản phẩm phù hợp. Đổi bộ lọc không xóa các sản phẩm đã chọn trên phiếu.</p>
   <div className="receipt-lines">{items.map((item,index)=>{const selected=products.find(p=>String(p.id)===item.productId);return <div className="receipt-line" key={item.key}>
