@@ -165,4 +165,6 @@ Phiếu xuất dùng bố cục A4, logo đen khi in, chữ 13pt; thông tin b�
 
 ### Theo dõi Anode
 
-Mục **Anode** hiển thị riêng phiếu Xuất kho đi Anode, đơn vị Nam Thái/Bình Phát, sản phẩm, số lượng và trạng thái. Có bộ lọc **Chờ hàng về / Đã về**, xem phiếu và in trực tiếp. Tích **Đã về** để nhận toàn bộ hàng trên phiếu về kho: giảm số đang Anode, cộng tồn kho chính, lưu người thao tác và chuyển phiếu hoàn tất. Không nhận về từng phần. Phiếu đã về giữ ô tích và không được tích lại; dữ liệu được lưu trên máy chủ, không chỉ trên trình duyệt.
+Trong **Sản phẩm → Hàng sửa & Anode**, phần **Theo dõi phiếu Anode** hiển thị riêng phiếu Xuất kho đi Anode, đơn vị Nam Thái/Bình Phát, sản phẩm, số lượng và trạng thái. Có bộ lọc **Chờ hàng về / Đã về**, xem phiếu và in trực tiếp. Tích **Đã về** để nhận toàn bộ hàng trên phiếu về kho: giảm số đang Anode, cộng tồn kho chính, lưu người thao tác và chuyển phiếu hoàn tất. Không nhận về từng phần. Phiếu đã về giữ ô tích và không được tích lại; dữ liệu được lưu trên máy chủ, không chỉ trên trình duyệt.
+
+Bộ lọc trong danh sách Sản phẩm dùng cùng thành phần và cách lọc của form phiếu xuất: tên/mã không phân biệt dấu, dòng xe, màu sắc và Đơn/Đôi; vẫn có bộ lọc danh mục riêng. Tab Hàng sửa & Anode hiển thị danh sách phiếu Anode và phiếu gửi sửa để xem, in và xử lý nhận hàng về. Không có mục Anode riêng trên thanh điều hướng.
