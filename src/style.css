@@ -88,3 +88,7 @@ header{background:var(--red);color:white;border-bottom-color:var(--red)}.breadcr
 @media print{.outbound-company strong,.outbound-company p,.outbound-company p span{font-size:13pt;font-weight:700;color:#000}}
 /* Uniform type size throughout the printed outbound receipt. */
 @media print{.outbound-receipt .outbound-paper,.outbound-receipt .outbound-paper *{font-size:13pt!important}}
+
+.outbound-parties-internal>div{grid-template-columns:90px minmax(0,1fr)}
+@media(max-width:700px){.outbound-parties-internal>div{grid-template-columns:64px minmax(0,1fr)}}
+@media print{.outbound-parties-internal>div{grid-template-columns:27mm minmax(0,1fr)}}
