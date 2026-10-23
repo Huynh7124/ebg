@@ -82,3 +82,7 @@ header{background:var(--red);color:white;border-bottom-color:var(--red)}.breadcr
 .outbound-parties{display:flex;flex-direction:column;gap:6px;margin:8px 0 16px}.outbound-parties>div{display:grid;grid-template-columns:44px minmax(90px,.7fr) 90px minmax(0,1.5fr);gap:12px;align-items:baseline}.outbound-parties b{font-weight:400}.outbound-parties span{font-weight:700;overflow-wrap:anywhere}.outbound-line-editor{grid-template-columns:1fr 1.8fr .6fr 1.2fr 1fr}.outbound-items td:nth-child(6){text-align:left}.outbound-items td:last-child{text-align:center;white-space:pre-wrap}.outbound-items th{vertical-align:middle}
 @media(max-width:700px){.outbound-parties>div{grid-template-columns:28px minmax(40px,.7fr) 64px minmax(0,1.5fr);gap:6px;font-size:11px}.outbound-line-editor{grid-template-columns:1fr}.outbound-items th,.outbound-items td{font-size:9px}.outbound-items td small{font-size:7px}}
 @media print{.outbound-parties{gap:2mm;margin:2mm 0 4mm}.outbound-parties>div{grid-template-columns:12mm 32mm 27mm minmax(0,1fr);gap:3mm;font-size:12pt;break-inside:avoid}.outbound-items th,.outbound-items td{font-size:10pt!important}.outbound-company>div:last-child{align-self:center}.outbound-document-fields span{font-weight:700}}
+
+/* Company identification uses consistent bold black text on outbound receipts. */
+.outbound-company strong,.outbound-company p,.outbound-company p span{font-size:13px;font-weight:700;color:#000;line-height:1.5}
+@media print{.outbound-company strong,.outbound-company p,.outbound-company p span{font-size:13pt;font-weight:700;color:#000}}
