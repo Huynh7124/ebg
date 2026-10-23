@@ -3,8 +3,9 @@ import React,{useEffect,useMemo,useState} from 'react';
 import {Printer,Download,Pencil,Save,RotateCcw} from 'lucide-react';
 import {defaultOutboundPrint,outboundPrintData,validateOutboundPrint,outboundDocumentNumber} from '../shared/outbound-print.js';
 const labels={companyName:'Tên công ty',taxId:'Mã số thuế',address:'Địa chỉ',email:'Email công ty',phone:'Điện thoại',title:'Tiêu đề phiếu',documentNumber:'Số phiếu trên bản in (không bắt buộc)',date:'Ngày trên phiếu',warehouse:'Kho',senderName:'Tên bên giao',receiverName:'Tên bên nhận',sender:'Bên giao / phòng ban giao',receiver:'Bên nhận / phòng ban nhận',reason:'Lý do xuất',preparedBy:'Người lập phiếu',receivedBy:'Người nhận hàng',agreement:'Nội dung xác nhận cuối phiếu'};
-export default function OutboundReceipt({receipt,products,action,onDownload}){
+export default function OutboundReceipt({receipt,products,action,onDownload,autoPrint=false}){
  const [draft,setDraft]=useState(()=>outboundPrintData(receipt,products)),[editing,setEditing]=useState(false),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[error,setError]=useState('');
+ useEffect(()=>{if(!autoPrint)return;let cancelled=false;(async()=>{await document.fonts.ready;await Promise.all([...document.querySelectorAll('.outbound-paper img')].map(img=>img.decode().catch(()=>{})));await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));if(!cancelled)window.print()})();return()=>{cancelled=true}},[autoPrint]);
  const original=useMemo(()=>outboundPrintData(receipt,products),[receipt,products]);
  useEffect(()=>{setDraft(original)},[original]);
  const dirty=JSON.stringify(draft)!==JSON.stringify(original),lineById=new Map(draft.lines.map(line=>[line.lineId,line]));

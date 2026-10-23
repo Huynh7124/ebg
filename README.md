@@ -19,7 +19,7 @@ Lần chạy đầu tạo 2 tài khoản mẫu: `admin` (Admin), `kho` (Nhân vi
 - Danh mục phụ kiện và dòng xe do Admin tạo; máy chủ kiểm tra quyền.
 - Thêm/sửa/khóa sản phẩm; chỉ chọn danh mục có sẵn; không có giá tiền.
 - Tìm tên, mã, màu; lọc danh mục và dòng xe.
-- Phiếu nhập chỉ có Nhập kho / Nhập lỗi. Phiếu xuất chỉ có Xuất kho / Xuất kho đi Anode / Xuất kho đi sửa. Hàng gửi đi được trừ tồn kho chính ngay và theo dõi chờ nhận về. Ngăn xuất quá tồn và nhận về cùng một phiếu hai lần.
+- Nhập hàng chỉ có Nhập kho / Nhập lỗi, không yêu cầu xem hay in phiếu nhập. Phiếu xuất chỉ có Xuất kho / Xuất kho đi Anode / Xuất kho đi sửa. Hàng gửi đi được trừ tồn kho chính ngay và theo dõi chờ nhận về. Ngăn xuất quá tồn và nhận về cùng một phiếu hai lần.
 - Xuất CSV phiếu theo ngày/tuần/tháng/năm, mở bằng Excel. Tuần bắt đầu thứ Hai; ngày được tính theo múi giờ của trình duyệt.
 - Dữ liệu mẫu: 8 sản phẩm, 6 dòng phụ kiện, 4 dòng xe và 4 phiếu. Tồn mẫu là số dư hiện tại, không phải toàn bộ lịch sử phát sinh.
 - Bố cục responsive; danh sách sản phẩm chuyển thành thẻ trên điện thoại. Font được phục vụ cục bộ.
@@ -119,7 +119,7 @@ Migration thêm bảng header và cột `receiptId`, không gộp hoặc sửa c
 
 ## Tự mở phiếu sau mỗi giao dịch
 
-Mọi lần lưu nhập/xuất mới đều lập phiếu có mã riêng. Sau khi lưu thành công và tải lại dữ liệu, giao diện tự mở ngay phiếu vừa lập để xem, in hoặc xuất CSV; không cần tìm lại trong danh sách. Nhận hàng về từ Anode/sửa cũng tự mở phiếu nhập liên kết vừa tạo. Không tự bật hộp thoại in để tránh in ngoài ý muốn; người dùng bấm **In phiếu** khi cần. Nếu lưu thất bại, form giữ nguyên các dòng để sửa và thử lại.
+Nhập kho là form nhập nhiều sản phẩm, lưu xong cập nhật tồn và trở về danh sách sản phẩm; không hiển thị danh sách, chi tiết hoặc nút in phiếu nhập. Nhận hàng về từ Anode/sửa cũng không mở phiếu nhập. Dữ liệu giao dịch và liên kết nhập cũ vẫn được giữ để đối chiếu, không xóa database. Xuất kho vẫn lập phiếu và tự mở để xem/chỉnh thông tin trước khi in. Trong lịch sử phiếu xuất, nút **In** cạnh **Xem phiếu** mở đúng phiếu và gọi cửa sổ in trực tiếp, dùng thông tin bản in đã lưu. Nếu lưu thất bại, form giữ nguyên các dòng để sửa và thử lại.
 
 Chữ nội dung, mô tả, tiêu đề bảng, trạng thái và số liệu đã được tăng độ đậm và tương phản; giữ chữ trắng trên nền đỏ của công ty.
 
@@ -139,7 +139,7 @@ Màn hình chưa đăng nhập chỉ có một hộp thoại ở giữa với lo
 
 ## Mẫu in phiếu xuất theo Excel nội bộ
 
-Phiếu xuất dùng bố cục của sheet **PXK (MẪU)** trong file `Xuất kho nội bộ.xlsx` do chủ kho cung cấp: logo và thông tin công ty/MST/địa chỉ/liên hệ, tiêu đề Phiếu Xuất Kho, số/ngày phiếu, kho, phòng ban giao–nhận, lý do; bảng **No – Nhóm – Tên hàng – ĐVT – SL – Ghi chú**; nội dung xác nhận và hai ô ký Người lập phiếu / Người nhận hàng. Font K2D được phục vụ cục bộ. Bản in A4 dọc, tối thiểu 5 dòng như mẫu; nhiều sản phẩm sẽ tiếp tục sang trang sau, không cắt bớt dòng. Phiếu nhập giữ mẫu trước đây.
+Phiếu xuất dùng bố cục của sheet **PXK (MẪU)** trong file `Xuất kho nội bộ.xlsx` do chủ kho cung cấp: logo và thông tin công ty/MST/địa chỉ/liên hệ, tiêu đề Phiếu Xuất Kho, số/ngày phiếu, kho, phòng ban giao–nhận, lý do; bảng **No – Nhóm – Tên hàng – ĐVT – SL – Ghi chú**; nội dung xác nhận và hai ô ký Người lập phiếu / Người nhận hàng. Font K2D được phục vụ cục bộ. Bản in A4 dọc, tối thiểu 5 dòng như mẫu; nhiều sản phẩm sẽ tiếp tục sang trang sau, không cắt bớt dòng. Giao diện hiện chỉ sử dụng mẫu in cho phiếu xuất.
 
 Mở phiếu xuất → **Chỉnh thông tin trước khi in** để sửa thông tin công ty, tiêu đề, số/ngày trên bản in, kho, bên giao/nhận, lý do, người ký, nội dung xác nhận và tên/nhóm/ĐVT/ghi chú hiển thị từng dòng. Có thể lưu rồi mở lại. Bấm **In phiếu** cũng tự lưu các thay đổi hợp lệ trước khi mở hộp thoại in; dùng Lưu thành PDF của trình duyệt nếu cần. Mã hệ thống luôn in cuối phiếu để đối chiếu kể cả khi đổi số phiếu hiển thị.
 
@@ -160,4 +160,4 @@ npm run account:reset -- --username admin
 
 Có thể thay `admin` bằng email hoặc tên đăng nhập. Nhập mật khẩu mới và xác nhận trong terminal; không đặt mật khẩu trong tham số lệnh. Lệnh dùng `DATA_DIR` như server và giữ dữ liệu kho, ghi lịch sử, kết thúc phiên cũ; không mở khóa tài khoản đang bị khóa.
 
-Phiếu nhập và xuất dùng chung bố cục A4, logo đen khi in, chữ 13pt; thông tin bản in có thể chỉnh và lưu riêng từng phiếu mà không thay đổi số lượng kho.
+Phiếu xuất dùng bố cục A4, logo đen khi in, chữ 13pt; thông tin bản in có thể chỉnh và lưu riêng từng phiếu mà không thay đổi số lượng kho. Nhập hàng không còn yêu cầu xem hay in phiếu.
