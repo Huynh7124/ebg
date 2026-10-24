@@ -86,17 +86,26 @@ header{background:var(--red);color:white;border-bottom-color:var(--red)}.breadcr
 /* Company identification uses consistent bold black text on outbound receipts. */
 .outbound-company strong,.outbound-company p,.outbound-company p span{font-size:13px;font-weight:700;color:#000;line-height:1.5}
 @media print{.outbound-company strong,.outbound-company p,.outbound-company p span{font-size:13pt;font-weight:700;color:#000}}
-/* Uniform type size throughout the printed outbound receipt. */
-@media print{.outbound-receipt .outbound-paper,.outbound-receipt .outbound-paper *{font-size:13pt!important}}
+/* Use Word-equivalent 12pt text while preserving the document title size. */
+.outbound-receipt .outbound-paper,
+.outbound-receipt .outbound-paper *:not(h2){font-size:12pt!important}
+@media print{
+  .outbound-receipt .outbound-paper>h2{font-size:18px!important}
+}
 
 .outbound-parties-internal>div{grid-template-columns:90px minmax(0,1fr)}
 @media(max-width:700px){.outbound-parties-internal>div{grid-template-columns:64px minmax(0,1fr)}}
 @media print{.outbound-parties-internal>div{grid-template-columns:27mm minmax(0,1fr)}}
-/* Center the document metadata and department block below the receipt title. */
-.outbound-document-fields{margin-inline:auto}.outbound-parties{width:100%;max-width:600px;margin-inline:auto}.outbound-parties b{text-align:right}.outbound-parties-internal{width:70%;max-width:510px}.outbound-parties-internal>div{grid-template-columns:110px minmax(0,1fr);gap:12px}
-@media(max-width:700px){.outbound-document-fields,.outbound-parties-internal{width:100%;max-width:290px}.outbound-parties-internal>div{grid-template-columns:82px minmax(0,1fr);gap:8px}}
-@media print{.outbound-document-fields{margin-inline:auto}.outbound-parties{max-width:160mm;margin-inline:auto}.outbound-parties-internal{width:110mm;max-width:100%}.outbound-parties-internal>div{grid-template-columns:28mm minmax(0,1fr);gap:3mm}}
+/* Center metadata below the title with matching screen and print alignment. */
+.outbound-parties{width:100%;max-width:600px;margin-inline:auto}
+.outbound-document-fields,.outbound-parties-internal{width:60%;max-width:450px;margin-inline:auto}
+.outbound-document-fields>div,.outbound-parties-internal>div{display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px}
+.outbound-document-fields b,.outbound-parties b{text-align:right;font-weight:400}
+.outbound-document-fields span,.outbound-parties span{font-weight:700}
+@media(max-width:700px){.outbound-document-fields,.outbound-parties-internal{width:100%;max-width:290px}.outbound-document-fields>div,.outbound-parties-internal>div{grid-template-columns:82px minmax(0,1fr);gap:8px}}
+@media print{.outbound-parties{max-width:160mm;margin-inline:auto}.outbound-document-fields,.outbound-parties-internal{width:60%;max-width:450px;margin-inline:auto}.outbound-document-fields>div,.outbound-parties-internal>div{grid-template-columns:110px minmax(0,1fr);gap:12px}}
 
+.outbound-items tbody td:first-child{font-weight:700}
 .outbound-line-editor{grid-template-columns:1fr 1.8fr .6fr 1.2fr}
 @media(max-width:700px){.outbound-line-editor{grid-template-columns:1fr}}
 
@@ -112,3 +121,22 @@ header{background:var(--red);color:white;border-bottom-color:var(--red)}.breadcr
 
 .product-processing{display:flex;flex-direction:column;gap:22px;margin-top:20px}.product-category-filter{margin:0;padding:14px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;font-size:13px}.product-category-filter select{min-width:180px}.inventory>.receipt-product-filters{border-top:0}.inventory .receipt-product-filters input,.inventory .receipt-product-filters select{font-size:13px}
 @media(max-width:700px){.product-category-filter{padding:12px 14px;flex-wrap:wrap}.product-category-filter select{flex:1;min-width:0}.inventory .receipt-product-filters select{font-size:12px}}
+
+/* Product lookup stays available from every warehouse page. */
+.main>header{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:24px}
+.header-product-search{display:flex;align-items:center;gap:10px;min-width:0;width:100%;max-width:560px;justify-self:center;margin:0;padding:0 12px;border:1px solid #ffffff80;border-radius:8px;background:white;color:#454950}
+.header-product-search:focus-within{outline:2px solid white;outline-offset:3px}
+.header-product-search>svg{flex-shrink:0}
+.header-product-search input{width:100%;min-width:0;min-height:44px;padding:10px 0;border:0;background:transparent;font-size:14px;outline:none}
+.header-product-search input::-webkit-search-cancel-button{appearance:none}
+.header-product-search button{flex-shrink:0;min-width:32px;min-height:44px;padding:0}
+.header-product-search button:focus-visible{outline-offset:0}
+@media(max-width:700px){
+  .main{--header-height:136px}
+  .main>header{grid-template-columns:auto minmax(0,1fr);grid-template-rows:minmax(0,1fr) 44px;gap:8px 12px;padding-block:10px}
+  .header-right{grid-column:2;grid-row:1;justify-self:end}
+  .header-product-search{grid-column:1 / -1;grid-row:2;max-width:none}
+  .header-product-search input{font-size:16px}
+  .notification-backdrop .modal{top:142px;max-height:calc(100dvh - 154px)}
+  .notification-backdrop .notification-items{max-height:calc(100dvh - 310px)}
+}
