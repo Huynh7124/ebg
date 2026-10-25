@@ -1,3 +1,4 @@
+import {setupPackingOrders} from './server/packing-orders.js';
 import {migrateRoles,registerPeople} from './server/roles.js';
 import {setupAccounts} from './scripts/setup-accounts.mjs';
 import {managesWarehouse} from './shared/roles.js';
@@ -71,6 +72,7 @@ app.post('/api/logout',(req,res)=>req.session.destroy(()=>res.json({ok:true})));
 app.post('/api/forgot-password',rateLimit({windowMs:15*60000,limit:5}),(req,res)=>{const username=String(req.body.username||'').trim().slice(0,254);const u=db.prepare("SELECT id FROM users WHERE (username=? OR email=? COLLATE NOCASE) AND role<>'admin' AND locked=0").get(username,normalizeEmail(username));if(u)db.prepare('INSERT INTO password_reset_requests(userId,requestedAt) VALUES(?,?) ON CONFLICT(userId) DO UPDATE SET requestedAt=excluded.requestedAt').run(u.id,new Date().toISOString());res.json({ok:true})});
 app.use('/api',(req,res,next)=>req.session.user?next():res.status(401).json({error:'Vui lòng đăng nhập'}));
 setupOperations(app,db,audit);
+setupPackingOrders(app,db,audit);
 app.post('/api/profile',(req,res)=>{const name=req.body.name;if(typeof name!=='string'||!name.trim()||name.trim().length>100)return res.status(400).json({error:'Họ tên cần từ 1 đến 100 ký tự'});db.prepare('UPDATE users SET name=? WHERE id=?').run(name.trim(),req.session.user.id);audit(req,'Đổi họ tên hiển thị');req.session.user.name=name.trim();res.json({ok:true})});
 
 app.post('/api/password',(req,res)=>{const {currentPassword,newPassword}=req.body;const u=db.prepare('SELECT * FROM users WHERE id=?').get(req.session.user.id);if(typeof newPassword!=='string'||newPassword.length<12||newPassword.length>128)return res.status(400).json({error:'Mật khẩu mới phải có từ 12 đến 128 ký tự'});if(!bcrypt.compareSync(String(currentPassword||''),u.password))return res.status(400).json({error:'Mật khẩu hiện tại không đúng'});db.prepare('UPDATE users SET password=? WHERE id=?').run(bcrypt.hashSync(newPassword,12),u.id);audit(req,'Đổi mật khẩu tài khoản');res.json({ok:true})});

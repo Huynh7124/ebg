@@ -209,3 +209,13 @@ Tạo yêu cầu chưa trừ tồn; kho xuất thực tế mới trừ. Định 
 Dữ liệu cũ được giữ. Nhân viên mới mặc định là gia công. Admin hoặc kho phân vai trò nhân viên tại **Dữ liệu & quyền** hoặc **Nhân viên**; chỉ Admin cấp vai trò Admin. Có nạp CSV xem trước/chặn ghi đè số dư, hồ sơ nhà cung cấp/đề nghị mua, nhãn QR theo mã hàng và sao lưu SQLite nhất quán. Quét camera phụ thuộc hỗ trợ trình duyệt; có tra mã từ đầu đọc hoặc bàn phím.
 
 Hướng dẫn vận hành, đơn vị, nhập dữ liệu và khôi phục: [docs/WAREHOUSE-V2.md](docs/WAREHOUSE-V2.md). Kiểm tra giao diện điều phối sau build bằng `CHROMIUM_PATH=/usr/bin/chromium npm run test:operations`.
+
+## Đơn đầu ngày qua kho, gia công và đóng gói
+
+Luồng mới nằm ở đầu màn hình của bốn vai trò, trong **Đơn hàng: Kho → Gia công → Đóng gói**. Đóng gói bấm **Lên đơn đóng gói** để nhập mã đơn, ngày, hạn cần hàng và nhiều sản phẩm. Đơn DGGC giữ nguyên xuyên suốt, không tự chuyển dữ liệu lịch sử từ luồng giao hàng trực tiếp cũ.
+
+Kho mở đơn, chọn nhân viên gia công và chuẩn bị vật tư theo định mức hiện hành hoặc danh sách vật tư cụ thể. Chuẩn bị chưa trừ tồn, không giữ chỗ hàng. **Xuất qua gia công** mới giảm tồn và ghi vật tư đang làm; chặn xuất nếu thiếu tồn, mã/người nhận bị khóa. Người gia công được giao bấm nhận, sau khi làm đủ và xác nhận dùng hết vật tư đã cấp thì bấm hoàn thành. Hàng chuyển sang chờ đóng gói, không cộng thành phẩm vào kho đạt. Với vật tư cần trả dư hoặc gia công nhiều đợt, tiếp tục dùng lệnh điều phối cũ; đơn DGGC hiện xác nhận gia công đủ một đợt và dùng hết vật tư đã khai báo.
+
+Đóng gói mở đơn, bấm **Kiểm nhận / ghi hàng lỗi**. Mỗi sản phẩm có số đạt đã nhận và phần **Hàng lỗi của sản phẩm này** để nhập số lỗi, mô tả lỗi. Hàng lỗi cộng đúng mã vào kho lỗi và có phiếu nhận lỗi; hàng đạt ghi số thực nhận của đóng gói, không tăng tồn kho đạt và không trừ vật tư lần nữa. Có thể nhận nhiều lần; không nhận vượt số chờ, không hoàn tất khi còn thiếu. Khi đã đối chiếu đủ số đạt + lỗi cho tất cả mặt hàng mới bấm **Hoàn thành đóng gói**. Ví dụ 10 sản phẩm: nhận 8 đạt, 2 lỗi → đóng gói giữ 8, kho lỗi tăng 2. Đơn vẫn có lịch sử và số lượng của từng lần kiểm nhận. Các bước có phân quyền và giao dịch SQLite, chống xuất/hoàn thành/nhận lặp; xuất JSON và bản sao SQLite bao gồm bảng đơn mới.
+
+Kiểm tra: `npm run test:packing-production` sau build; kiểm thử dùng dữ liệu tạm.
