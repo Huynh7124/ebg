@@ -44,4 +44,22 @@ test('packing order passes through warehouse and production, then packing separa
   assert.ok((await admin.req('ops/export')).packing_orders.some(row=>row.id===id));
  });
 
+ await t.test('stock returns good products to warehouse once, with separate faulty receipts',async()=>{
+  const snapshot=(await admin.req('data')).products.find(p=>p.id===output.id);
+  const body={purpose:'stock',reference:'STOCK-TEST',orderDate:'2026-10-26',dueDate:new Date().toISOString(),items:[{productId:output.id,quantity:5}]};
+  await packer.req('packing-orders',{...body,purpose:'invalid'},400);
+  id=(await packer.req('packing-orders',body)).id;
+  assert.equal((await warehouse.req('packing-orders')).find(r=>r.id===id).purpose,'stock');
+  await action(warehouse,'prepare',{processorId,inputs:[{productId:raw.id,quantity:5}]});
+  await action(warehouse,'issue');await action(worker,'accept');await action(worker,'finish');
+  const receive={token:'stock-partial',items:[{productId:output.id,good:2,faulty:1,reason:'Xước'}]};
+  await action(worker,'receive',receive,403);await action(packer,'receive',receive);await action(packer,'receive',receive,400);
+  await action(packer,'complete',{},400);
+  let p=(await admin.req('data')).products.find(p=>p.id===output.id);assert.equal(p.stock,snapshot.stock+2);assert.equal(p.faulty,snapshot.faulty+1);assert.equal(p.inTransit,snapshot.inTransit+2);
+  await action(packer,'receive',{token:'stock-rest',items:[{productId:output.id,good:2,faulty:0}]});
+  await action(packer,'complete');await action(packer,'complete',{},400);
+  const data=await admin.req('data');p=data.products.find(p=>p.id===output.id);assert.equal(p.stock,snapshot.stock+4);assert.equal(p.faulty,snapshot.faulty+1);assert.equal(p.inTransit,snapshot.inTransit);
+  const receipts=data.receipts.filter(r=>r.sourceReference==='packing:'+id);assert.equal(receipts.filter(r=>r.operation==='receive_stock').length,2);assert.equal(receipts.filter(r=>r.operation==='receive_faulty').length,1);
+ });
+
 });

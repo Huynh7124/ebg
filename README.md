@@ -225,3 +225,11 @@ Kiểm tra: `npm run test:packing-production` sau build; kiểm thử dùng dữ
 Admin và kho dùng hai nút **Nhập kho / Xuất kho** trên header, thay cho hai mục tương ứng ở menu bên dưới. Gia công và đóng gói không hiện các nút này. Điện thoại hiển thị hai nút ở hàng riêng trong header để dễ bấm.
 
 Máy quét QR dùng webcam mặc định trên máy tính và ưu tiên camera sau trên điện thoại. jsQR 1.4.0 được lưu trong `public/vendor/jsqr/` kèm giấy phép Apache-2.0 và commit nguồn; chỉ tải khi thiếu bộ đọc QR của trình duyệt, không dùng CDN. Trên máy chạy ứng dụng dùng `http://localhost:3000`; điện thoại truy cập ứng dụng bằng HTTPS và cấp quyền camera (HTTP qua IP nội bộ thường không được trình duyệt cấp camera). Máy không có camera vẫn dùng đầu đọc cầm tay/nhập mã. Quét không tự ghi nhập/xuất. Kiểm tra `npm run test:webcam-qr` dùng video từ canvas chứa pixel QR thật để kiểm tra giải mã cục bộ ở kích thước máy tính/điện thoại; vẫn cần thử camera vật lý trên thiết bị vận hành.
+
+### Đi đơn và làm hàng để stock
+
+Khi tạo đơn đầu ngày, đóng gói chọn **Đi đơn hàng** hoặc **Làm hàng để stock**. Kho xử lý cả hai tại **Xuất kho**, trong danh sách đơn Kho → Gia công → Đóng gói (cũng có trên Tổng quan). Đơn cũ mặc định là đi đơn.
+
+Sau gia công, đóng gói kiểm nhận theo từng sản phẩm: hàng lỗi nhập tồn lỗi; hàng đạt của đơn stock nhập tồn kho và sinh phiếu nhập ngay khi xác nhận từng đợt nhận. Hàng đạt của đơn đi đơn được đóng gói nhận, không cộng tồn kho. Nút hoàn thành chỉ đóng đơn sau khi đã nhận đủ, không cộng tồn lần nữa.
+
+Kiểm tra luồng stock trên trình duyệt: `PACKING_PURPOSE=stock npm run test:packing-production`.
