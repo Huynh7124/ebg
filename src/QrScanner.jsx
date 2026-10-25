@@ -1,4 +1,5 @@
 import React,{useEffect,useRef,useState} from 'react';
+import {createQrDetector} from './qr-decoder.js';
 import {Camera,Square} from 'lucide-react';
 
 export default function QrScanner({onDetected}){
@@ -16,12 +17,9 @@ export default function QrScanner({onDetected}){
  async function start(){
   release();const generation=lifecycle.current.generation;setState('opening');setError('');
   try{
-   if(!window.BarcodeDetector||!navigator.mediaDevices?.getUserMedia)throw Error('Thiết bị chưa hỗ trợ quét camera trong trình duyệt này. Dùng máy quét cầm tay hoặc nhập mã bên dưới.');
-   const supported=window.BarcodeDetector.getSupportedFormats?await window.BarcodeDetector.getSupportedFormats():['qr_code'];
+   if(!navigator.mediaDevices?.getUserMedia)throw Error('Thiết bị chưa hỗ trợ camera ở địa chỉ này. Mở bằng HTTPS hoặc localhost, hoặc nhập mã bên dưới.');
+   const detector=await createQrDetector();
    if(generation!==lifecycle.current.generation)return;
-   const formats=['qr_code','code_128','ean_13'].filter(format=>supported.includes(format));
-   if(!formats.includes('qr_code'))throw Error('Trình duyệt chưa hỗ trợ mã QR. Dùng máy quét cầm tay hoặc nhập mã bên dưới.');
-   const detector=new window.BarcodeDetector({formats});
    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
    if(generation!==lifecycle.current.generation){stream.getTracks().forEach(track=>track.stop());return}
    lifecycle.current.stream=stream;video.current.srcObject=stream;await video.current.play();

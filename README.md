@@ -17,7 +17,7 @@ Nếu muốn dùng lại màn hình email/tên đăng nhập và mật khẩu, �
 
 Kiểm tra luồng bấm tên và bốn vai trò trên trình duyệt sau build: `npm run test:account-login`.
 
-Nút **QR** cạnh ô tìm kiếm trên header mở máy quét mã cho cả bốn vai trò. Camera nhận nhãn `EBG:<id>` hoặc mã sản phẩm, rồi mở thông tin hàng; không tự ghi nhập/xuất hoặc đổi tồn kho. Có ô **Mã QR / mã hàng** để dùng máy quét cầm tay (gửi Enter) hoặc nhập trực tiếp. Camera cần trình duyệt hỗ trợ `BarcodeDetector`, quyền camera và HTTPS/localhost; nếu không hỗ trợ hoặc bị từ chối quyền, vẫn tra bằng mã được. Đóng cửa sổ hoặc quét thành công sẽ tắt camera. Màn hình **Tra / quét mã** dùng cùng máy quét và vẫn xem/in nhãn. Kiểm tra sau build bằng `npm run test:qr` (camera giả lập, không thay cho kiểm tra thiết bị thật).
+Nút **QR** cạnh ô tìm kiếm trên header mở máy quét mã cho cả bốn vai trò. Camera nhận nhãn `EBG:<id>` hoặc mã sản phẩm, rồi mở thông tin hàng; không tự ghi nhập/xuất hoặc đổi tồn kho. Có ô **Mã QR / mã hàng** để dùng máy quét cầm tay (gửi Enter) hoặc nhập trực tiếp. Camera dùng bộ đọc có sẵn khi hỗ trợ, hoặc bộ giải mã jsQR cục bộ cho webcam máy tính và camera điện thoại. Cần quyền camera và HTTPS/localhost; nếu không có camera hoặc bị từ chối quyền, vẫn tra bằng mã được. Đóng cửa sổ hoặc quét thành công sẽ tắt camera. Màn hình **Tra / quét mã** dùng cùng máy quét và vẫn xem/in nhãn. Kiểm tra sau build bằng `npm run test:qr` (camera giả lập, không thay cho kiểm tra thiết bị thật).
 
 ## Chức năng
 
@@ -219,3 +219,9 @@ Kho mở đơn, chọn nhân viên gia công và chuẩn bị vật tư theo đ�
 Đóng gói mở đơn, bấm **Kiểm nhận / ghi hàng lỗi**. Mỗi sản phẩm có số đạt đã nhận và phần **Hàng lỗi của sản phẩm này** để nhập số lỗi, mô tả lỗi. Hàng lỗi cộng đúng mã vào kho lỗi và có phiếu nhận lỗi; hàng đạt ghi số thực nhận của đóng gói, không tăng tồn kho đạt và không trừ vật tư lần nữa. Có thể nhận nhiều lần; không nhận vượt số chờ, không hoàn tất khi còn thiếu. Khi đã đối chiếu đủ số đạt + lỗi cho tất cả mặt hàng mới bấm **Hoàn thành đóng gói**. Ví dụ 10 sản phẩm: nhận 8 đạt, 2 lỗi → đóng gói giữ 8, kho lỗi tăng 2. Đơn vẫn có lịch sử và số lượng của từng lần kiểm nhận. Các bước có phân quyền và giao dịch SQLite, chống xuất/hoàn thành/nhận lặp; xuất JSON và bản sao SQLite bao gồm bảng đơn mới.
 
 Kiểm tra: `npm run test:packing-production` sau build; kiểm thử dùng dữ liệu tạm.
+
+## Nhập/xuất trên header và quét QR máy tính/điện thoại
+
+Admin và kho dùng hai nút **Nhập kho / Xuất kho** trên header, thay cho hai mục tương ứng ở menu bên dưới. Gia công và đóng gói không hiện các nút này. Điện thoại hiển thị hai nút ở hàng riêng trong header để dễ bấm.
+
+Máy quét QR dùng webcam mặc định trên máy tính và ưu tiên camera sau trên điện thoại. jsQR 1.4.0 được lưu trong `public/vendor/jsqr/` kèm giấy phép Apache-2.0 và commit nguồn; chỉ tải khi thiếu bộ đọc QR của trình duyệt, không dùng CDN. Trên máy chạy ứng dụng dùng `http://localhost:3000`; điện thoại truy cập ứng dụng bằng HTTPS và cấp quyền camera (HTTP qua IP nội bộ thường không được trình duyệt cấp camera). Máy không có camera vẫn dùng đầu đọc cầm tay/nhập mã. Quét không tự ghi nhập/xuất. Kiểm tra `npm run test:webcam-qr` dùng video từ canvas chứa pixel QR thật để kiểm tra giải mã cục bộ ở kích thước máy tính/điện thoại; vẫn cần thử camera vật lý trên thiết bị vận hành.

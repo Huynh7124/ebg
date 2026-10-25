@@ -36,7 +36,7 @@ try{
  // The existing label screen uses the same camera lifecycle and scan mapping.
  await page.evaluate(()=>{window.__qrTest.mode='ok';window.__qrTest.raw=''});await page.getByRole('button',{name:'Tra / quét mã',exact:true}).click();await page.getByRole('button',{name:'Quét bằng camera',exact:true}).click();await page.getByText('Camera đang quét...',{exact:true}).waitFor();await page.evaluate(()=>{window.__qrTest.raw='EBG:2'});await page.getByRole('img',{name:'Mã QR '+before[1].code,exact:true}).waitFor();await page.waitForFunction(()=>window.__qrTest.stopped===4);assert.equal(await page.getByRole('region',{name:'Máy quét mã hàng'}).count(),0);
  // Unsupported cameras still accept keyboard scanners and manual codes for every role.
- await page.evaluate(()=>{window.BarcodeDetector=undefined});
+ await page.evaluate(()=>{window.BarcodeDetector=undefined;Object.defineProperty(navigator.mediaDevices,'getUserMedia',{configurable:true,value:undefined})});
  for(const username of ['admin','kho','giacong','donggoi']){
   if(username!=='admin'){await page.getByRole('button',{name:'Đăng xuất',exact:true}).click();await page.getByRole('button',{name:'Đăng nhập bằng '+username,exact:true}).click()}
   await open();await dialog().getByRole('alert').filter({hasText:'Thiết bị chưa hỗ trợ'}).waitFor();

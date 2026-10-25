@@ -16,6 +16,7 @@
     "test:operations": "node scripts/check-operations.mjs",
     "test:account-login": "node scripts/check-account-login.mjs",
     "test:packing-production": "node scripts/check-packing-production.mjs",
+    "test:webcam-qr": "node scripts/check-webcam-qr.mjs",
     "test:qr": "node scripts/check-qr.mjs",
     "backup": "node scripts/backup-database.mjs",
     "backup:restore": "node scripts/restore-backup.mjs"

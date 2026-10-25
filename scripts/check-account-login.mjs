@@ -23,7 +23,7 @@ try{
   await page.getByRole('button',{name:'Đăng nhập bằng '+username,exact:true}).click();await page.getByRole('heading',{name:title,exact:true}).waitFor();
   assert.equal((await(await context.request.get(url+'/api/session')).json()).user.role,role);
   assert.equal(await page.locator('.top-nav').getByRole('button',{name:'Nhân viên',exact:true}).count(),['admin','warehouse'].includes(role)?1:0);
-  const expectedNav=['admin','warehouse'].includes(role)?[title,'Sản phẩm','Nhập kho','Xuất kho','Danh mục','Nhân viên','Lịch sử hoạt động']:[title,role==='processor'?'Tra cứu vật tư':'Tra cứu hàng'];
+  const expectedNav=['admin','warehouse'].includes(role)?[title,'Sản phẩm','Danh mục','Nhân viên','Lịch sử hoạt động']:[title,role==='processor'?'Tra cứu vật tư':'Tra cứu hàng'];
   assert.deepEqual(await page.locator('.top-nav button').allTextContents(),expectedNav);
   const dashboard={admin:'Đội ngũ theo vai trò',warehouse:'Yêu cầu cần kho xử lý',processor:'Việc mới kho giao',packer:'Hàng kho đã xuất, chờ tôi nhận'};
   await page.getByRole('heading',{name:dashboard[role],exact:true}).waitFor();
