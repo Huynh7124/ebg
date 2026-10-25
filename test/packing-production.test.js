@@ -62,4 +62,10 @@ test('packing order passes through warehouse and production, then packing separa
   const receipts=data.receipts.filter(r=>r.sourceReference==='packing:'+id);assert.equal(receipts.filter(r=>r.operation==='receive_stock').length,2);assert.equal(receipts.filter(r=>r.operation==='receive_faulty').length,1);
  });
 
+ await t.test('packing creates an order with only date and products',async()=>{
+  const created=await packer.req('packing-orders',{orderDate:'2026-10-26',items:[{productId:output.id,quantity:2}]});
+  const order=(await warehouse.req('packing-orders')).find(r=>r.id===created.id);
+  assert.equal(order.purpose,'order');assert.equal(order.dueDate,null);assert.equal(order.reference,'');assert.equal(order.note,'');assert.equal(order.status,'pending');
+ });
+
 });

@@ -228,8 +228,8 @@ Máy quét QR dùng webcam mặc định trên máy tính và ưu tiên camera s
 
 ### Đi đơn và làm hàng để stock
 
-Khi tạo đơn đầu ngày, đóng gói chọn **Đi đơn hàng** hoặc **Làm hàng để stock**. Kho xử lý cả hai tại **Xuất kho**, trong danh sách đơn Kho → Gia công → Đóng gói (cũng có trên Tổng quan). Đơn cũ mặc định là đi đơn.
+Khi tạo đơn đầu ngày, đóng gói chỉ chọn ngày, sản phẩm và số lượng. Đơn mặc định **Đi đơn hàng**; mã phiếu DGGC tự sinh, không cần mã đơn, hạn cần hàng hay ghi chú. Kho xử lý cả hai tại **Xuất kho**, trong danh sách đơn Kho → Gia công → Đóng gói (cũng có trên Tổng quan). Đơn cũ mặc định là đi đơn.
 
 Sau gia công, đóng gói kiểm nhận theo từng sản phẩm: hàng lỗi nhập tồn lỗi; hàng đạt của đơn stock nhập tồn kho và sinh phiếu nhập ngay khi xác nhận từng đợt nhận. Hàng đạt của đơn đi đơn được đóng gói nhận, không cộng tồn kho. Nút hoàn thành chỉ đóng đơn sau khi đã nhận đủ, không cộng tồn lần nữa.
 
-Kiểm tra luồng stock trên trình duyệt: `PACKING_PURPOSE=stock npm run test:packing-production`.
+Kiểm tra form đóng gói và toàn bộ luồng trên trình duyệt: `npm run test:packing-production`. Luồng stock được kiểm tra trong `test/packing-production.test.js`.

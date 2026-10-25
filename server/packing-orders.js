@@ -20,9 +20,9 @@ export function setupPackingOrders(app,db,audit){
  app.post('/api/packing-orders',route(req=>{
   if(req.session.user.role!=='packer')fail('Nhân viên đóng gói tạo đơn đầu ngày',403);
   const b=req.body,orderDate=text(b.orderDate,true,10);if(!/^\d{4}-\d{2}-\d{2}$/.test(orderDate)||!Number.isFinite(Date.parse(orderDate))||new Date(orderDate).toISOString().slice(0,10)!==orderDate)fail('Ngày đơn không hợp lệ');
-  const dueDate=text(b.dueDate,true,50);if(!Number.isFinite(Date.parse(dueDate)))fail('Hạn cần hàng không hợp lệ');
+  const dueDate=b.dueDate?text(b.dueDate,true,50):null;if(dueDate&&!Number.isFinite(Date.parse(dueDate)))fail('Hạn cần hàng không hợp lệ');
   const purpose=b.purpose??'order';if(!['order','stock'].includes(purpose))fail('Loại đơn không hợp lệ');
-  const payload={purpose,reference:text(b.reference,true,100),orderDate,dueDate:new Date(dueDate).toISOString(),note:text(b.note||''),items:rows(b.items).map(l=>({...l,good:0,faulty:0})),inputs:[],snapshot:[],events:[],tokens:[],createdAt:new Date().toISOString()};
+  const payload={purpose,reference:text(b.reference??'',false,100),orderDate,dueDate:dueDate?new Date(dueDate).toISOString():null,note:text(b.note||''),items:rows(b.items).map(l=>({...l,good:0,faulty:0})),inputs:[],snapshot:[],events:[],tokens:[],createdAt:new Date().toISOString()};
   const id=Number(db.prepare("INSERT INTO packing_orders(requesterId,status,payload) VALUES(?,'pending',?)").run(req.session.user.id,JSON.stringify(payload)).lastInsertRowid);const r=read(id);event(req,r,'Đóng gói tạo đơn');return {ok:true,id};
  },true));
  app.post('/api/packing-orders/:id/prepare',route(req=>{
