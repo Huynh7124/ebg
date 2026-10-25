@@ -14,6 +14,7 @@
     "accounts:setup": "node scripts/setup-accounts.mjs",
     "account:reset": "node scripts/reset-password.mjs",
     "test:operations": "node scripts/check-operations.mjs",
+    "test:account-login": "node scripts/check-account-login.mjs",
     "backup": "node scripts/backup-database.mjs",
     "backup:restore": "node scripts/restore-backup.mjs"
   },

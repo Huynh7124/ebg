@@ -1,4 +1,5 @@
 import {roleAccess,normalizeRole} from '../shared/roles.js';
+import {randomBytes} from 'node:crypto';
 export function migrateRoles(db){
  const hasAccess=!!db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='ops_access'").get();
  db.exec('BEGIN IMMEDIATE');
@@ -9,7 +10,7 @@ export function migrateRoles(db){
   db.exec('COMMIT');
  }catch(e){db.exec('ROLLBACK');throw e}
 }
-export function registerPeople(app,db,audit,bcrypt,normalizeEmail,validEmail){
+export function registerPeople(app,db,audit,bcrypt,normalizeEmail,validEmail,{passwordRequired=true}={}){
  const canManage=req=>roleAccess(req.session.user.role).manageStaff;
  const guard=(req,res,next)=>canManage(req)?next():res.status(403).json({error:'Chỉ Admin hoặc nhân viên kho được quản lý nhân viên'});
  const list=req=>db.prepare(`SELECT id,name,username,email,role,locked FROM users ${req.session.user.role==='admin'?'':"WHERE role<>'admin'"} ORDER BY id`).all();
@@ -21,7 +22,7 @@ export function registerPeople(app,db,audit,bcrypt,normalizeEmail,validEmail){
  const lastAdmin=u=>u.role==='admin'&&!u.locked&&db.prepare("SELECT COUNT(*) n FROM users WHERE role='admin' AND locked=0").get().n<=1;
  app.get('/api/users',guard,(req,res)=>res.json(list(req)));
  app.post('/api/users',guard,(req,res)=>{
-  const {name,username,password}=req.body,email=normalizeEmail(req.body.email),result=cleanRole(req,req.body.role);
+  const {name,username}=req.body,password=!passwordRequired&&req.body.password===undefined?randomBytes(24).toString('base64url'):req.body.password,email=normalizeEmail(req.body.email),result=cleanRole(req,req.body.role);
   if(result.error)return res.status(result.status).json({error:result.error});
   if(typeof name!=='string'||!name.trim()||name.length>100||typeof username!=='string'||!/^[a-zA-Z0-9_.-]{1,40}$/.test(username)||typeof password!=='string'||password.length<12||password.length>128||email&&!validEmail(email))return res.status(400).json({error:'Thông tin nhân viên không hợp lệ; mật khẩu cần 12–128 ký tự'});
   try{db.prepare('INSERT INTO users(name,username,email,password,role) VALUES(?,?,?,?,?)').run(name.trim(),username,email||null,bcrypt.hashSync(password,12),result.role);audit(req,`Thêm nhân viên ${username} (${result.role})`);res.json({ok:true})}catch{res.status(400).json({error:'Tên đăng nhập hoặc email đã tồn tại'})}

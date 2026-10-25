@@ -7,7 +7,7 @@ import {randomBytes} from 'node:crypto';
 import assert from 'node:assert/strict';
 const root=await mkdtemp(join(tmpdir(),'ebg-operations-browser-')),password=randomBytes(20).toString('hex'),url='http://localhost:3227';
 await cp('dist',join(root,'dist'),{recursive:true});
-const child=spawn(process.execPath,[resolve('server.js'),'--production'],{cwd:root,env:{...process.env,DATA_DIR:join(root,'data'),PORT:'3227',INITIAL_ADMIN_PASSWORD:password},stdio:['ignore','pipe','pipe']});
+const child=spawn(process.execPath,[resolve('server.js'),'--production'],{cwd:root,env:{...process.env,REQUIRE_PASSWORD:'1',DATA_DIR:join(root,'data'),PORT:'3227',INITIAL_ADMIN_PASSWORD:password},stdio:['ignore','pipe','pipe']});
 let browser;let logs='';child.stderr.on('data',d=>logs+=d);
 try{
  await new Promise((ok,fail)=>{const t=setTimeout(()=>fail(Error(logs||'Startup timeout')),15000);child.stdout.on('data',d=>{if(String(d).includes('server ready')){clearTimeout(t);ok()}});child.once('exit',()=>{clearTimeout(t);fail(Error(logs))})});

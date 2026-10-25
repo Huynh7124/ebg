@@ -8,7 +8,7 @@ import {roleNames} from '../shared/roles.js';
 
 const accounts=[['admin','admin'],['warehouse','kho'],['processor','giacong'],['packer','donggoi']];
 
-export function setupAccounts(databasePath){
+export function setupAccounts(databasePath,{keepLockedRoles=false}={}){
  if(!existsSync(databasePath))throw Error('Chưa có database tại '+resolve(databasePath)+'. Chạy ứng dụng một lần bằng npm run dev, sau đó chạy lại lệnh trên cùng máy và cùng DATA_DIR.');
  const db=new DatabaseSync(databasePath);
  try{
@@ -18,7 +18,7 @@ export function setupAccounts(databasePath){
   db.exec('BEGIN IMMEDIATE');
   try{
    const result=accounts.map(([role,preferred])=>{
-    const existing=db.prepare('SELECT username FROM users WHERE role=? AND locked=0 ORDER BY CASE WHEN username=? THEN 0 ELSE 1 END,id LIMIT 1').get(role,preferred);
+    const existing=db.prepare(`SELECT username FROM users WHERE role=? ${keepLockedRoles?'':'AND locked=0'} ORDER BY CASE WHEN username=? THEN 0 ELSE 1 END,id LIMIT 1`).get(role,preferred);
     if(existing)return {role:roleNames[role],username:existing.username,created:false};
     let username=preferred,suffix=2;
     while(db.prepare('SELECT id FROM users WHERE username=? OR email=? COLLATE NOCASE').get(username,username))username=preferred+'_'+suffix++;

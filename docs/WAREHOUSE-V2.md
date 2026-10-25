@@ -25,6 +25,8 @@ Kiểm thử dùng database tạm; không sử dụng kho thật. `test:operatio
 
 ## Bắt đầu với dữ liệu thật
 
+Mặc định đăng nhập bằng cách bấm tên trong danh sách tài khoản, không cần mật khẩu. Khi khởi động, ứng dụng bổ sung các vai trò chưa có tài khoản, giữ nguyên nhân viên và mật khẩu cũ, không tạo thay tài khoản bị khóa. Admin/kho thêm nhân viên mới không cần đặt mật khẩu. Để dùng lại xác thực mật khẩu, đặt `REQUIRE_PASSWORD=1` cho máy chủ rồi khởi động lại; khi đó việc đăng nhập và tạo nhân viên yêu cầu mật khẩu.
+
 1. Admin phân một trong bốn vai trò tại **Điều phối kho → Dữ liệu & quyền** hoặc **Nhân viên**. Nhân viên kho có quyền quản lý hàng, danh mục, định mức, yêu cầu, mua vật tư và tài khoản nhân viên. Nhân viên kho được phân các vai trò warehouse/processor/packer cho nhân viên khác; không được cấp vai trò hoặc quản lý tài khoản Admin. Nhân viên gia công chỉ tạo yêu cầu đi đơn/cấp bổ sung, nhận việc được giao và báo sẵn sàng bàn giao. Bản sao SQLite gồm tài khoản/phiên vẫn chỉ Admin được tải; kho có xuất JSON nghiệp vụ.
 2. Tạo danh mục phụ kiện/dòng xe ở màn hình cũ. Nguyên liệu dùng chung có thể để trống dòng xe.
 3. Trong form sản phẩm, xác định loại hàng: nguyên liệu, cụm/bán thành phẩm, thành phẩm hoặc chưa phân loại; đơn vị cơ sở và vị trí tại kho.

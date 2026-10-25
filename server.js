@@ -1,4 +1,5 @@
 import {migrateRoles,registerPeople} from './server/roles.js';
+import {setupAccounts} from './scripts/setup-accounts.mjs';
 import {managesWarehouse} from './shared/roles.js';
 import {setupOperations,productMetadata} from './server/operations.js';
 import {validateOutboundPrint} from './shared/outbound-print.js';
@@ -15,6 +16,7 @@ import {join} from 'node:path';
 import {randomBytes} from 'node:crypto';
 if(process.argv.includes('--production'))process.env.NODE_ENV='production';
 const dataDir=process.env.DATA_DIR||'data';
+const passwordRequired=process.env.REQUIRE_PASSWORD==='1';
 mkdirSync(dataDir,{recursive:true});
 const db=new DatabaseSync(join(dataDir,'ebg.db'));
 db.exec(`PRAGMA journal_mode=WAL; CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY,name TEXT,username TEXT UNIQUE,password TEXT,role TEXT); CREATE TABLE IF NOT EXISTS categories(id INTEGER PRIMARY KEY,name TEXT UNIQUE,type TEXT); CREATE TABLE IF NOT EXISTS products(id INTEGER PRIMARY KEY,name TEXT,code TEXT UNIQUE,category TEXT,vehicle TEXT,color TEXT,stock INTEGER DEFAULT 0,repair INTEGER DEFAULT 0,anote INTEGER DEFAULT 0,min INTEGER DEFAULT 5,locked INTEGER DEFAULT 0,image TEXT); CREATE TABLE IF NOT EXISTS movements(id INTEGER PRIMARY KEY,productId INTEGER,kind TEXT,bucket TEXT,quantity INTEGER,note TEXT,status TEXT,user TEXT,date TEXT); CREATE TABLE IF NOT EXISTS audit(id INTEGER PRIMARY KEY,user TEXT,action TEXT,date TEXT);`);
@@ -36,7 +38,7 @@ for(const table of ['receipts','movements'])if(!db.prepare(`PRAGMA table_info(${
 const initialPassword=process.env.INITIAL_ADMIN_PASSWORD||randomBytes(12).toString('base64url');
 if(!db.prepare('SELECT id FROM users LIMIT 1').get()){
 for(const [name,username,role] of [['Nguyễn Minh','admin','admin'],['Nhân viên kho','kho','warehouse']])db.prepare('INSERT INTO users(name,username,password,role) VALUES(?,?,?,?)').run(name,username,bcrypt.hashSync(initialPassword,12),role);
-console.log(`Tài khoản mẫu admin / kho — mật khẩu khởi tạo: ${initialPassword}`);
+if(passwordRequired)console.log(`Tài khoản mẫu admin / kho — mật khẩu khởi tạo: ${initialPassword}`);
 for(const name of ['Hệ thống phanh','Hệ thống truyền động','Phuộc & giảm xóc','Bánh xe & lốp','Điện & pin','Phụ kiện bảo vệ'])db.prepare('INSERT INTO categories(name,type) VALUES(?,?)').run(name,'accessory');
 for(const name of ['Sur-Ron Light Bee','Talaria Sting','E Ride Pro','Sur-Ron Ultra Bee'])db.prepare('INSERT INTO categories(name,type) VALUES(?,?)').run(name,'vehicle');
 const rows=[['Bộ phanh đĩa Hope Tech 4','BRK-001','Hệ thống phanh','Sur-Ron Light Bee','Đen',24,2,0,5,'brake'],['Nhông sau CNC 58T','DRV-002','Hệ thống truyền động','Talaria Sting','Đỏ',3,0,2,5,'gear'],['Phuộc trước FastAce ALX13RC','SUS-003','Phuộc & giảm xóc','Sur-Ron Light Bee','Đen',12,3,0,4,'fork'],['Lốp địa hình Shinko 241','WHL-004','Bánh xe & lốp','E Ride Pro','Đen',18,0,0,5,'tire'],['Tay thắng nhôm CNC','BRK-005','Hệ thống phanh','Talaria Sting','Bạc',4,1,3,5,'lever'],['Pin lithium 72V 40Ah','ELE-006','Điện & pin','Sur-Ron Ultra Bee','Đen',8,2,0,3,'battery'],['Ốp bảo vệ gầm nhôm','PRO-007','Phụ kiện bảo vệ','Sur-Ron Light Bee','Bạc',0,0,2,3,'guard'],['Xích tải DID 420','DRV-008','Hệ thống truyền động','E Ride Pro','Vàng',32,0,0,8,'chain']];
@@ -47,6 +49,7 @@ seedMoves.forEach(([kind,bucket,quantity,note,status,productId],i)=>{const date=
 
 }
 migrateRoles(db);
+if(!passwordRequired)setupAccounts(join(dataDir,'ebg.db'),{keepLockedRoles:true});
 db.exec('CREATE TABLE IF NOT EXISTS sessions(sid TEXT PRIMARY KEY,data TEXT,expires INTEGER)');
 class SQLiteStore extends session.Store {
  get(sid,cb){try{const row=db.prepare('SELECT data,expires FROM sessions WHERE sid=?').get(sid);if(!row||row.expires<Date.now())return cb(null,null);cb(null,JSON.parse(row.data))}catch(e){cb(e)}}
@@ -60,9 +63,10 @@ app.use('/api',(req,res,next)=>{if(req.session.user){const current=db.prepare('S
 const warehouseOnly=(req,res,next)=>managesWarehouse(req.session.user)?next():res.status(403).json({error:'Chỉ Admin hoặc nhân viên kho có quyền thực hiện thao tác này'});
 db.exec('CREATE TABLE IF NOT EXISTS password_reset_requests(userId INTEGER PRIMARY KEY,requestedAt TEXT NOT NULL)');
 
-app.get('/api/session',(req,res)=>{if(!req.session.csrf)req.session.csrf=randomBytes(24).toString('hex');res.json({user:publicUser(req.session.user),csrf:req.session.csrf})});
+app.get('/api/session',(req,res)=>{if(!req.session.csrf)req.session.csrf=randomBytes(24).toString('hex');res.json({user:publicUser(req.session.user),csrf:req.session.csrf,passwordRequired})});
+app.get('/api/login-users',(req,res)=>{if(passwordRequired)return res.status(404).json({error:'Đăng nhập bằng mật khẩu đang bật'});res.json(db.prepare('SELECT name,username,role FROM users WHERE locked=0 ORDER BY id').all())});
 app.use('/api',(req,res,next)=>{if(req.method!=='GET'&&(!req.session.csrf||req.get('x-csrf-token')!==req.session.csrf))return res.status(403).json({error:'Phiên không hợp lệ. Vui lòng tải lại trang.'});next()});
-app.post('/api/login',rateLimit({windowMs:15*60000,limit:10}), (req,res)=>{const u=db.prepare('SELECT * FROM users WHERE username=? OR email=? COLLATE NOCASE').get(String(req.body.username||'').trim(),normalizeEmail(req.body.username));if(!u||u.locked||!bcrypt.compareSync(String(req.body.password||''),u.password))return res.status(401).json({error:'Tên đăng nhập hoặc mật khẩu không đúng'});req.session.regenerate(err=>{if(err)return res.status(500).json({error:'Không thể tạo phiên'});req.session.user={id:u.id,name:u.name,role:u.role};req.session.csrf=randomBytes(24).toString('hex');res.json({user:publicUser(req.session.user),csrf:req.session.csrf})})});
+app.post('/api/login',rateLimit({windowMs:15*60000,limit:passwordRequired?10:120}), (req,res)=>{const u=db.prepare('SELECT * FROM users WHERE username=? OR email=? COLLATE NOCASE').get(String(req.body.username||'').trim(),normalizeEmail(req.body.username));if(!u||u.locked||passwordRequired&&!bcrypt.compareSync(String(req.body.password||''),u.password))return res.status(401).json({error:passwordRequired?'Tên đăng nhập hoặc mật khẩu không đúng':'Tài khoản không tồn tại hoặc đã khóa'});req.session.regenerate(err=>{if(err)return res.status(500).json({error:'Không thể tạo phiên'});req.session.user={id:u.id,name:u.name,role:u.role};req.session.csrf=randomBytes(24).toString('hex');res.json({user:publicUser(req.session.user),csrf:req.session.csrf})})});
 app.post('/api/logout',(req,res)=>req.session.destroy(()=>res.json({ok:true})));
 app.post('/api/forgot-password',rateLimit({windowMs:15*60000,limit:5}),(req,res)=>{const username=String(req.body.username||'').trim().slice(0,254);const u=db.prepare("SELECT id FROM users WHERE (username=? OR email=? COLLATE NOCASE) AND role<>'admin' AND locked=0").get(username,normalizeEmail(username));if(u)db.prepare('INSERT INTO password_reset_requests(userId,requestedAt) VALUES(?,?) ON CONFLICT(userId) DO UPDATE SET requestedAt=excluded.requestedAt').run(u.id,new Date().toISOString());res.json({ok:true})});
 app.use('/api',(req,res,next)=>req.session.user?next():res.status(401).json({error:'Vui lòng đăng nhập'}));
@@ -70,7 +74,7 @@ setupOperations(app,db,audit);
 app.post('/api/profile',(req,res)=>{const name=req.body.name;if(typeof name!=='string'||!name.trim()||name.trim().length>100)return res.status(400).json({error:'Họ tên cần từ 1 đến 100 ký tự'});db.prepare('UPDATE users SET name=? WHERE id=?').run(name.trim(),req.session.user.id);audit(req,'Đổi họ tên hiển thị');req.session.user.name=name.trim();res.json({ok:true})});
 
 app.post('/api/password',(req,res)=>{const {currentPassword,newPassword}=req.body;const u=db.prepare('SELECT * FROM users WHERE id=?').get(req.session.user.id);if(typeof newPassword!=='string'||newPassword.length<12||newPassword.length>128)return res.status(400).json({error:'Mật khẩu mới phải có từ 12 đến 128 ký tự'});if(!bcrypt.compareSync(String(currentPassword||''),u.password))return res.status(400).json({error:'Mật khẩu hiện tại không đúng'});db.prepare('UPDATE users SET password=? WHERE id=?').run(bcrypt.hashSync(newPassword,12),u.id);audit(req,'Đổi mật khẩu tài khoản');res.json({ok:true})});
-const staffList=registerPeople(app,db,audit,bcrypt,normalizeEmail,validEmail);
+const staffList=registerPeople(app,db,audit,bcrypt,normalizeEmail,validEmail,{passwordRequired});
 app.get('/api/data',(req,res)=>res.json({recoveryRequests:managesWarehouse(req.session.user)?db.prepare("SELECT r.userId,r.requestedAt,u.username,u.name FROM password_reset_requests r JOIN users u ON u.id=r.userId WHERE u.role<>'admin' AND u.locked=0 ORDER BY r.requestedAt DESC").all():[],receipts:db.prepare('SELECT * FROM receipts ORDER BY id DESC').all(),users:managesWarehouse(req.session.user)?staffList(req):[],products:db.prepare('SELECT * FROM products ORDER BY id').all(),categories:db.prepare('SELECT * FROM categories').all(),movements:db.prepare('SELECT * FROM movements ORDER BY id DESC').all(),audit:db.prepare('SELECT * FROM audit ORDER BY id DESC LIMIT 200').all()}));
 app.post('/api/categories',warehouseOnly,(req,res)=>{const {name,type}=req.body;if(typeof name!=='string'||!name.trim()||name.trim().length>100||!['accessory','vehicle'].includes(type))return res.status(400).json({error:'Danh mục không hợp lệ'});try{db.prepare('INSERT INTO categories(name,type) VALUES(?,?)').run(name.trim(),type);audit(req,`Thêm danh mục ${name.trim()}`);res.json({ok:true})}catch{res.status(400).json({error:'Danh mục đã tồn tại'})}});
 app.post('/api/categories/:id',warehouseOnly,(req,res)=>{const c=db.prepare('SELECT * FROM categories WHERE id=?').get(req.params.id);if(!c)return res.status(404).json({error:'Không tìm thấy danh mục'});const {name}=req.body;if(typeof name!=='string'||!name.trim()||name.trim().length>100||req.body.type&&req.body.type!==c.type)return res.status(400).json({error:'Tên danh mục không hợp lệ; không thể đổi loại danh mục'});db.exec('BEGIN IMMEDIATE');try{db.prepare('UPDATE categories SET name=? WHERE id=?').run(name.trim(),c.id);const field=c.type==='accessory'?'category':'vehicle';db.prepare(`UPDATE products SET ${field}=? WHERE ${field}=?`).run(name.trim(),c.name);audit(req,`Sửa danh mục ${c.name} thành ${name.trim()}`);db.exec('COMMIT');res.json({ok:true})}catch{db.exec('ROLLBACK');res.status(400).json({error:'Tên danh mục đã tồn tại'})}});

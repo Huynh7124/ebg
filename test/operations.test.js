@@ -10,7 +10,7 @@ import {parseCSV} from '../shared/operations.js';
 
 test('warehouse operations preserve quantities, snapshots, responsibility and durable history',async t=>{
  const dir=await mkdtemp(join(tmpdir(),'ebg-ops-test-')),password=randomBytes(20).toString('hex'),base='http://127.0.0.1:3226/api/';
- const child=spawn(process.execPath,[resolve('server.js'),'--production'],{cwd:dir,env:{...process.env,DATA_DIR:join(dir,'data'),PORT:'3226',INITIAL_ADMIN_PASSWORD:password},stdio:['ignore','pipe','pipe']});
+ const child=spawn(process.execPath,[resolve('server.js'),'--production'],{cwd:dir,env:{...process.env,REQUIRE_PASSWORD:'1',DATA_DIR:join(dir,'data'),PORT:'3226',INITIAL_ADMIN_PASSWORD:password},stdio:['ignore','pipe','pipe']});
  let errors='';child.stderr.on('data',d=>errors+=d);
  t.after(async()=>{if(child.exitCode===null){child.kill();await new Promise(r=>child.once('exit',r))}await rm(dir,{recursive:true,force:true})});
  await new Promise((ok,fail)=>{const timeout=setTimeout(()=>fail(Error(errors||'Startup timeout')),15000);child.stdout.on('data',d=>{if(String(d).includes('server ready')){clearTimeout(timeout);ok()}});child.once('exit',()=>{clearTimeout(timeout);fail(Error(errors))})});

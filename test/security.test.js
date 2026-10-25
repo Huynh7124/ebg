@@ -16,7 +16,7 @@ for(const mode of ['development','production'])test(`${mode}: private files unav
  writeFileSync(join(root,'.env'),'PRIVATE_ENV_SENTINEL');
  writeFileSync(join(root,'src/main.js'),'console.log("public frontend")');
  writeFileSync(join(root,'test/private.json'),'PRIVATE_TEST_SENTINEL');
- const child=spawn(process.execPath,[resolve('server.js')],{cwd:root,env:{...process.env,DATA_DIR:join(root,'data'),NODE_ENV:mode,PORT:String(port)},stdio:['ignore','pipe','pipe']});
+ const child=spawn(process.execPath,[resolve('server.js')],{cwd:root,env:{...process.env,REQUIRE_PASSWORD:'1',DATA_DIR:join(root,'data'),NODE_ENV:mode,PORT:String(port)},stdio:['ignore','pipe','pipe']});
  t.after(async()=>{if(child.exitCode===null){child.kill();await new Promise(r=>child.once('exit',r))}rmSync(root,{recursive:true,force:true})});
  await new Promise((ok,fail)=>{const timer=setTimeout(()=>fail(Error('Startup timeout')),15000);child.stdout.on('data',d=>{if(String(d).includes('server ready')){clearTimeout(timer);ok()}});child.on('exit',()=>{clearTimeout(timer);fail(Error('Server exited'))});child.stderr.resume()});
  const request=path=>fetch(`http://127.0.0.1:${port}${path}`);

@@ -11,7 +11,11 @@ npm run dev
 
 Máy chủ dùng cổng `3000`, có thể thay bằng biến `PORT`. `npm run build` tạo bản production; `npm start` phục vụ bản build. `npm test` kiểm tra đăng nhập, phân quyền, chống CSRF, nhập xuất tồn, phiếu chờ, sản phẩm khóa và nhật ký trên cơ sở dữ liệu tạm biệt lập.
 
-Lần chạy đầu tạo 2 tài khoản mẫu: `admin` (Admin), `kho` (Nhân viên). Đặt biến `INITIAL_ADMIN_PASSWORD` trước lần chạy đầu để chọn mật khẩu khởi tạo; nếu không, hệ thống sinh mật khẩu ngẫu nhiên và hiển thị **một lần ở terminal máy chủ**. Biến này không thay đổi mật khẩu tài khoản đã tồn tại. Đăng nhập và đổi mật khẩu tại **Tài khoản & bảo mật**. Admin có thể cấp tài khoản cùng vai trò tại đây.
+Mặc định mở ứng dụng sẽ thấy danh sách tài khoản: bấm tên để đăng nhập, không nhập mật khẩu. Có tìm kiếm theo tên nhân viên/tên đăng nhập, hỗ trợ không dấu. Khi khởi động, hệ thống bổ sung những vai trò chưa có tài khoản: `admin`, `kho`, `giacong`, `donggoi`. Tài khoản và mật khẩu đã có được giữ nguyên; vai trò đã có tài khoản bị khóa không được tự tạo lại. Tài khoản bị khóa không xuất hiện trong danh sách và không đăng nhập được. Admin hoặc kho thêm nhân viên tại **Nhân viên** mà không cần đặt mật khẩu; quyền thao tác vẫn theo vai trò ở máy chủ.
+
+Nếu muốn dùng lại màn hình email/tên đăng nhập và mật khẩu, đặt biến môi trường `REQUIRE_PASSWORD=1` trên tiến trình máy chủ rồi khởi động lại. Chế độ này ẩn danh sách tài khoản công khai và yêu cầu mật khẩu cả khi đăng nhập lẫn tạo nhân viên. `INITIAL_ADMIN_PASSWORD` chỉ chọn mật khẩu cho tài khoản mẫu khi khởi tạo database mới; không thay đổi mật khẩu tài khoản đã tồn tại. Các tài khoản tạo bằng chế độ bấm tên có mật khẩu ngẫu nhiên được băm; có thể đặt lại bằng công cụ `account:reset` trước khi chuyển sang đăng nhập mật khẩu.
+
+Kiểm tra luồng bấm tên và bốn vai trò trên trình duyệt sau build: `npm run test:account-login`.
 
 ## Chức năng
 
@@ -74,6 +78,8 @@ Bản sửa cho phép Vite phục vụ đúng các module giao diện công khai
 Có thể chạy `npm run test:dev` để kiểm tra giao diện dev bằng Chromium (hỗ trợ `CHROMIUM_PATH`); kiểm thử dùng thư mục dữ liệu tạm, không dùng database kho. Biến `DATA_DIR` cho phép chỉ định thư mục lưu SQLite, mặc định vẫn là `data/`; không đổi biến này trên máy thật nếu chưa chuyển dữ liệu sang thư mục tương ứng.
 
 ## Đăng nhập bằng email và tạo tài khoản chủ kho trên máy chạy ứng dụng
+
+Các hướng dẫn mật khẩu dưới đây áp dụng khi bật `REQUIRE_PASSWORD=1`. Chế độ mặc định chỉ cần bấm tài khoản trên màn hình đăng nhập.
 
 Admin có thể gán email cho nhân viên trong màn hình Nhân viên. Email là duy nhất (không phân biệt hoa/thường), dùng được thay cho tên đăng nhập; tên đăng nhập cũ vẫn hoạt động. Email chưa được xác minh và chưa có chức năng gửi thư tự động. Email không được dùng để tự cấp quyền.
 
@@ -145,7 +151,7 @@ Danh sách phiếu giữ nguyên toàn bộ phiếu khi có ít nhất một dò
 
 ## Giao diện đăng nhập tối giản
 
-Màn hình chưa đăng nhập chỉ có một hộp thoại ở giữa với logo gốc trên nền đỏ, Gmail/email, mật khẩu tài khoản kho và nút Đăng nhập. Không có banner, khẩu hiệu hay nút cài ứng dụng nổi ở màn hình này. Nút cài ứng dụng xuất hiện sau đăng nhập; thông báo mất mạng vẫn hoạt động.
+Màn hình chưa đăng nhập có một hộp thoại ở giữa với logo đen/đỏ trên nền trắng. Mặc định hiển thị danh sách tên nhân viên, tên đăng nhập và vai trò; bấm tài khoản để vào ngay. Khi bật `REQUIRE_PASSWORD=1`, hộp thoại dùng form Gmail/email và mật khẩu. Nút cài ứng dụng xuất hiện sau đăng nhập; thông báo mất mạng vẫn hoạt động.
 
 Đăng nhập hiện vẫn xác thực tài khoản trong SQLite, chưa phải OAuth/Google Sign-In. Nhập mật khẩu của tài khoản kho được Admin cấp, không nhập mật khẩu hộp thư Google. Tên đăng nhập cũ vẫn được backend chấp nhận để không khóa người dùng hiện có. Tích hợp popup Google cần cấu hình dự án Firebase/OAuth và kiểm tra quyền tài khoản trước khi cho truy cập kho.
 

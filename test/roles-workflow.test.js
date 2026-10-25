@@ -8,7 +8,7 @@ import {randomBytes,randomUUID} from 'node:crypto';
 
 test('three roles enforce account delegation and warehouse ↔ processing workflow',async t=>{
  const dir=await mkdtemp(join(tmpdir(),'ebg-roles-')),password=randomBytes(20).toString('hex'),base='http://127.0.0.1:3228/api/';let log='';
- const child=spawn(process.execPath,[resolve('server.js'),'--production'],{cwd:dir,env:{...process.env,DATA_DIR:join(dir,'data'),PORT:'3228',INITIAL_ADMIN_PASSWORD:password},stdio:['ignore','pipe','pipe']});child.stderr.on('data',d=>log+=d);
+ const child=spawn(process.execPath,[resolve('server.js'),'--production'],{cwd:dir,env:{...process.env,REQUIRE_PASSWORD:'1',DATA_DIR:join(dir,'data'),PORT:'3228',INITIAL_ADMIN_PASSWORD:password},stdio:['ignore','pipe','pipe']});child.stderr.on('data',d=>log+=d);
  t.after(async()=>{if(child.exitCode===null){child.kill();await new Promise(r=>child.once('exit',r))}await rm(dir,{recursive:true,force:true})});
  await new Promise((ok,fail)=>{const timer=setTimeout(()=>fail(Error(log||'Startup timeout')),15000);child.stdout.on('data',d=>{if(String(d).includes('server ready')){clearTimeout(timer);ok()}});child.once('exit',()=>{clearTimeout(timer);fail(Error(log))})});
  function client(){let cookie='',csrf='';return {async req(path,body,expected=200){const r=await fetch(base+path,{method:body?'POST':'GET',headers:{cookie,'x-csrf-token':csrf,'content-type':'application/json'},body:body?JSON.stringify(body):undefined});if(r.headers.get('set-cookie'))cookie=r.headers.get('set-cookie').split(';')[0];const d=await r.json();if(path==='session'||path==='login')csrf=d.csrf;assert.equal(r.status,expected,path+': '+JSON.stringify(d));return d},async login(username){await this.req('session');return this.req('login',{username,password})}}}
