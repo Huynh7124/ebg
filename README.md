@@ -61,6 +61,17 @@ Kiểm tra trình duyệt bằng `npm run test:pwa` sau build (cần Chromium c�
 
 ## Bốn vai trò Admin / Kho / Gia công / Đóng gói
 
+Mỗi vai trò có màn hình chính và menu riêng sau khi bấm tên đăng nhập:
+
+| Vai trò | Màn hình chính | Nội dung ưu tiên |
+| --- | --- | --- |
+| Admin | Quản trị hệ thống | Đội ngũ theo vai trò, phân quyền, sao lưu và hoạt động toàn đội |
+| Nhân viên kho | Điều hành kho | Yêu cầu chờ xác nhận, hàng chờ xuất, kiểm nhận và tồn cần bổ sung |
+| Nhân viên gia công | Gia công của tôi | Việc mới được giao, việc đang làm, kết quả chờ kho và yêu cầu đã gửi |
+| Nhân viên đóng gói | Đóng gói của tôi | Lên đơn đầu ngày, hàng chờ nhận và danh sách đóng gói theo ngày |
+
+Gia công và đóng gói chỉ có menu công việc riêng và tra cứu hàng/vật tư; không hiện menu quản trị nhân viên, nhập/xuất kho, danh mục, lịch sử toàn kho hoặc báo cáo chung. Phiếu xuất liên quan vẫn được xem/in từ chi tiết công việc. Khi thay đổi vai trò trong phiên đang mở, lần tải lại dữ liệu tiếp theo sẽ chuyển sang màn hình và menu tương ứng, đóng nội dung của vai trò trước.
+
 - **Admin:** toàn quyền, tạo/sửa/khóa tài khoản và phân vai trò cho mọi người. Hệ thống luôn giữ ít nhất một Admin hoạt động.
 - **Nhân viên kho:** quản lý sản phẩm, danh mục, định mức, nhập/xuất/kiểm hàng, duyệt yêu cầu, tạo lệnh gia công/sửa, mua vật tư và quản lý tài khoản nhân viên. Kho được tạo tài khoản, sửa/khóa/đặt lại mật khẩu và phân các vai trò kho, gia công, đóng gói cho nhân viên; chỉ Admin cấp quyền hoặc quản lý tài khoản Admin.
 - **Nhân viên gia công:** nhận công việc theo đơn hoặc làm bổ sung tồn do kho giao, báo sẵn sàng bàn giao, xin cấp bổ sung cho việc mình nhận và gửi yêu cầu đi đơn. Kho duyệt và xuất thực tế rồi nhân viên xác nhận nhận. Nhân viên gia công không tự thay đổi tồn hoặc nhận kiểm hàng thay kho.
