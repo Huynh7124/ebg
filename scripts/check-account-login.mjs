@@ -25,7 +25,7 @@ try{
   assert.equal(await page.locator('.top-nav').getByRole('button',{name:'Nhân viên',exact:true}).count(),['admin','warehouse'].includes(role)?1:0);
   const expectedNav=['admin','warehouse'].includes(role)?[title,'Sản phẩm','Danh mục','Nhân viên','Lịch sử hoạt động']:[title,role==='processor'?'Tra cứu vật tư':'Tra cứu hàng'];
   assert.deepEqual(await page.locator('.top-nav button').allTextContents(),expectedNav);
-  const dashboard={admin:'Đội ngũ theo vai trò',warehouse:'Yêu cầu cần kho xử lý',processor:'Việc mới kho giao',packer:'Hàng kho đã xuất, chờ tôi nhận'};
+  const dashboard={admin:'Đội ngũ theo vai trò',warehouse:'Yêu cầu cần kho xử lý',processor:'Đơn gia công của tôi',packer:'Đơn đóng gói của tôi'};
   await page.getByRole('heading',{name:dashboard[role],exact:true}).waitFor();
   if(['processor','packer'].includes(role)){assert.equal(await page.getByRole('button',{name:'Xuất báo cáo',exact:true}).count(),0);assert.equal(await page.getByRole('heading',{name:'Mặt hàng cần bổ sung',exact:true}).count(),0)}
   if(role==='processor'){await page.getByRole('button',{name:ownDispatch,exact:true}).waitFor();assert.equal(await page.getByRole('button',{name:otherDispatch,exact:true}).count(),0);await page.getByRole('button',{name:'Chờ tôi nhận việc',exact:false}).click();await page.getByRole('button',{name:ownDispatch,exact:true}).waitFor();await page.getByRole('button',{name:'Tổng quan',exact:true}).click()}
@@ -40,7 +40,7 @@ try{
   }
   await page.getByRole('button',{name:'Đăng xuất',exact:true}).click();await page.getByRole('button',{name:'Đăng nhập bằng admin',exact:true}).waitFor();assert.equal(await page.locator('[type=password]').count(),0);
  }
- await page.getByRole('button',{name:'Đăng nhập bằng new_packing',exact:true}).click();await page.getByText('Lên đơn đóng gói đầu ngày.',{exact:true}).waitFor();assert.equal((await(await context.request.get(url+'/api/session')).json()).user.role,'packer');
+ await page.getByRole('button',{name:'Đăng nhập bằng new_packing',exact:true}).click();await page.getByRole('heading',{name:'Đơn đóng gói của tôi',exact:true}).waitFor();assert.equal((await(await context.request.get(url+'/api/session')).json()).user.role,'packer');
  const manager=await browser.newContext();const session=await(await manager.request.get(url+'/api/session')).json();assert.equal((await manager.request.post(url+'/api/login',{headers:{'x-csrf-token':session.csrf},data:{username:'admin'}})).status(),200);const managerSession=await(await manager.request.get(url+'/api/session')).json(),users=await(await manager.request.get(url+'/api/users')).json();assert.equal((await manager.request.post(url+'/api/ops/access',{headers:{'x-csrf-token':managerSession.csrf},data:{userId:users.find(u=>u.username==='new_packing').id,role:'processor'}})).status(),200);
  await page.getByRole('button',{name:'Tải lại công việc'}).click();await page.getByRole('heading',{name:'Gia công của tôi',exact:true}).waitFor();await page.getByRole('button',{name:'Việc được giao',exact:true}).waitFor();assert.equal(await page.getByRole('button',{name:'Lên đơn đóng gói',exact:true}).count(),0);assert.deepEqual(await page.locator('.top-nav button').allTextContents(),['Gia công của tôi','Tra cứu vật tư']);await manager.close();
  assert.deepEqual(errors,[]);
