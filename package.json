@@ -11,7 +11,10 @@
     "test:pwa": "node scripts/check-pwa.mjs",
     "test:dev": "node scripts/check-dev.mjs",
     "account:create": "node scripts/create-account.mjs",
-    "account:reset": "node scripts/reset-password.mjs"
+    "account:reset": "node scripts/reset-password.mjs",
+    "test:operations": "node scripts/check-operations.mjs",
+    "backup": "node scripts/backup-database.mjs",
+    "backup:restore": "node scripts/restore-backup.mjs"
   },
   "repository": {
     "type": "git",

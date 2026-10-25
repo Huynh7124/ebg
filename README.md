@@ -37,7 +37,7 @@ Trước khi mở cho người dùng thật:
 
 Có cookie HttpOnly/SameSite, phiên 8 giờ, bcrypt, giới hạn thử đăng nhập, chống CSRF, Helmet, truy vấn SQL có tham số, kiểm tra số lượng và quyền tại API. Đây là phiên bản đầu cho một kho: chưa có MFA, quy trình khôi phục mật khẩu/email, đánh giá bảo mật độc lập. Đổi mật khẩu hiện không thu hồi các phiên khác. Khởi động lại không giữ phiên nếu chưa cấu hình `SESSION_SECRET` ổn định.
 
-Giao diện dùng tên “Anode”; tên cột SQLite `anote` cũ được giữ để tương thích dữ liệu. Xuất phiếu hiện ở định dạng CSV; chưa có mẫu PDF/in theo biểu mẫu doanh nghiệp. Logo giao diện dùng nguyên tệp Asset-4.png.webp do chủ kho cung cấp; các biểu tượng trình duyệt và cài ứng dụng được đóng gói từ cùng ảnh gốc.
+Giao diện dùng tên “Anode”; tên cột SQLite `anote` cũ được giữ để tương thích dữ liệu. Xuất phiếu hiện ở định dạng CSV; chưa có mẫu PDF/in theo biểu mẫu doanh nghiệp. Logo giao diện và biểu tượng ứng dụng dùng nhận diện chữ đen, tia sét đỏ trên nền trắng; tệp gốc được giữ để đối chiếu.
 
 ## Cập nhật bảo mật máy chủ phát triển
 
@@ -85,9 +85,9 @@ Việc tải ZIP từ GitHub không mang theo tài khoản hoặc database. Khô
 
 ## Logo và biểu tượng
 
-Logo trong web dùng `public/brand/Asset-4.png.webp`. Favicon, Apple Touch Icon và các icon PWA 192/512 pixel trong `public/icons/` dùng cùng hình EBG trên nền đen, giữ tỷ lệ logo; icon maskable có khoảng trống để hệ điều hành cắt góc mà không mất nội dung. Không sử dụng wordmark dựng bằng chữ hoặc icon tia sét cũ. Các ký hiệu thao tác như tìm kiếm, khóa và chuông vẫn giữ nguyên. Sau khi cập nhật, cần build lại; trình duyệt hoặc ứng dụng PWA đã cài có thể cần đóng/mở lại hoặc cài lại để cập nhật biểu tượng hệ điều hành.
+Giao diện dùng logo `public/brand/ebg-black-red.png`: chữ EBG và EBIKE GARAGE màu đen, tia sét đỏ, nền trong suốt. Header, đăng nhập, phiếu xuất và biểu tượng PWA dùng cùng nhận diện trên nền trắng. Tệp logo gốc `Asset-4.png.webp` vẫn được giữ để đối chiếu.
 
-Ảnh `Asset-4.png.webp` được giữ nguyên byte như bản chủ kho tải lên. Logo và favicon WebP tham chiếu trực tiếp ảnh gốc; các icon PNG chỉ thu/phóng theo tỷ lệ và thêm nền đen để đủ kích thước vuông theo yêu cầu của hệ điều hành. Không vẽ lại, đổi màu hoặc cắt nội dung. Khi cần đóng gói lại icon: chạy `CHROMIUM_PATH=/path/to/chromium node scripts/build-brand-icons.mjs` hoặc dùng Chromium của Playwright nếu không đặt biến. Icon đã được commit nên chạy ứng dụng/build thông thường không cần Chromium.
+Khi cần đóng gói lại favicon/icon: chạy `CHROMIUM_PATH=/path/to/chromium node scripts/build-brand-icons.mjs`. Công cụ contain-fit toàn bộ logo trên nền trắng, gồm phiên bản maskable với vùng an toàn. Icon đã được commit; chạy ứng dụng/build thông thường không cần Chromium.
 
 ## Nhập / xuất kho đơn giản
 
@@ -168,3 +168,13 @@ Phiếu xuất dùng bố cục A4, logo đen khi in, chữ 13pt; thông tin b�
 Trong **Sản phẩm → Hàng sửa & Anode**, phần **Theo dõi phiếu Anode** hiển thị riêng phiếu Xuất kho đi Anode, đơn vị Nam Thái/Bình Phát, sản phẩm, số lượng và trạng thái. Có bộ lọc **Chờ hàng về / Đã về**, xem phiếu và in trực tiếp. Tích **Đã về** để nhận toàn bộ hàng trên phiếu về kho: giảm số đang Anode, cộng tồn kho chính, lưu người thao tác và chuyển phiếu hoàn tất. Không nhận về từng phần. Phiếu đã về giữ ô tích và không được tích lại; dữ liệu được lưu trên máy chủ, không chỉ trên trình duyệt.
 
 Bộ lọc trong danh sách Sản phẩm dùng cùng thành phần và cách lọc của form phiếu xuất: tên/mã không phân biệt dấu, dòng xe, màu sắc và Đơn/Đôi; vẫn có bộ lọc danh mục riêng. Tab Hàng sửa & Anode hiển thị danh sách phiếu Anode và phiếu gửi sửa để xem, in và xử lý nhận hàng về. Không có mục Anode riêng trên thanh điều hướng.
+
+## Điều phối kho, sản xuất và bàn giao
+
+Màn hình **Điều phối kho** bổ sung yêu cầu cấp hàng hai chiều, lệnh sản xuất/lắp ráp theo định mức phiên bản, Anode đổi mã màu, Carbon theo số vật tư thực dùng, sửa hàng lỗi và bàn giao hàng sẵn. Có người nhận, nơi nhận, hạn trả, đổi hạn/đổi người có lý do, kết quả theo ngày và nhận nhiều đợt với số đạt/lỗi riêng.
+
+Tạo yêu cầu chưa trừ tồn; kho xuất thực tế mới trừ. Định mức đã chụp trong lệnh không đổi khi cập nhật phiên bản mới. Các lỗi hoặc vật tư còn thừa cần đối chiếu trước khi đóng. Không tự nhập ngược vật tư qua ngày và không tự trừ linh kiện lần nữa khi xuất thành phẩm.
+
+Dữ liệu cũ được giữ. Nhân viên mới mặc định lập yêu cầu; Admin giao quyền kho và đầu mối mua tại **Dữ liệu & quyền**. Có nạp CSV xem trước/chặn ghi đè số dư, hồ sơ nhà cung cấp/đề nghị mua, nhãn QR theo mã hàng và sao lưu SQLite nhất quán. Quét camera phụ thuộc hỗ trợ trình duyệt; có tra mã từ đầu đọc hoặc bàn phím.
+
+Hướng dẫn vận hành, đơn vị, nhập dữ liệu và khôi phục: [docs/WAREHOUSE-V2.md](docs/WAREHOUSE-V2.md). Kiểm tra giao diện điều phối sau build bằng `CHROMIUM_PATH=/usr/bin/chromium npm run test:operations`.

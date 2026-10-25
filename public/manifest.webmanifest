@@ -7,11 +7,26 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#c23538",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "icons": [
-    {"src": "/icons/ebg-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
-    {"src": "/icons/ebg-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
-    {"src": "/icons/ebg-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+    {
+      "src": "/icons/ebg-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/ebg-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/ebg-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }

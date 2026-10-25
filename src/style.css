@@ -140,3 +140,20 @@ header{background:var(--red);color:white;border-bottom-color:var(--red)}.breadcr
   .notification-backdrop .modal{top:142px;max-height:calc(100dvh - 154px)}
   .notification-backdrop .notification-items{max-height:calc(100dvh - 310px)}
 }
+
+/* White surfaces, dark lettering and red brand accents. */
+:root{background:#fff;color:#20262e;--line:#e7e9ec}
+body,.app,.main{background:#fff}
+header{background:#fff;color:#20262e;border-bottom:1px solid #e3e6e9}
+.header-account,.header-account-name small,.header-logout,.header-right .bell{color:#252b32}
+.header-account-name small{color:#64707b}
+.header-logout{background:#fff;border-color:#d9dfe5}
+.header-logout:hover{background:#f3f5f7}
+.header-account:focus-visible,.header-logout:focus-visible{outline-color:var(--red)}
+.header-right .avatar.small{background:#f4f5f7;border-color:#dce1e6;color:#252b32}
+.header-product-search{background:#f7f8fa;border-color:#e0e4e8}
+.header-product-search:focus-within{outline-color:#c2353840}
+.login-screen{background:#f8f9fa}
+.login-dialog-brand{background:#fff;border-bottom:1px solid #edf0f2}
+.outbound-company-logo{background:#fff}
+@media print{.outbound-company-logo img{filter:none}}
