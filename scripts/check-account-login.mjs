@@ -21,7 +21,7 @@ try{
  let ownDispatch,otherDispatch;
  for(const [username,role,title]of [['admin','admin','Quản trị hệ thống'],['kho','warehouse','Điều hành kho'],['giacong','processor','Gia công của tôi'],['donggoi','packer','Đóng gói của tôi']]){
   await page.getByRole('button',{name:'Đăng nhập bằng '+username,exact:true}).click();await page.getByRole('heading',{name:title,exact:true}).waitFor();
-  assert.equal((await(await context.request.get(url+'/api/session')).json()).user.role,role);
+  assert.equal((await(await context.request.get(url+'/api/session')).json()).user.role,role);await page.locator('.heading-actions').getByRole('button',{name:'Tải lại công việc'}).waitFor();assert.equal(await page.locator('.ops-toolbar').count(),0);
   assert.equal(await page.locator('.top-nav').getByRole('button',{name:'Nhân viên',exact:true}).count(),['admin','warehouse'].includes(role)?1:0);
   const expectedNav=['admin','warehouse'].includes(role)?[title,'Sản phẩm','Danh mục','Nhân viên','Lịch sử hoạt động']:[title,role==='processor'?'Tra cứu vật tư':'Tra cứu hàng'];
   assert.deepEqual(await page.locator('.top-nav button').allTextContents(),expectedNav);
@@ -31,7 +31,7 @@ try{
   if(role==='processor'){await page.getByRole('button',{name:ownDispatch,exact:true}).waitFor();assert.equal(await page.getByRole('button',{name:otherDispatch,exact:true}).count(),0);await page.getByRole('button',{name:'Chờ tôi nhận việc',exact:false}).click();await page.getByRole('button',{name:ownDispatch,exact:true}).waitFor();await page.getByRole('button',{name:'Tổng quan',exact:true}).click()}
   for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:1000});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,role+' at '+width)}
   await page.screenshot({path:'/tmp/ebg-workspace-'+role+'-desktop.png',fullPage:true});await page.setViewportSize({width:390,height:844});await page.screenshot({path:'/tmp/ebg-workspace-'+role+'-mobile.png',fullPage:true});
-  await page.reload();await page.getByRole('heading',{name:title,exact:true}).waitFor();assert.equal((await(await context.request.get(url+'/api/session')).json()).user.role,role);
+  await page.reload();await page.getByRole('heading',{name:title,exact:true}).waitFor();assert.equal((await(await context.request.get(url+'/api/session')).json()).user.role,role);await page.locator('.heading-actions').getByRole('button',{name:'Tải lại công việc'}).waitFor();assert.equal(await page.locator('.ops-toolbar').count(),0);
   if(username==='admin'){
    await page.getByRole('button',{name:'Tài khoản & bảo mật',exact:true}).click();assert.equal(await page.getByRole('heading',{name:'Đổi mật khẩu',exact:true}).count(),0);await page.getByRole('button',{name:'Đóng',exact:true}).click();
    await page.locator('.top-nav').getByRole('button',{name:'Nhân viên',exact:true}).click();await page.getByRole('button',{name:'Thêm nhân viên',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Thêm nhân viên'});assert.equal(await dialog.locator('[name=password]').count(),0);await dialog.getByRole('textbox',{name:'Họ tên',exact:true}).fill('Đóng gói mới');await dialog.getByRole('textbox',{name:'Tên đăng nhập',exact:true}).fill('new_packing');await dialog.getByRole('combobox',{name:'Vai trò',exact:true}).selectOption('packer');await dialog.getByRole('button',{name:'Lưu nhân viên'}).click();await dialog.waitFor({state:'hidden'});

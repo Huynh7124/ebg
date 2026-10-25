@@ -36,4 +36,8 @@
 .worker-empty{padding:24px 16px;margin-top:16px;border:1px dashed #d5dce0;border-radius:10px;text-align:center;background:#fafbfc}
 @media(max-width:700px){.worker-order-board{padding:14px}.worker-order-board>.ops-section-heading h3{font-size:19px}.worker-order-board>.ops-section-heading p{display:none}.worker-order-board>.ops-section-heading{gap:10px}.worker-queue-tabs{gap:6px}.worker-queue-tabs button{padding:9px;font-size:12px;flex:1;flex-wrap:wrap;gap:5px}.worker-order-board .role-job{padding:14px}.worker-order-board .role-job-list{margin-top:12px}.worker-order-board .ops-actions{width:100%}.worker-order-board .ops-actions button{flex:1;min-height:42px}}
 
-.ops-toolbar{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin:12px 0}
+
+
+.operations-heading{flex-wrap:wrap}.operations-heading .heading-actions{flex-wrap:wrap;max-width:100%;gap:8px}.operations-heading .heading-actions button{min-height:42px}.operations-heading .heading-actions .primary{font-size:13px}
+@media(max-width:700px){.operations-heading .heading-actions{width:100%;padding:0}.operations-heading .heading-actions button{font-size:12px}.operations-heading .heading-actions .primary{font-size:12px;padding:10px 12px}}
+.operations-heading .heading-actions .secondary{display:inline-flex}
