@@ -87,6 +87,14 @@ Nhập mật khẩu 12–128 ký tự và xác nhận khi được hỏi. Mật 
 
 Việc tải ZIP từ GitHub không mang theo tài khoản hoặc database. Không đặt email/mật khẩu của chủ kho cố định trong source. Muốn dùng thư xác minh/đặt mật khẩu cần tích hợp Firebase Authentication hoặc dịch vụ gửi thư riêng; hiện chưa cấu hình hoặc gửi bất kỳ email nào.
 
+Để bổ sung đủ bốn vai trò trên máy đang chạy phần mềm, cập nhật mã nguồn rồi chạy trong thư mục dự án:
+
+```sh
+npm run accounts:setup
+```
+
+Lệnh dùng database tại `DATA_DIR/ebg.db` hoặc `data/ebg.db`, cần chạy ứng dụng bản mới ít nhất một lần trước đó. Mỗi vai trò chưa có tài khoản hoạt động được tạo với tên `admin`, `kho`, `giacong` hoặc `donggoi` và mật khẩu ngẫu nhiên riêng, hiện tại terminal sau khi tạo thành công. Lưu thông tin này để cấp cho nhân viên rồi đổi mật khẩu tại **Tài khoản & bảo mật**. Nếu tên đã được dùng, lệnh thêm hậu tố số. Vai trò đã có tài khoản hoạt động giữ nguyên tài khoản và mật khẩu; chạy lại không đặt lại mật khẩu, không mở khóa tài khoản cũ và không thay đổi tồn kho. Lệnh chỉ tạo tài khoản trên máy chạy lệnh, không đồng bộ qua GitHub.
+
 ## Logo và biểu tượng
 
 Giao diện dùng logo `public/brand/ebg-black-red.png`: chữ EBG và EBIKE GARAGE màu đen, tia sét đỏ, nền trong suốt. Header, đăng nhập, phiếu xuất và biểu tượng PWA dùng cùng nhận diện trên nền trắng. Tệp logo gốc `Asset-4.png.webp` vẫn được giữ để đối chiếu.
