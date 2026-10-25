@@ -1,3 +1,4 @@
+import {normalizeRole} from '../shared/roles.js';
 import {DatabaseSync} from 'node:sqlite';
 import {existsSync} from 'node:fs';
 import {join,resolve} from 'node:path';
@@ -5,8 +6,8 @@ import {pathToFileURL} from 'node:url';
 import {emitKeypressEvents} from 'node:readline';
 import bcrypt from 'bcryptjs';
 export function createAccount({databasePath,email,name,role='admin',password}){
- email=String(email||'').trim().toLowerCase();name=String(name||'').trim();
- if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>254||!name||name.length>100||!['admin','staff'].includes(role)||typeof password!=='string'||password.length<12||password.length>128)throw Error('Email, họ tên hoặc mật khẩu không hợp lệ (mật khẩu 12–128 ký tự).');
+ role=normalizeRole(role);email=String(email||'').trim().toLowerCase();name=String(name||'').trim();
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>254||!name||name.length>100||!['admin','warehouse','processor'].includes(role)||typeof password!=='string'||password.length<12||password.length>128)throw Error('Email, họ tên hoặc mật khẩu không hợp lệ (mật khẩu 12–128 ký tự).');
  if(!existsSync(databasePath))throw Error('Chưa có database. Chạy bản mới bằng npm run dev một lần, dừng ứng dụng rồi chạy lại lệnh này.');
  const db=new DatabaseSync(databasePath);
  try{

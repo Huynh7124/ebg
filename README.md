@@ -55,13 +55,15 @@ Kiểm tra trình duyệt bằng `npm run test:pwa` sau build (cần Chromium c�
 
 Ứng dụng vẫn dùng SQLite cho đến khi có cấu hình dự án Firebase và hoàn tất chuyển đổi. Xem [hướng dẫn chuẩn bị Firebase Spark](docs/FIREBASE-SPARK.md). Chưa có chức năng backup tự động hoặc triển khai Firebase ở bản này.
 
-## Hai vai trò Admin / Nhân viên
+## Ba vai trò Admin / Nhân viên kho / Nhân viên gia công
 
-Chỉ Admin được thêm, sửa, khóa/mở khóa nhân viên và danh mục (dòng xe, dòng phụ kiện). Mục **Nhân viên** cho phép quản lý họ tên, tên đăng nhập, đặt lại mật khẩu và trạng thái tài khoản; API không trả mật khẩu hoặc hash. Khóa nhân viên thu hồi phiên hiện có và chặn đăng nhập mới. Đặt lại mật khẩu nhân viên cũng thu hồi phiên. Không có thao tác thay đổi hoặc khóa tài khoản Admin trong màn hình này.
+- **Admin:** toàn quyền, tạo/sửa/khóa tài khoản và phân vai trò cho mọi người. Hệ thống luôn giữ ít nhất một Admin hoạt động.
+- **Nhân viên kho:** quản lý sản phẩm, danh mục, định mức, nhập/xuất/kiểm hàng, duyệt yêu cầu, tạo lệnh gia công/sửa, mua vật tư và quản lý tài khoản nhân viên. Kho được tạo tài khoản gia công, sửa/khóa/đặt lại mật khẩu nhân viên; không thay đổi vai trò hoặc sửa tài khoản Admin.
+- **Nhân viên gia công:** nhận công việc theo đơn hoặc làm bổ sung tồn do kho giao, báo sẵn sàng bàn giao, xin cấp bổ sung cho việc mình nhận và gửi yêu cầu đi đơn. Kho duyệt và xuất thực tế rồi nhân viên xác nhận nhận. Nhân viên gia công không tự thay đổi tồn hoặc nhận kiểm hàng thay kho.
 
-Nhân viên vẫn quản lý sản phẩm và nhập/xuất kho, xem danh mục, tồn kho và lịch sử. Nhân viên không truy cập được danh sách tài khoản hoặc API quản lý danh mục. Khóa danh mục ngăn gán danh mục đó cho sản phẩm mới hoặc đổi một sản phẩm sang danh mục đó; sản phẩm đã thuộc danh mục vẫn giữ liên kết và giao dịch bình thường. Đổi tên danh mục tự cập nhật liên kết sản phẩm trong cùng transaction.
+Luồng làm hàng: Kho tạo lệnh → kho xuất → nhân viên nhận → báo sẵn sàng → kho kiểm nhận đạt/lỗi. Báo hoàn thành không tự tăng tồn. Luồng đi đơn: Nhân viên gửi yêu cầu có mã đơn → kho duyệt/xuất → nhân viên nhận hàng đi đơn.
 
-Khi khởi động bản mới, migration tự thêm cột trạng thái nếu chưa có, chuyển vai trò `it` và `warehouse` cũ thành `staff` (Nhân viên), giữ ID, mật khẩu và dữ liệu. Tài khoản có tên đăng nhập `it` cũ vẫn tồn tại nhưng chỉ còn quyền Nhân viên; Admin có thể sửa tên đăng nhập hoặc khóa tài khoản này. Trước khi cập nhật máy thật, dừng ứng dụng và sao lưu thư mục `data/`; không xóa database để cập nhật vai trò.
+Khi nâng cấp, giữ dữ liệu và mật khẩu. Tài khoản `warehouse` giữ vai trò kho; `it` chuyển thành gia công. `staff` của bản có quyền kho riêng được chuyển dựa vào quyền kho đã có; tài khoản không có quyền kho chuyển thành gia công. Tài khoản `staff` từ bản cũ chưa có bảng quyền giữ nghiệp vụ kho đã được dùng trước đây. Các cờ quyền mua/kho cũ không thể vượt quyền của vai trò mới. Phân quyền có hiệu lực ở yêu cầu API tiếp theo của phiên đang đăng nhập.
 
 ## Khắc phục trang trắng khi chạy dev
 
@@ -79,7 +81,7 @@ Admin có thể gán email cho nhân viên trong màn hình Nhân viên. Email l
 npm run account:create -- --email owner@example.com --name "Chủ kho" --role admin
 ```
 
-Nhập mật khẩu 12–128 ký tự và xác nhận khi được hỏi. Mật khẩu được che bằng dấu `*`, chỉ lưu bcrypt, không ghi vào mã nguồn hoặc in ra log. Lệnh không ghi đè tài khoản có sẵn và không gửi email. Có thể dùng `--role staff` để tạo Nhân viên. Lệnh áp dụng cho database trên máy đang chạy lệnh (`DATA_DIR` hoặc thư mục `data/` mặc định); tạo trên một máy không tự tạo tài khoản trên máy khác. Khởi động lại ứng dụng rồi đăng nhập bằng email và mật khẩu vừa nhập.
+Nhập mật khẩu 12–128 ký tự và xác nhận khi được hỏi. Mật khẩu được che bằng dấu `*`, chỉ lưu bcrypt, không ghi vào mã nguồn hoặc in ra log. Lệnh không ghi đè tài khoản có sẵn và không gửi email. Có thể dùng `--role processor` để tạo Nhân viên. Lệnh áp dụng cho database trên máy đang chạy lệnh (`DATA_DIR` hoặc thư mục `data/` mặc định); tạo trên một máy không tự tạo tài khoản trên máy khác. Khởi động lại ứng dụng rồi đăng nhập bằng email và mật khẩu vừa nhập.
 
 Việc tải ZIP từ GitHub không mang theo tài khoản hoặc database. Không đặt email/mật khẩu của chủ kho cố định trong source. Muốn dùng thư xác minh/đặt mật khẩu cần tích hợp Firebase Authentication hoặc dịch vụ gửi thư riêng; hiện chưa cấu hình hoặc gửi bất kỳ email nào.
 
@@ -151,7 +153,7 @@ Thông tin in lưu dưới dạng `printData` trên header `receipts`, hoặc d�
 
 - Tài khoản & bảo mật: đổi họ tên hiển thị của chính mình hoặc đổi mật khẩu bằng mật khẩu hiện tại. Admin vẫn sửa tên nhân viên trong mục Nhân viên. Các thao tác cũ giữ tên đã ghi trong lịch sử.
 - Nút con mắt hiện/ẩn mật khẩu đang nhập. Không thể xem lại mật khẩu đã lưu vì database chỉ lưu bản băm.
-- Quên mật khẩu ở trang đăng nhập: nhân viên nhập email hoặc tên đăng nhập để gửi yêu cầu. Admin xem yêu cầu ở mục Nhân viên, chọn đặt lại và lưu mật khẩu mới (12–128 ký tự), sau đó cung cấp trực tiếp cho nhân viên. Các phiên đăng nhập cũ bị thu hồi. Không gửi email tự động; chưa cấu hình SMTP.
+- Quên mật khẩu ở trang đăng nhập: nhân viên nhập email hoặc tên đăng nhập để gửi yêu cầu. Admin hoặc nhân viên kho xem yêu cầu ở mục Nhân viên, chọn đặt lại và lưu mật khẩu mới (12–128 ký tự), sau đó cung cấp trực tiếp cho nhân viên. Các phiên đăng nhập cũ bị thu hồi. Không gửi email tự động; chưa cấu hình SMTP.
 - Nếu quên mật khẩu Admin, chủ máy chủ mở terminal trong thư mục ứng dụng và chạy:
 
 ```bash
@@ -175,6 +177,6 @@ Màn hình **Điều phối kho** bổ sung yêu cầu cấp hàng hai chiều, 
 
 Tạo yêu cầu chưa trừ tồn; kho xuất thực tế mới trừ. Định mức đã chụp trong lệnh không đổi khi cập nhật phiên bản mới. Các lỗi hoặc vật tư còn thừa cần đối chiếu trước khi đóng. Không tự nhập ngược vật tư qua ngày và không tự trừ linh kiện lần nữa khi xuất thành phẩm.
 
-Dữ liệu cũ được giữ. Nhân viên mới mặc định lập yêu cầu; Admin giao quyền kho và đầu mối mua tại **Dữ liệu & quyền**. Có nạp CSV xem trước/chặn ghi đè số dư, hồ sơ nhà cung cấp/đề nghị mua, nhãn QR theo mã hàng và sao lưu SQLite nhất quán. Quét camera phụ thuộc hỗ trợ trình duyệt; có tra mã từ đầu đọc hoặc bàn phím.
+Dữ liệu cũ được giữ. Nhân viên mới mặc định là gia công. Admin phân vai trò tại **Dữ liệu & quyền** hoặc **Nhân viên**; nhân viên kho quản lý toàn bộ nghiệp vụ và duyệt yêu cầu. Có nạp CSV xem trước/chặn ghi đè số dư, hồ sơ nhà cung cấp/đề nghị mua, nhãn QR theo mã hàng và sao lưu SQLite nhất quán. Quét camera phụ thuộc hỗ trợ trình duyệt; có tra mã từ đầu đọc hoặc bàn phím.
 
 Hướng dẫn vận hành, đơn vị, nhập dữ liệu và khôi phục: [docs/WAREHOUSE-V2.md](docs/WAREHOUSE-V2.md). Kiểm tra giao diện điều phối sau build bằng `CHROMIUM_PATH=/usr/bin/chromium npm run test:operations`.

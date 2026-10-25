@@ -4,7 +4,7 @@
 
 Bản hiện tại dùng Express + SQLite. Đã có PWA để cài từ một máy chủ HTTPS, nhưng **chưa kết nối Firebase**. Chỉ đưa thư mục `dist` lên Firebase Hosting lúc này sẽ không có API đăng nhập/quản lý kho. Chưa có triển khai, chưa có chuyển dữ liệu và chưa có sao lưu tự động.
 
-Mô hình cần triển khai tiếp: một bộ dữ liệu kho dùng chung, tài khoản nhân viên riêng và quyền Admin/Nhân viên. Firebase Hosting phục vụ React, Authentication quản lý đăng nhập email/mật khẩu và Firestore lưu dữ liệu; không dùng Cloud Functions hoặc dịch vụ cần Blaze. Không cung cấp chức năng tự đăng ký quyền truy cập kho. Quyền phải được xác minh trong Security Rules, không tin vai trò do trình duyệt gửi lên. Việc tạo tài khoản và gán vai trò ban đầu thực hiện qua Firebase Console.
+Mô hình cần triển khai tiếp: một bộ dữ liệu kho dùng chung, tài khoản nhân viên riêng và quyền Admin/Nhân viên kho/Nhân viên gia công. Firebase Hosting phục vụ React, Authentication quản lý đăng nhập email/mật khẩu và Firestore lưu dữ liệu; không dùng Cloud Functions hoặc dịch vụ cần Blaze. Không cung cấp chức năng tự đăng ký quyền truy cập kho. Quyền phải được xác minh trong Security Rules, không tin vai trò do trình duyệt gửi lên. Việc tạo tài khoản và gán vai trò ban đầu thực hiện qua Firebase Console.
 
 ## Tạo dự án miễn phí
 

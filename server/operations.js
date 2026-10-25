@@ -1,3 +1,4 @@
+import {roleAccess,normalizeRole} from '../shared/roles.js';
 import {createHash} from 'node:crypto';
 import {backup} from 'node:sqlite';
 import {mkdtemp,rm} from 'node:fs/promises';
@@ -16,7 +17,7 @@ export function setupOperations(app,db,audit){
  CREATE TABLE IF NOT EXISTS ops_suppliers(id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL UNIQUE,contact TEXT NOT NULL DEFAULT '',phone TEXT NOT NULL DEFAULT '',quote TEXT NOT NULL DEFAULT '',note TEXT NOT NULL DEFAULT '');
  CREATE TABLE IF NOT EXISTS ops_purchases(id INTEGER PRIMARY KEY AUTOINCREMENT,productId INTEGER NOT NULL,quantity INTEGER NOT NULL,received INTEGER NOT NULL DEFAULT 0,supplierId INTEGER,reason TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'pending',requesterId INTEGER,createdAt TEXT NOT NULL);
  CREATE TABLE IF NOT EXISTS ops_imports(digest TEXT PRIMARY KEY,date TEXT NOT NULL,actorId INTEGER);`);
- if(first)db.prepare("INSERT INTO ops_access(userId,warehouse) SELECT id,1 FROM users WHERE role<>'admin'").run();
+ if(first)db.prepare("INSERT INTO ops_access(userId,warehouse) SELECT id,1 FROM users WHERE role='warehouse'").run();
  const fail=(message,status=400)=>{throw Object.assign(Error(message),{status})};
  const text=(v,max=500,required=false)=>{if(typeof v!=='string'||v.length>max||required&&!v.trim())fail('Thông tin thiếu hoặc quá dài');return v.trim()};
  const qty=(v,zero=false)=>{if(!['number','string'].includes(typeof v)||v===''||!Number.isSafeInteger(+v)||+v<(zero?0:1)||+v>1000000000)fail('Số lượng phải là số nguyên hợp lệ, tối đa 1 tỷ theo đơn vị đã chọn');return +v};
@@ -24,7 +25,7 @@ export function setupOperations(app,db,audit){
  const now=()=>new Date().toISOString();
  const person=v=>{const p=db.prepare('SELECT id,name,locked FROM users WHERE id=?').get(id(v));if(!p||p.locked)fail('Người nhận không tồn tại hoặc đã khóa');return p};
  const product=v=>{const p=db.prepare('SELECT * FROM products WHERE id=?').get(id(v));if(!p||p.locked)fail('Mặt hàng không tồn tại hoặc đã khóa');return p};
- const access=req=>{const a=db.prepare('SELECT * FROM ops_access WHERE userId=?').get(req.session.user.id)||{};return {warehouse:req.session.user.role==='admin'||!!a.warehouse,buyer:req.session.user.role==='admin'||!!a.buyer,admin:req.session.user.role==='admin',team:a.team||''}};
+ const access=req=>roleAccess(req.session.user.role,db.prepare('SELECT team FROM ops_access WHERE userId=?').get(req.session.user.id)?.team||'');
  const requireRight=(req,right)=>{if(!access(req)[right])fail(right==='warehouse'?'Chỉ người được giao quyền kho được xuất / nhận hàng':'Bạn không có quyền thực hiện thao tác này',403)};
  const route=(fn,mutation=false)=>(req,res,next)=>{
   try{if(mutation)db.exec('BEGIN IMMEDIATE');const result=fn(req,res);if(mutation)db.exec('COMMIT');if(!res.headersSent)res.json(result??{ok:true})}
@@ -49,28 +50,37 @@ export function setupOperations(app,db,audit){
   for(const l of items)db.prepare('INSERT INTO movements(productId,kind,bucket,quantity,note,status,user,date,operation,receiptId) VALUES(?,?,?,?,?,?,?,?,?,?)').run(l.productId,kind,l.bucket||'stock',l.quantity,note,'completed',req.session.user.name,d,operation,rid);
   return rid;
  };
- const authorizeWork=(req,r)=>{if(req.session.user.id!==r.assigneeId&&!access(req).admin)fail('Chỉ người nhận việc hoặc Admin được cập nhật công việc này',403)};
+ const authorizeWork=(req,r)=>{if(req.session.user.id!==r.assigneeId&&!access(req).warehouse)fail('Chỉ người nhận việc, Admin hoặc nhân viên kho được cập nhật công việc này',403)};
  const remaining=l=>l.issued-l.consumed-l.returned;
- const settle=r=>{
+ const settle=(r,afterReceipt=false)=>{
   const done=r.outputs.every(l=>l.good+l.faulty===l.quantity),left=r.inputs.some(l=>remaining(l)>0),bad=r.outputs.some(l=>l.faulty>0);
-  r.status=done?(left||bad?'quality':'completed'):r.outputs.some(l=>l.good+l.faulty>0)?'partial':'working';store(r);
+  r.status=done?(left||bad?'quality':'completed'):r.status==='ready'&&!afterReceipt?'ready':r.outputs.some(l=>l.good+l.faulty>0)?'partial':'working';store(r);
  };
  // Enforce stock responsibility on the existing APIs as well as the new screens.
  app.use('/api',(req,res,next)=>{
-  if(req.method==='POST'&&(/^\/products(?:\/|$)/.test(req.path)||/^\/movements(?:\/|$)/.test(req.path)||/^\/receipts\/\d+\/complete$/.test(req.path))&&!access(req).warehouse)return res.status(403).json({error:'Chỉ người được giao quyền kho được thay đổi hàng hóa'});
+  if(req.method==='POST'&&(/^\/products(?:\/|$)/.test(req.path)||/^\/movements(?:\/|$)/.test(req.path)||/^\/receipts\/\d+\/(?:complete|print)$/.test(req.path))&&!access(req).warehouse)return res.status(403).json({error:'Chỉ người được giao quyền kho được thay đổi hàng hóa'});
   next();
  });
- app.get('/api/ops',route(req=>({
-  access:access(req),userId:req.session.user.id,
-  people:db.prepare("SELECT u.id,u.name,u.locked,COALESCE(a.team,'') team,COALESCE(a.warehouse,0) warehouse,COALESCE(a.buyer,0) buyer,u.role FROM users u LEFT JOIN ops_access a ON a.userId=u.id").all(),
-  requests:db.prepare('SELECT id FROM ops_requests ORDER BY id DESC').all().map(r=>load(r.id)),
-  boms:db.prepare('SELECT * FROM ops_boms ORDER BY id DESC').all().map(b=>({...b,lines:JSON.parse(b.lines)})),
-  events:db.prepare('SELECT * FROM ops_events ORDER BY id DESC LIMIT 1000').all().map(e=>({...e,payload:JSON.parse(e.payload)})),
-  suppliers:db.prepare('SELECT * FROM ops_suppliers ORDER BY name').all(),purchases:db.prepare('SELECT * FROM ops_purchases ORDER BY id DESC').all()
- })));
- app.post('/api/ops/access',route(req=>{requireRight(req,'admin');const p=person(req.body.userId);db.prepare('INSERT INTO ops_access(userId,warehouse,buyer,team) VALUES(?,?,?,?) ON CONFLICT(userId) DO UPDATE SET warehouse=excluded.warehouse,buyer=excluded.buyer,team=excluded.team').run(p.id,req.body.warehouse===true?1:0,req.body.buyer===true?1:0,text(req.body.team||'',80));event(req,null,'Phân quyền',{userId:p.id,warehouse:req.body.warehouse===true,buyer:req.body.buyer===true});},true));
+ app.get('/api/ops',route(req=>{
+  const rights=access(req),uid=req.session.user.id;
+  const requests=db.prepare('SELECT id FROM ops_requests'+(rights.warehouse?'':' WHERE assigneeId=? OR requesterId=?')+' ORDER BY id DESC').all(...(rights.warehouse?[]:[uid,uid])).map(r=>load(r.id));
+  const visible=new Set(requests.map(r=>r.id));
+  return {access:rights,userId:uid,
+   people:db.prepare("SELECT u.id,u.name,u.locked,COALESCE(a.team,'') team,u.role FROM users u LEFT JOIN ops_access a ON a.userId=u.id").all().map(p=>({...p,warehouse:roleAccess(p.role).warehouse,buyer:roleAccess(p.role).buyer})),
+   requests,boms:db.prepare('SELECT * FROM ops_boms ORDER BY id DESC').all().map(b=>({...b,lines:JSON.parse(b.lines)})),
+   events:db.prepare('SELECT * FROM ops_events ORDER BY id DESC LIMIT 1000').all().filter(e=>rights.warehouse||visible.has(e.requestId)).map(e=>({...e,payload:JSON.parse(e.payload)})),
+   suppliers:rights.warehouse?db.prepare('SELECT * FROM ops_suppliers ORDER BY name').all():[],purchases:rights.warehouse?db.prepare('SELECT * FROM ops_purchases ORDER BY id DESC').all():[]};
+ }));
+ app.post('/api/ops/access',route(req=>{
+  requireRight(req,'admin');const p=person(req.body.userId),current=db.prepare('SELECT role FROM users WHERE id=?').get(p.id).role;
+  const role=normalizeRole(req.body.role??(req.body.warehouse===undefined?current:req.body.warehouse?'warehouse':'processor'));
+  if(!['admin','warehouse','processor'].includes(role))fail('Vai trò không hợp lệ');
+  if(current==='admin'&&role!=='admin'&&db.prepare("SELECT COUNT(*) n FROM users WHERE role='admin' AND locked=0").get().n<=1)fail('Cần giữ ít nhất một Admin đang hoạt động');
+  const rights=roleAccess(role);db.prepare('UPDATE users SET role=? WHERE id=?').run(role,p.id);
+  db.prepare('INSERT INTO ops_access(userId,warehouse,buyer,team) VALUES(?,?,?,?) ON CONFLICT(userId) DO UPDATE SET warehouse=excluded.warehouse,buyer=excluded.buyer,team=excluded.team').run(p.id,rights.warehouse?1:0,rights.buyer?1:0,text(req.body.team||'',80));event(req,null,'Phân quyền',{userId:p.id,old:current,role});
+ },true));
  app.post('/api/ops/boms',route(req=>{
-  requireRight(req,'admin');const p=product(req.body.productId);const ls=lines(req.body.lines);
+  requireRight(req,'warehouse');const p=product(req.body.productId);const ls=lines(req.body.lines);
   if(ls.some(l=>l.productId===p.id))fail('Một bộ không thể chứa chính nó');
   // A versioned graph must remain acyclic, including indirect assemblies.
   const graph=new Map();for(const b of db.prepare('SELECT * FROM ops_boms ORDER BY version').all())graph.set(b.productId,JSON.parse(b.lines).map(l=>l.productId));graph.set(p.id,ls.map(l=>l.productId));
@@ -79,21 +89,23 @@ export function setupOperations(app,db,audit){
   db.prepare('INSERT INTO ops_boms(productId,version,lines,actor,date) VALUES(?,?,?,?,?)').run(p.id,version,JSON.stringify(ls.map(({productId,quantity})=>({productId,quantity}))),req.session.user.id,now());event(req,null,'Lưu định mức',{productId:p.id,version});return {ok:true,version};
  },true));
  app.post('/api/ops/requests',route(req=>{
-  const b=req.body;if(!Object.hasOwn(workTypes,b.type))fail('Chọn loại yêu cầu');
+  const b=req.body;if(!access(req).warehouse&&!['delivery','supply'].includes(b.type))fail('Nhân viên gia công chỉ gửi yêu cầu đi đơn hoặc cấp bổ sung; kho tạo lệnh gia công / sửa',403);if(!Object.hasOwn(workTypes,b.type))fail('Chọn loại yêu cầu');
   if(!['order','stock'].includes(b.purpose))fail('Chọn mục đích làm cho đơn hoặc bổ sung tồn');
+  if(!access(req).warehouse&&+b.assigneeId!==req.session.user.id)fail('Yêu cầu của nhân viên phải giao cho chính người yêu cầu',403);
   const assignee=person(b.assigneeId),due=date(b.dueDate),destination=text(b.destination,160,true),reference=text(b.reference||'',100);
+  if(!access(req).warehouse&&b.type==='delivery'&&b.purpose!=='order')fail('Yêu cầu đi đơn cần chọn mục đích phục vụ đơn hàng');
   if(b.purpose==='order'&&!reference)fail('Cần mã đơn / tham chiếu cho công việc theo đơn');
   if(typeof b.allowPartial!=='boolean')fail('Cần chọn rõ có cho phép nhận nhiều đợt');
   let outputs=b.type==='supply'?[]:lines(b.outputs),inputs=[],snapshot=[];let parentId=null;
   if(b.type==='production'){
-   const aggregate=new Map();for(const o of outputs){const bom=db.prepare('SELECT * FROM ops_boms WHERE productId=? ORDER BY version DESC LIMIT 1').get(o.productId);if(!bom)fail(`${product(o.productId).code}: chưa có định mức được Admin duyệt`);const ls=JSON.parse(bom.lines);snapshot.push({productId:o.productId,version:bom.version,lines:ls});for(const l of ls)aggregate.set(l.productId,(aggregate.get(l.productId)||0)+qty(l.quantity)*o.quantity)}
+   const aggregate=new Map();for(const o of outputs){const bom=db.prepare('SELECT * FROM ops_boms WHERE productId=? ORDER BY version DESC LIMIT 1').get(o.productId);if(!bom)fail(`${product(o.productId).code}: chưa có định mức được kho duyệt`);const ls=JSON.parse(bom.lines);snapshot.push({productId:o.productId,version:bom.version,lines:ls});for(const l of ls)aggregate.set(l.productId,(aggregate.get(l.productId)||0)+qty(l.quantity)*o.quantity)}
    inputs=lines([...aggregate].map(([productId,quantity])=>({productId,quantity})),true);
   }else if(b.type==='anode'){
    const aggregate=new Map();for(const o of outputs){const p=product(o.productId);if(!p.rawProductId)fail(`${p.code}: chưa liên kết mã thô`);const raw=product(p.rawProductId);if(raw.unit!==p.unit)fail('Mã thô và mã màu cần cùng đơn vị cho Anode 1:1');snapshot.push({productId:o.productId,rawProductId:raw.id});aggregate.set(raw.id,(aggregate.get(raw.id)||0)+o.quantity)}inputs=lines([...aggregate].map(([productId,quantity])=>({productId,quantity})),true);
   }else if(b.type==='carbon'){inputs=lines(b.inputs,true);if(inputs.some(l=>outputs.some(o=>o.productId===l.productId)))fail('Cần mã tấm đầu vào và mã chi tiết đầu ra riêng')}
   else if(b.type==='supply'){
-   const parent=load(b.parentId);if(!['issued','working','partial','quality'].includes(parent.status)||['supply','delivery'].includes(parent.type))fail('Lệnh gốc không thể nhận cấp bổ sung');
-   if(parent.assigneeId!==assignee.id)fail('Vật tư bổ sung phải giao người nhận của lệnh gốc');if(!access(req).warehouse&&req.session.user.id!==parent.assigneeId)fail('Chỉ người nhận việc được xin vật tư bổ sung cho lệnh này',403);
+   const parent=load(b.parentId);if(!['issued','working','partial','quality','ready'].includes(parent.status)||['supply','delivery'].includes(parent.type))fail('Lệnh gốc không thể nhận cấp bổ sung');
+   if(parent.assigneeId!==assignee.id)fail('Vật tư bổ sung phải giao người nhận của lệnh gốc');if(b.purpose!==parent.purpose||reference!==parent.reference||destination!==parent.destination)fail('Cấp bổ sung cần cùng mục đích, tham chiếu và nơi nhận của lệnh gốc');if(!access(req).warehouse&&req.session.user.id!==parent.assigneeId)fail('Chỉ người nhận việc được xin vật tư bổ sung cho lệnh này',403);
    parentId=parent.id;inputs=lines(b.inputs,true);if(inputs.some(l=>l.source!=='stock'))fail('Vật tư bổ sung phải từ kho đạt');
   }else inputs=lines(outputs.map(o=>({...o,source:b.type==='repair'?'faulty':'stock'})),true);
   if(b.type!=='repair'&&inputs.some(l=>l.source==='faulty'))fail('Chỉ lệnh sửa được lấy từ hàng lỗi');
@@ -102,7 +114,7 @@ export function setupOperations(app,db,audit){
  },true));
  app.post('/api/ops/requests/:id/issue',route(req=>{
   requireRight(req,'warehouse');const r=load(req.params.id);if(r.status!=='pending')fail('Yêu cầu đã xuất hoặc không còn chờ duyệt');person(r.assigneeId);
-  let parent=r.type==='supply'?load(r.parentId):null;if(parent&&(parent.assigneeId!==r.assigneeId||!['issued','working','partial','quality'].includes(parent.status)))fail('Lệnh gốc không còn mở');
+  let parent=r.type==='supply'?load(r.parentId):null;if(parent&&(parent.assigneeId!==r.assigneeId||!['issued','working','partial','quality','ready'].includes(parent.status)))fail('Lệnh gốc không còn mở');
   for(const l of r.inputs){product(l.productId);change(l.productId,l.source,-l.quantity);change(l.productId,bucketFor(parent?.type||r.type),l.quantity);l.issued=l.quantity;
    if(parent){let target=parent.inputs.find(x=>x.productId===l.productId&&x.source===l.source);if(!target){target={...l,quantity:0,issued:0};parent.inputs.push(target)}target.issued+=l.quantity;target.quantity+=l.quantity;}
   }
@@ -127,8 +139,14 @@ export function setupOperations(app,db,audit){
  app.post('/api/ops/requests/:id/cancel',route(req=>{
   const r=load(req.params.id);if(r.requesterId!==req.session.user.id&&!access(req).warehouse)fail('Không có quyền hủy yêu cầu này',403);if(r.status!=='pending')fail('Đã xuất hàng: cần đối chiếu / trả vật tư, không thể hủy');const reason=text(req.body.reason,500,true);r.status='cancelled';store(r);event(req,r.id,'Hủy yêu cầu',{reason});
  },true));
+ app.post('/api/ops/requests/:id/report',route(req=>{
+  const r=load(req.params.id);authorizeWork(req,r);if(!['working','partial'].includes(r.status)||['delivery','supply'].includes(r.type))fail('Công việc chưa nhận, đã báo bàn giao hoặc đã kết thúc');
+  const items=lines(req.body.items);for(const l of items){const output=r.outputs.find(o=>o.productId===l.productId);if(!output||l.quantity>output.quantity-output.good-output.faulty)fail('Số báo bàn giao vượt số còn chờ')}
+  if(!r.allowPartial&&r.outputs.some(o=>(items.find(l=>l.productId===o.productId)?.quantity||0)!==o.quantity-o.good-o.faulty))fail('Lệnh yêu cầu bàn giao đủ một lần');
+  const token=text(req.body.token,100,true);if(db.prepare('SELECT id FROM ops_events WHERE token=?').get(token))fail('Kết quả này đã được báo');r.status='ready';store(r);event(req,r.id,'Báo sẵn sàng bàn giao',{items:items.map(({productId,quantity})=>({productId,quantity})),note:text(req.body.note||'',500)},token);
+ },true));
  app.post('/api/ops/requests/:id/receive',route(req=>{
-  requireRight(req,'warehouse');const r=load(req.params.id);if(!['working','partial','quality'].includes(r.status)||['delivery','supply'].includes(r.type))fail('Chưa nhận việc hoặc công việc đã kết thúc');
+  requireRight(req,'warehouse');const r=load(req.params.id);if(!['working','partial','quality','ready'].includes(r.status)||['delivery','supply'].includes(r.type))fail('Chưa nhận việc hoặc công việc đã kết thúc');
   const token=text(req.body.token,100,true);if(db.prepare('SELECT id FROM ops_events WHERE token=?').get(token))fail('Lần nhận này đã được ghi, hãy tải lại dữ liệu');
   const rows=req.body.items;if(!Array.isArray(rows)||!rows.length||rows.length>100)fail('Cần khai báo kết quả nhận');const seen=new Set(),actual=[];
   for(const row of rows){const productId=id(row.productId),good=qty(row.good,true),faulty=qty(row.faulty,true),o=r.outputs.find(x=>x.productId===productId);product(productId);if(!o||seen.has(productId)||!good&&!faulty||good+faulty>o.quantity-o.good-o.faulty)fail('Số nhận vượt số còn chờ, trùng hoặc sai mã đầu ra');seen.add(productId);actual.push({productId,good,faulty});}
@@ -146,22 +164,22 @@ export function setupOperations(app,db,audit){
   for(const [pid,q] of use){const l=r.inputs.find(x=>x.productId===pid);if(!l||q>remaining(l))fail('Vật tư thực dùng vượt số đã cấp còn ở công việc');change(pid,bucketFor(r.type),-q);l.consumed+=q}
   const goodLines=[],badLines=[];for(const o of actual){const target=r.outputs.find(x=>x.productId===o.productId);target.good+=o.good;target.faulty+=o.faulty;if(o.good){change(o.productId,'stock',o.good);goodLines.push({productId:o.productId,quantity:o.good})}if(o.faulty){change(o.productId,'faulty',o.faulty);badLines.push({productId:o.productId,quantity:o.faulty,bucket:'faulty'})}}
   const goodReceipt=receipt(req,'in','receive_stock',goodLines,`ops:${r.id}`,'Nhận đạt từ YC-'+r.id),faultyReceipt=receipt(req,'in','receive_faulty',badLines,`ops:${r.id}`,'Nhận lỗi từ YC-'+r.id+': '+defectReason);
-  settle(r);event(req,r.id,'Kiểm nhận',{assigneeId:r.assigneeId,destination:r.destination,items:actual,consumed:[...use].map(([productId,quantity])=>({productId,quantity})),defectReason,goodReceipt,faultyReceipt},token);return {ok:true,status:r.status};
+  settle(r,true);event(req,r.id,'Kiểm nhận',{assigneeId:r.assigneeId,destination:r.destination,items:actual,consumed:[...use].map(([productId,quantity])=>({productId,quantity})),defectReason,goodReceipt,faultyReceipt},token);return {ok:true,status:r.status};
  },true));
  app.post('/api/ops/requests/:id/return',route(req=>{
-  requireRight(req,'warehouse');const r=load(req.params.id);if(!['working','partial','quality'].includes(r.status))fail('Công việc không còn vật tư để trả');const ls=lines(req.body.items,true);
+  requireRight(req,'warehouse');const r=load(req.params.id);if(!['working','partial','quality','ready'].includes(r.status))fail('Công việc không còn vật tư để trả');const ls=lines(req.body.items,true);
   for(const x of ls){const l=r.inputs.find(v=>v.productId===x.productId&&v.source===x.source);if(!l||x.quantity>remaining(l))fail('Trả vượt số vật tư còn ở công việc');change(l.productId,bucketFor(r.type),-x.quantity);change(l.productId,l.source,x.quantity);l.returned+=x.quantity}
   receipt(req,'in','receive_stock',ls.map(l=>({...l,bucket:l.source})),`ops:${r.id}`,'Trả vật tư thừa YC-'+r.id);settle(r);event(req,r.id,'Trả vật tư',{items:ls,reason:text(req.body.reason,500,true)});
  },true));
  app.post('/api/ops/requests/:id/close',route(req=>{
-  requireRight(req,'warehouse');const r=load(req.params.id);if(!['working','partial','quality'].includes(r.status)||r.inputs.some(l=>remaining(l)>0))fail('Cần nhận / trả và đối chiếu hết vật tư đang giữ trước khi đóng');
+  requireRight(req,'warehouse');const r=load(req.params.id);if(!['working','partial','quality','ready'].includes(r.status)||r.inputs.some(l=>remaining(l)>0))fail('Cần nhận / trả và đối chiếu hết vật tư đang giữ trước khi đóng');
   const reason=text(req.body.reason,500,true);r.status='completed';store(r);event(req,r.id,'Đóng sau đối chiếu',{reason,outputs:r.outputs});
  },true));
  app.post('/api/ops/suppliers',route(req=>{
   requireRight(req,'buyer');const b=req.body,values=[text(b.name,160,true),text(b.contact||'',160),text(b.phone||'',50),text(b.quote||'',2000),text(b.note||'',1000)];
   if(b.id){const exists=db.prepare('SELECT id FROM ops_suppliers WHERE id=?').get(id(b.id));if(!exists)fail('Nhà cung cấp không tồn tại');db.prepare('UPDATE ops_suppliers SET name=?,contact=?,phone=?,quote=?,note=? WHERE id=?').run(...values,+b.id)}else{if(db.prepare('SELECT id FROM ops_suppliers WHERE name=?').get(values[0]))fail('Nhà cung cấp đã tồn tại');db.prepare('INSERT INTO ops_suppliers(name,contact,phone,quote,note) VALUES(?,?,?,?,?)').run(...values)}event(req,null,'Cập nhật nhà cung cấp',{name:values[0]});
  },true));
- app.post('/api/ops/purchases',route(req=>{const b=req.body,p=product(b.productId);if(b.supplierId&&!db.prepare('SELECT id FROM ops_suppliers WHERE id=?').get(id(b.supplierId)))fail('Nhà cung cấp không hợp lệ');const rid=Number(db.prepare('INSERT INTO ops_purchases(productId,quantity,supplierId,reason,requesterId,createdAt) VALUES(?,?,?,?,?,?)').run(p.id,qty(b.quantity),b.supplierId?+b.supplierId:null,text(b.reason,500,true),req.session.user.id,now()).lastInsertRowid);event(req,null,'Đề nghị mua',{purchaseId:rid});return {ok:true,id:rid};},true));
+ app.post('/api/ops/purchases',route(req=>{requireRight(req,'warehouse');const b=req.body,p=product(b.productId);if(b.supplierId&&!db.prepare('SELECT id FROM ops_suppliers WHERE id=?').get(id(b.supplierId)))fail('Nhà cung cấp không hợp lệ');const rid=Number(db.prepare('INSERT INTO ops_purchases(productId,quantity,supplierId,reason,requesterId,createdAt) VALUES(?,?,?,?,?,?)').run(p.id,qty(b.quantity),b.supplierId?+b.supplierId:null,text(b.reason,500,true),req.session.user.id,now()).lastInsertRowid);event(req,null,'Đề nghị mua',{purchaseId:rid});return {ok:true,id:rid};},true));
  app.post('/api/ops/purchases/:id/state',route(req=>{requireRight(req,'buyer');const p=db.prepare('SELECT * FROM ops_purchases WHERE id=?').get(id(req.params.id));if(!p)fail('Không tìm thấy đề nghị');const target=req.body.status;if(!({pending:['approved','cancelled'],approved:['ordered','cancelled']}[p.status]||[]).includes(target))fail('Chuyển trạng thái mua không hợp lệ');if(target==='ordered'&&!p.supplierId&&!req.body.supplierId)fail('Cần chọn nhà cung cấp trước khi đặt');if(req.body.supplierId){if(!db.prepare('SELECT id FROM ops_suppliers WHERE id=?').get(id(req.body.supplierId)))fail('Nhà cung cấp không hợp lệ');db.prepare('UPDATE ops_purchases SET supplierId=? WHERE id=?').run(+req.body.supplierId,p.id)}db.prepare('UPDATE ops_purchases SET status=? WHERE id=?').run(target,p.id);event(req,null,'Cập nhật đề nghị mua',{purchaseId:p.id,status:target});},true));
  app.post('/api/ops/purchases/:id/receive',route(req=>{requireRight(req,'warehouse');const p=db.prepare('SELECT * FROM ops_purchases WHERE id=?').get(id(req.params.id));if(!p||p.status!=='ordered')fail('Đề nghị chưa đặt hoặc đã nhận đủ');product(p.productId);const good=qty(req.body.good,true),faulty=qty(req.body.faulty,true);if(!good&&!faulty||good+faulty>p.quantity-p.received)fail('Số nhận không hợp lệ');const token=text(req.body.token,100,true);if(db.prepare('SELECT id FROM ops_events WHERE token=?').get(token))fail('Đợt nhận đã được ghi');const reason=faulty?text(req.body.defectReason,500,true):'';if(good){change(p.productId,'stock',good);receipt(req,'in','receive_stock',[{productId:p.productId,quantity:good}],`purchase:${p.id}`,'Nhận mua')}if(faulty){change(p.productId,'faulty',faulty);receipt(req,'in','receive_faulty',[{productId:p.productId,quantity:faulty,bucket:'faulty'}],`purchase:${p.id}`,reason)}const received=p.received+good+faulty;db.prepare('UPDATE ops_purchases SET received=?,status=? WHERE id=?').run(received,received===p.quantity?'received':'ordered',p.id);event(req,null,'Nhận mua',{purchaseId:p.id,good,faulty,reason},token);},true));
  const importPlan=b=>{

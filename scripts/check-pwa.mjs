@@ -74,10 +74,6 @@ try{
  await page.getByRole('button',{name:'Thêm nhân viên',exact:true}).click();
  let dialog=page.getByRole('dialog',{name:'Thêm nhân viên'});await dialog.locator('[name=name]').fill('Nhân viên kiểm thử');await dialog.locator('[name=username]').fill('ui_staff');await dialog.locator('[name=password]').fill(password);await dialog.getByRole('button',{name:'Lưu nhân viên'}).click();await dialog.waitFor({state:'hidden'});
 
- // This fixture is a warehouse staff member; new employees otherwise start as requesters.
- const warehouseFixture=(await(await context.request.get('http://localhost:3195/api/users')).json()).find(u=>u.username==='ui_staff');
- const warehouseSession=await(await context.request.get('http://localhost:3195/api/session')).json();
- assert.equal((await context.request.post('http://localhost:3195/api/ops/access',{headers:{'x-csrf-token':warehouseSession.csrf},data:{userId:warehouseFixture.id,warehouse:true,buyer:false,team:'Kho'}})).status(),200);
  await page.getByRole('button',{name:'Sửa nhân viên ui_staff',exact:true}).click();dialog=page.getByRole('dialog',{name:'Sửa nhân viên'});await dialog.locator('[name=name]').fill('Nhân viên đã sửa');await dialog.getByRole('button',{name:'Lưu nhân viên'}).click();await dialog.waitFor({state:'hidden'});await page.getByText('Nhân viên đã sửa',{exact:true}).waitFor();
  await page.getByRole('button',{name:'Khóa nhân viên ui_staff',exact:true}).click();await page.getByRole('button',{name:'Mở khóa nhân viên ui_staff',exact:true}).waitFor();
  await page.getByRole('button',{name:'Mở khóa nhân viên ui_staff',exact:true}).click();await page.getByRole('button',{name:'Khóa nhân viên ui_staff',exact:true}).waitFor();
@@ -85,11 +81,16 @@ try{
  await page.getByRole('button',{name:'Sửa danh mục Hệ thống phanh',exact:true}).click();dialog=page.getByRole('dialog');await dialog.locator('[name=name]').fill('Phanh đã sửa');await dialog.getByRole('button',{name:'Lưu danh mục'}).click();await dialog.waitFor({state:'hidden'});
  await page.getByRole('button',{name:'Khóa danh mục Phanh đã sửa',exact:true}).click();await page.getByRole('button',{name:'Mở khóa danh mục Phanh đã sửa',exact:true}).waitFor();
  await page.getByRole('button',{name:'Mở khóa danh mục Phanh đã sửa',exact:true}).click();await page.getByRole('button',{name:'Khóa danh mục Phanh đã sửa',exact:true}).waitFor();
+
+ // Assign the warehouse role after account edits; subsequent login uses canonical role.
+ const warehouseFixture=(await(await context.request.get('http://localhost:3195/api/users')).json()).find(u=>u.username==='ui_staff');
+ const warehouseSession=await(await context.request.get('http://localhost:3195/api/session')).json();
+ assert.equal((await context.request.post('http://localhost:3195/api/ops/access',{headers:{'x-csrf-token':warehouseSession.csrf},data:{userId:warehouseFixture.id,role:'warehouse',team:'Kho'}})).status(),200);
  await page.getByRole('button',{name:'Đăng xuất',exact:true}).click();
  await page.getByRole('button',{name:'Quên mật khẩu?',exact:true}).click();await page.locator('[name=username]').fill('ui_staff');assert.equal(await page.locator('[name=password]').count(),0);await page.getByRole('button',{name:'Gửi yêu cầu đặt lại',exact:true}).click();await page.getByRole('status').filter({hasText:'yêu cầu đã được gửi tới Admin'}).waitFor();await page.getByRole('button',{name:'Quay lại đăng nhập',exact:true}).click();
  await page.locator('[name=username]').fill('ui_staff');await page.locator('[name=password]').fill(password);await page.getByRole('button',{name:'Đăng nhập',exact:true}).click();await page.getByRole('heading',{name:'Sản phẩm',exact:true}).waitFor();
- assert.equal(await page.locator('nav').getByRole('button',{name:'Nhân viên',exact:true}).count(),0);
- await page.locator('nav').getByRole('button',{name:'Danh mục',exact:true}).click();assert.equal(await page.getByRole('button',{name:'Thêm danh mục',exact:true}).count(),0);assert.equal(await page.getByRole('button',{name:'Sửa danh mục Phanh đã sửa',exact:true}).count(),0);
+ assert.equal(await page.locator('nav').getByRole('button',{name:'Nhân viên',exact:true}).count(),1);
+ await page.locator('nav').getByRole('button',{name:'Danh mục',exact:true}).click();assert.equal(await page.getByRole('button',{name:'Thêm danh mục',exact:true}).count(),1);assert.equal(await page.getByRole('button',{name:'Sửa danh mục Phanh đã sửa',exact:true}).count(),1);
 
  await page.locator('nav').getByRole('button',{name:'Nhập kho',exact:true}).click();dialog=page.locator('.inbound-entry');
  await page.setViewportSize({width:1440,height:1000});assert.ok((await dialog.boundingBox()).width>=1000);await page.setViewportSize({width:390,height:844});const formBox=await dialog.boundingBox();assert.ok(formBox.width>=350&&formBox.x>=0&&formBox.x+formBox.width<=390);
@@ -114,7 +115,7 @@ try{
  assert.ok(cached.includes('/index.html'));assert.ok(cached.some(p=>p.endsWith('.js')));assert.ok(cached.every(p=>!p.startsWith('/api')&&!p.includes('/data/')));
  await context.setOffline(true);await page.getByRole('status').filter({hasText:'Bạn đang ngoại tuyến'}).waitFor();await page.reload();await page.getByRole('heading',{name:'Đăng nhập',exact:true}).waitFor();assert.equal(await page.getByRole('heading',{name:'Sản phẩm',exact:true}).count(),0);
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);assert.deepEqual(errors,[]);
- console.log('PASS: Excel outbound template/edit/persist/stock unchanged/A4 print, simple centered login dialog and authentication, vehicle/color/single-double filters, selection preserved and filtered full-receipt CSV, receipt-free intake and return, multi-product outbound receipt add/remove/grouping/detail/direct print and repeated print/Anode return, admin employee/category create/edit/lock, staff controls hidden, production brand logo/favicon/manifest/icons, active service worker, install help, authenticated API stays out of cache, offline shell without inventory, mobile layout.');
+ console.log('PASS: Excel outbound template/edit/persist/stock unchanged/A4 print, simple centered login dialog and authentication, vehicle/color/single-double filters, selection preserved and filtered full-receipt CSV, receipt-free intake and return, multi-product outbound receipt add/remove/grouping/detail/direct print and repeated print/Anode return, admin employee/category create/edit/lock, warehouse role controls, production brand logo/favicon/manifest/icons, active service worker, install help, authenticated API stays out of cache, offline shell without inventory, mobile layout.');
 }finally{
  await browser?.close();if(child.exitCode===null){child.kill();await new Promise(r=>child.once('exit',r))}await rm(root,{recursive:true,force:true});
 }

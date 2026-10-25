@@ -15,12 +15,12 @@ test('warehouse operations preserve quantities, snapshots, responsibility and du
  t.after(async()=>{if(child.exitCode===null){child.kill();await new Promise(r=>child.once('exit',r))}await rm(dir,{recursive:true,force:true})});
  await new Promise((ok,fail)=>{const timeout=setTimeout(()=>fail(Error(errors||'Startup timeout')),15000);child.stdout.on('data',d=>{if(String(d).includes('server ready')){clearTimeout(timeout);ok()}});child.once('exit',()=>{clearTimeout(timeout);fail(Error(errors))})});
  function client(){let cookie='',csrf='';return {get cookie(){return cookie},async req(path,body,expected=200){const r=await fetch(base+path,{method:body?'POST':'GET',headers:{'Content-Type':'application/json',cookie,'x-csrf-token':csrf},body:body?JSON.stringify(body):undefined});const set=r.headers.get('set-cookie');if(set)cookie=set.split(';')[0];const d=await r.json();if(path==='session'||path==='login')csrf=d.csrf;assert.equal(r.status,expected,path+': '+JSON.stringify(d));return d},async login(name){await this.req('session');await this.req('login',{username:name,password})}}}
- const admin=client(),worker=client(),other=client();await admin.login('admin');await admin.req('users',{name:'Thợ lắp',username:'worker_ops',password,role:'staff'});await worker.login('worker_ops');await other.login('kho');
+ const admin=client(),worker=client(),other=client(),outsider=client();await admin.login('admin');await admin.req('users',{name:'Thợ lắp',username:'worker_ops',password,role:'staff'});await worker.login('worker_ops');await other.login('kho');await admin.req('users',{name:'Người khác',username:'other_processor',password,role:'processor'});await outsider.login('other_processor');
  const op=await admin.req('ops'),workerId=op.people.find(p=>p.name==='Thợ lắp').id;
  const create=async(code,kind='raw',unit='cái',rawProductId=null)=>{await admin.req('products',{name:code,code,category:'Hệ thống phanh',vehicle:'',color:'',min:0,materialKind:kind,unit,rawProductId});return (await admin.req('data')).products.find(p=>p.code===code).id};
  const stock=async(pid,q,operation='receive_stock')=>admin.req('movements',{operation,items:[{productId:pid,quantity:q}]});
  const item=async pid=>(await admin.req('data')).products.find(p=>p.id===pid);
- const request=async(body,who=worker)=>who.req('ops/requests',{type:'production',purpose:'stock',reference:'',destination:'Tổ lắp',assigneeId:workerId,dueDate:new Date(Date.now()+86400000).toISOString(),note:'Kiểm thử',allowPartial:true,...body});
+ const request=async(body,who=admin)=>who.req('ops/requests',{type:'production',purpose:'stock',reference:'',destination:'Tổ lắp',assigneeId:workerId,dueDate:new Date(Date.now()+86400000).toISOString(),note:'Kiểm thử',allowPartial:true,...body});
  const act=(rid,action,body={},who=admin,status=200)=>who.req(`ops/requests/${rid}/${action}`,body,status);
  let a,b,fg,r;
  await t.test('requests do not move stock; API permissions cover legacy routes',async()=>{
@@ -30,7 +30,7 @@ test('warehouse operations preserve quantities, snapshots, responsibility and du
   await admin.req('ops/boms',{productId:fg,lines:[{productId:a,quantity:2},{productId:b,quantity:3}]});
   r=(await request({outputs:[{productId:fg,quantity:10}]})).id;assert.equal((await item(a)).stock,100);
   await act(r,'issue',{},worker,403);await act(r,'accept',{},worker,400);
-  await act(r,'issue');assert.equal((await item(a)).stock,80);assert.equal((await item(a)).inProduction,20);await act(r,'issue',{},admin,400);await act(r,'accept',{},other,403);await act(r,'accept',{},worker);
+  await act(r,'issue');assert.equal((await item(a)).stock,80);assert.equal((await item(a)).inProduction,20);await act(r,'issue',{},admin,400);await act(r,'accept',{},outsider,403);await act(r,'accept',{},worker);
  });
  await t.test('BOM snapshots, QC 10=8+2, retry protection and no double component deduction',async()=>{
   await admin.req('ops/boms',{productId:fg,lines:[{productId:a,quantity:99}]});
@@ -71,7 +71,7 @@ test('warehouse operations preserve quantities, snapshots, responsibility and du
  await t.test('insufficient multi-line issue rolls back every item and delivery handoff is explicit',async()=>{
   const low=await create('OPS-LOW'),end=await create('OPS-END','finished');await admin.req('ops/boms',{productId:end,lines:[{productId:a,quantity:1},{productId:low,quantity:1}]});const before=(await item(a)).stock;
   const id=(await request({outputs:[{productId:end,quantity:1}]})).id;await act(id,'issue',{},admin,400);assert.equal((await item(a)).stock,before);assert.equal((await item(a)).inProduction,0);await act(id,'cancel',{reason:'Thiếu vật tư'});
-  const delivery=(await request({type:'delivery',purpose:'order',reference:'DON-01',outputs:[{productId:fg,quantity:1}]})).id;await act(delivery,'issue');assert.equal((await item(fg)).inTransit,1);await act(delivery,'cancel',{reason:'Không được hủy sau xuất'},worker,400);await act(delivery,'accept',{},worker);assert.equal((await item(fg)).inTransit,0);
+  const delivery=(await request({type:'delivery',purpose:'order',reference:'DON-01',outputs:[{productId:fg,quantity:1}]})).id;await act(delivery,'issue');assert.equal((await item(fg)).inTransit,1);await act(delivery,'cancel',{reason:'Không được hủy sau xuất'},worker,403);await act(delivery,'accept',{},worker);assert.equal((await item(fg)).inTransit,0);
  });
  await t.test('handover to another person preserves custody and requires acceptance again',async()=>{
   const id=(await request({type:'repair',outputs:[{productId:a,quantity:1}]})).id;
@@ -90,11 +90,11 @@ test('warehouse operations preserve quantities, snapshots, responsibility and du
   assert.equal((await admin.req('ops/import/preview',{mode:'metadata',rows})).errors.length,1);
   const metadata=rows.map(({stock,faulty,...r})=>({...r,name:'Ốc cập nhật'}));preview=await admin.req('ops/import/preview',{mode:'metadata',rows:metadata});await admin.req('ops/import',{mode:'metadata',rows:metadata,confirmation:preview.digest});assert.equal((await item(imported.id)).stock,7);
  });
- await t.test('purchase authority and physical good/faulty receipts are separate',async()=>{
-  await worker.req('ops/suppliers',{name:'NCC test'},403);await admin.req('ops/access',{userId:workerId,buyer:true,warehouse:false,team:'Gia công'});await worker.req('ops/suppliers',{name:'NCC test',contact:'Đầu mối'});
+ await t.test('warehouse can purchase and receive; processors cannot perform warehouse actions',async()=>{
+  await worker.req('ops/suppliers',{name:'NCC test'},403);await admin.req('ops/access',{userId:workerId,role:'warehouse',team:'Kho'});await worker.req('ops/suppliers',{name:'NCC test',contact:'Đầu mối'});
   const supplier=(await admin.req('ops')).suppliers[0],id=(await worker.req('ops/purchases',{productId:a,quantity:5,reason:'Bổ sung'})).id;
   await worker.req(`ops/purchases/${id}/state`,{status:'approved'});await worker.req(`ops/purchases/${id}/state`,{status:'ordered',supplierId:supplier.id});
-  await worker.req(`ops/purchases/${id}/receive`,{good:1,faulty:0,token:randomUUID()},403);
+  await outsider.req(`ops/purchases/${id}/receive`,{good:1,faulty:0,token:randomUUID()},403);
   const before=(await item(a)).stock;await admin.req(`ops/purchases/${id}/receive`,{good:3,faulty:1,defectReason:'Hỏng',token:randomUUID()});await admin.req(`ops/purchases/${id}/receive`,{good:2,faulty:0,token:randomUUID()},400);await admin.req(`ops/purchases/${id}/receive`,{good:1,faulty:0,token:randomUUID()});assert.equal((await item(a)).stock,before+4);assert.equal((await item(a)).faulty,1);
  });
  await t.test('private modules stay private and SQLite backup is consistent and restorable',async()=>{

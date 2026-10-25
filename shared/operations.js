@@ -1,5 +1,5 @@
 export const workTypes={production:'Sản xuất / lắp ráp',anode:'Anode đổi màu',carbon:'Cắt / gia công Carbon',repair:'Sửa hàng lỗi',delivery:'Đóng / giao hàng',supply:'Cấp vật tư bổ sung'};
-export const workStates={pending:'Chờ kho duyệt',issued:'Chờ nhận việc',working:'Đang thực hiện',partial:'Đã trả một phần',quality:'Cần xử lý kết quả',completed:'Hoàn tất',cancelled:'Đã hủy'};
+export const workStates={pending:'Chờ kho duyệt',issued:'Chờ nhận việc',working:'Đang thực hiện',ready:'Chờ kho nhận kết quả',partial:'Đã trả một phần',quality:'Cần xử lý kết quả',completed:'Hoàn tất',cancelled:'Đã hủy'};
 export const materialKinds={unclassified:'Chưa phân loại',raw:'Nguyên vật liệu',semi:'Cụm / bán thành phẩm',finished:'Thành phẩm'};
 export const bucketFor=type=>type==='anode'?'anote':type==='repair'?'repair':type==='delivery'?'inTransit':'inProduction';
 export function assemblyCapacity(bom,products){

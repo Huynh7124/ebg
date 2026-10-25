@@ -25,7 +25,7 @@ Kiểm thử dùng database tạm; không sử dụng kho thật. `test:operatio
 
 ## Bắt đầu với dữ liệu thật
 
-1. Admin rà quyền tại **Điều phối kho → Dữ liệu & quyền**. Nhân viên đã có trước lần nâng cấp đầu giữ quyền kho để tương thích; nhân viên mới mặc định chỉ lập yêu cầu. Người được giao quyền kho mới thay đổi hàng/số dư trên cả API cũ và mới. Đầu mối mua được duyệt/đặt nhà cung cấp, không mặc nhiên có quyền nhận kho.
+1. Admin phân một trong ba vai trò tại **Điều phối kho → Dữ liệu & quyền** hoặc **Nhân viên**. Nhân viên kho có quyền quản lý hàng, danh mục, định mức, yêu cầu, mua vật tư và tài khoản nhân viên. Nhân viên kho không được thay đổi vai trò hoặc quản lý tài khoản Admin. Nhân viên gia công chỉ tạo yêu cầu đi đơn/cấp bổ sung, nhận việc được giao và báo sẵn sàng bàn giao. Bản sao SQLite gồm tài khoản/phiên vẫn chỉ Admin được tải; kho có xuất JSON nghiệp vụ.
 2. Tạo danh mục phụ kiện/dòng xe ở màn hình cũ. Nguyên liệu dùng chung có thể để trống dòng xe.
 3. Trong form sản phẩm, xác định loại hàng: nguyên liệu, cụm/bán thành phẩm, thành phẩm hoặc chưa phân loại; đơn vị cơ sở và vị trí tại kho.
 4. Mỗi số lượng là số nguyên theo đơn vị cơ sở, ví dụ cái, bộ, tấm, mm hoặc g. Không đổi đơn vị của mã đã có tồn/lịch sử/định mức/yêu cầu. Muốn quản lý đơn vị khác phải đối chiếu và tạo mã thích hợp, không sửa tên đơn vị để tự chuyển số lượng.
@@ -35,20 +35,20 @@ Kiểm thử dùng database tạm; không sử dụng kho thật. `test:operatio
 
 Vào **Điều phối kho → Tạo yêu cầu**. Chọn loại việc, mục đích theo đơn/bổ sung tồn, người nhận, nơi nhận, hạn trả và có nhận nhiều đợt hay không.
 
-- **Sản xuất/lắp ráp:** nhập đầu ra cần làm. Vật tư được lấy từ phiên bản định mức đã duyệt tại lúc lập yêu cầu.
+- **Sản xuất/lắp ráp:** nhập đầu ra cần làm. Vật tư được lấy từ phiên bản định mức đã được kho/Admin duyệt tại lúc lập yêu cầu.
 - **Anode đổi màu:** chọn các mã màu đã liên kết mã thô. Hệ thống gom lượng mã thô cần cấp. Chỉ dùng quan hệ 1 chi tiết thô → 1 chi tiết màu, cùng đơn vị; không tự ghép chuỗi mã từ ví dụ 8+2.
 - **Carbon:** chọn đầu vào (tấm/vật tư) và các mã chi tiết đầu ra riêng. Khi nhận phải ghi số vật tư thực dùng; không tự đặt định mức tấm/bộ. Nếu một tấm đã được ghi dùng ở đợt trước thì có thể nhận tiếp các chi tiết thuộc kế hoạch với lượng tấm dùng thêm bằng 0.
 - **Sửa hàng lỗi:** lấy từ số `faulty`, không trừ kho hàng đạt; nhận lại có số đạt và số lỗi.
 - **Đóng/giao hàng:** kho xuất, bên nhận xác nhận bàn giao. Đây là hoàn tất chặng bàn giao kho tới nơi nhận đã chọn, không phải tích hợp theo dõi vận đơn.
 - **Cấp bổ sung:** từ chi tiết một lệnh đang mở, người nhận xin thêm vật tư. Kho xuất xong thì vật tư được gắn vào lệnh gốc. Không tự lấy hàng chỉ vì đã tạo yêu cầu.
 
-Tạo yêu cầu không trừ tồn. Kho bấm **Kho duyệt & xuất thực tế** mới trừ tồn khả dụng và ghi lượng đang làm/Anode/sửa/chờ giao. Người nhận hoặc Admin xác nhận bàn giao rồi mới nhận kết quả. Admin thực hiện thay được lưu theo chính tài khoản Admin, không giả danh người khác.
+Tạo yêu cầu không trừ tồn. Kho bấm **Kho duyệt & xuất thực tế** mới trừ tồn khả dụng và ghi lượng đang làm/Anode/sửa/chờ giao. Người nhận, nhân viên kho hoặc Admin xác nhận bàn giao rồi mới nhận kết quả. Admin thực hiện thay được lưu theo chính tài khoản Admin, không giả danh người khác.
 
-Nhập kết quả tạo cùng một lần kiểm nhận với số đạt và số lỗi. Ví dụ nhận 10 = 8 đạt + 2 lỗi: tăng 8 vào kho dùng được và 2 vào hàng lỗi, không biến 2 lỗi thành mất hàng. Mọi lần nhận có khóa chống ghi lặp. Vượt số còn chờ, thiếu vật tư hoặc bất kỳ dòng sai đều hủy toàn bộ lần ghi.
+Nhân viên gia công bấm **Báo sẵn sàng bàn giao**, chọn số thực sẵn sàng. Lệnh chuyển **Chờ kho nhận kết quả** nhưng tồn không đổi. Kho xác nhận số thực nhận và kiểm chất lượng. Nhập kết quả tạo cùng một lần kiểm nhận với số đạt và số lỗi. Ví dụ nhận 10 = 8 đạt + 2 lỗi: tăng 8 vào kho dùng được và 2 vào hàng lỗi, không biến 2 lỗi thành mất hàng. Mọi lần nhận có khóa chống ghi lặp. Vượt số còn chờ, thiếu vật tư hoặc bất kỳ dòng sai đều hủy toàn bộ lần ghi.
 
 ## Định mức và số có thể lắp
 
-Admin tạo định mức cho **một đơn vị đầu ra**. Mỗi lần lưu tạo phiên bản mới; lệnh cũ giữ nguyên thành phần/phiên bản cũ. Chặn tự chứa chính mình và vòng lặp gián tiếp giữa các cụm.
+Admin hoặc nhân viên kho tạo định mức cho **một đơn vị đầu ra**. Mỗi lần lưu tạo phiên bản mới; lệnh cũ giữ nguyên thành phần/phiên bản cũ. Chặn tự chứa chính mình và vòng lặp gián tiếp giữa các cụm.
 
 Cụm đã ghép có mã riêng và tồn riêng, là một thành phần có thể cấp. Không tự tách cụm thành linh kiện rời, không cộng linh kiện nằm trong cụm vào tồn rời.
 
@@ -60,7 +60,7 @@ Hàng chưa xong qua ngày vẫn giữ trên lệnh và người/nơi nhận; kh
 
 Nhận nhiều đợt phải được chọn rõ lúc tạo. Nếu không cho nhận nhiều đợt, hệ thống yêu cầu đủ toàn bộ số còn chờ. Khi có lỗi hoặc vật tư cần trả, lệnh chuyển **Cần xử lý kết quả**; kho đối chiếu, trả hết vật tư nếu còn và đóng bằng lý do. Số lỗi/thiếu vẫn giữ trong lịch sử. Sửa lỗi là yêu cầu riêng; không tự xóa số lỗi khi đóng lệnh.
 
-Người được giao việc hoặc Admin đổi deadline có lý do; giữ hạn cũ/mới và tài khoản đổi. Việc theo đơn được xếp trước việc làm tồn, sau đó theo hạn. Dashboard có lọc đội, việc liên quan đến mình và quá hạn; kết quả nhận trong ngày được tách theo người phụ trách và từng mã/đơn vị.
+Người được giao việc, nhân viên kho hoặc Admin đổi deadline có lý do; giữ hạn cũ/mới và tài khoản đổi. Việc theo đơn được xếp trước việc làm tồn, sau đó theo hạn. Dashboard có lọc đội, việc liên quan đến mình và quá hạn; kết quả nhận trong ngày được tách theo người phụ trách và từng mã/đơn vị.
 
 Kho có thể **Bàn giao đổi người** ở lệnh đang mở với lý do. Số vật tư giữ nguyên; người mới phải xác nhận nhận lại. Các yêu cầu bổ sung chưa xuất được cập nhật theo người nhận mới. Không đổi người bằng cách sửa tên tài khoản.
 
@@ -83,7 +83,7 @@ Xuất JSON dùng đối chiếu danh mục, phiếu, lệnh và lịch sử. JS
 
 ## Mua vật tư
 
-Mọi người lập đề nghị theo mã/đơn vị/lý do. Người có quyền mua duyệt, chọn nhà cung cấp và xác nhận đã đặt. Người có quyền kho nhận thực tế theo đợt, tách đạt/lỗi; số chưa về vẫn chờ. Nhà cung cấp có thông tin liên hệ và ghi chú báo giá/điều kiện, không có thanh toán hoặc công nợ.
+Mọi người lập đề nghị theo mã/đơn vị/lý do. Admin hoặc nhân viên kho duyệt, chọn nhà cung cấp và xác nhận đã đặt. Người có quyền kho nhận thực tế theo đợt, tách đạt/lỗi; số chưa về vẫn chờ. Nhà cung cấp có thông tin liên hệ và ghi chú báo giá/điều kiện, không có thanh toán hoặc công nợ.
 
 ## Tra và quét mã
 
@@ -114,3 +114,9 @@ Lệnh kiểm tra toàn vẹn và bảng EBG, từ chối đích đã có databa
 Phiếu cũ, đăng nhập, danh mục, in A4 và dữ liệu cũ được giữ. Các phiếu Anode/sửa cũ tiếp tục hoàn tất theo luồng cũ; không tự chuyển thành lệnh mới và không tạo lại cùng hàng đang gửi. Giao dịch nhiều bộ phận mới dùng Điều phối kho để có người nhận, định mức và kết quả kiểm nhận.
 
 Bản này quản lý vị trí tại kho trên mã hàng và nơi giữ theo lệnh; chưa có sổ nhiều kho vật lý, đặt giữ hàng hoặc truy vết linh kiện theo từng lô. Chưa có tháo cụm tự động, tối ưu sơ đồ cắt, điểm thưởng/lương tự động, kế toán/công nợ, đồng bộ Google Sheet hai chiều hay ghi giao dịch offline. Các quy tắc đó cần dữ liệu/tiêu chuẩn được duyệt trước khi mở rộng.
+
+## Chuyển đổi vai trò
+
+Các vai trò lưu trong database là `admin`, `warehouse`, `processor`. `staff` trong API cũ được hiểu là `processor` khi tạo tài khoản; giao diện và CLI mới dùng ba tên chuẩn. Quyền kho/mua dựa trên vai trò, không dựa vào cờ quyền cũ. Tài khoản `staff` đã có cờ kho chuyển thành `warehouse`; các `staff` còn lại thành `processor`. Bản rất cũ chưa có bảng quyền giữ quyền kho của nhân viên đã vận hành. Vai trò `it` chuyển thành `processor`, `warehouse` giữ nguyên. Không xóa số dư, phiếu, tài khoản hoặc mật khẩu.
+
+Nhân viên gia công nhìn danh sách công việc mình được giao hoặc đã yêu cầu; kho/Admin nhìn toàn bộ. Tạo yêu cầu gia công/sửa mới thuộc kho; nhân viên đi đơn gửi loại **Đóng/giao hàng** với mục đích **Phục vụ đơn hàng**, người nhận là chính mình và có mã tham chiếu. Yêu cầu này chờ kho duyệt, chưa trừ tồn.
