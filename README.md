@@ -17,6 +17,8 @@ Nếu muốn dùng lại màn hình email/tên đăng nhập và mật khẩu, �
 
 Kiểm tra luồng bấm tên và bốn vai trò trên trình duyệt sau build: `npm run test:account-login`.
 
+Nút **QR** cạnh ô tìm kiếm trên header mở máy quét mã cho cả bốn vai trò. Camera nhận nhãn `EBG:<id>` hoặc mã sản phẩm, rồi mở thông tin hàng; không tự ghi nhập/xuất hoặc đổi tồn kho. Có ô **Mã QR / mã hàng** để dùng máy quét cầm tay (gửi Enter) hoặc nhập trực tiếp. Camera cần trình duyệt hỗ trợ `BarcodeDetector`, quyền camera và HTTPS/localhost; nếu không hỗ trợ hoặc bị từ chối quyền, vẫn tra bằng mã được. Đóng cửa sổ hoặc quét thành công sẽ tắt camera. Màn hình **Tra / quét mã** dùng cùng máy quét và vẫn xem/in nhãn. Kiểm tra sau build bằng `npm run test:qr` (camera giả lập, không thay cho kiểm tra thiết bị thật).
+
 ## Chức năng
 
 - Tổng quan, cảnh báo sản phẩm chạm mức tồn tối thiểu, thông báo và lịch sử thao tác.
