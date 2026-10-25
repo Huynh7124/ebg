@@ -233,3 +233,5 @@ Khi tạo đơn đầu ngày, đóng gói chỉ chọn ngày, sản phẩm và s
 Sau gia công, đóng gói kiểm nhận theo từng sản phẩm: hàng lỗi nhập tồn lỗi; hàng đạt của đơn stock nhập tồn kho và sinh phiếu nhập ngay khi xác nhận từng đợt nhận. Hàng đạt của đơn đi đơn được đóng gói nhận, không cộng tồn kho. Nút hoàn thành chỉ đóng đơn sau khi đã nhận đủ, không cộng tồn lần nữa.
 
 Kiểm tra form đóng gói và toàn bộ luồng trên trình duyệt: `npm run test:packing-production`. Luồng stock được kiểm tra trong `test/packing-production.test.js`.
+
+Gia công khai báo số hàng lỗi và lý do theo sản phẩm khi hoàn thành; hệ thống nhập hàng lỗi về kho và chuyển phần đạt cho đóng gói nhận. Các đơn đã chuyển đóng gói theo luồng cũ vẫn có thể đối chiếu như trước. Kho xuất vật tư sẽ mở ngay phiếu xuất chứa các mặt hàng thực xuất; có thể xem lại từ chi tiết đơn.
