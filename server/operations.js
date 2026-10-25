@@ -4,7 +4,7 @@ import {backup} from 'node:sqlite';
 import {mkdtemp,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {workTypes,materialKinds,bucketFor} from '../shared/operations.js';
+import {workTypes,materialKinds,bucketFor,requestCode} from '../shared/operations.js';
 
 export function setupOperations(app,db,audit){
  const first=!db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='ops_access'").get();
@@ -17,13 +17,14 @@ export function setupOperations(app,db,audit){
  CREATE TABLE IF NOT EXISTS ops_suppliers(id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL UNIQUE,contact TEXT NOT NULL DEFAULT '',phone TEXT NOT NULL DEFAULT '',quote TEXT NOT NULL DEFAULT '',note TEXT NOT NULL DEFAULT '');
  CREATE TABLE IF NOT EXISTS ops_purchases(id INTEGER PRIMARY KEY AUTOINCREMENT,productId INTEGER NOT NULL,quantity INTEGER NOT NULL,received INTEGER NOT NULL DEFAULT 0,supplierId INTEGER,reason TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'pending',requesterId INTEGER,createdAt TEXT NOT NULL);
  CREATE TABLE IF NOT EXISTS ops_imports(digest TEXT PRIMARY KEY,date TEXT NOT NULL,actorId INTEGER);`);
+ for(const [name,definition] of [['channel',"TEXT NOT NULL DEFAULT 'general'"],['orderDate','TEXT']])if(!db.prepare('PRAGMA table_info(ops_requests)').all().some(c=>c.name===name))db.exec(`ALTER TABLE ops_requests ADD COLUMN ${name} ${definition}`);
  if(first)db.prepare("INSERT INTO ops_access(userId,warehouse) SELECT id,1 FROM users WHERE role='warehouse'").run();
  const fail=(message,status=400)=>{throw Object.assign(Error(message),{status})};
  const text=(v,max=500,required=false)=>{if(typeof v!=='string'||v.length>max||required&&!v.trim())fail('Thông tin thiếu hoặc quá dài');return v.trim()};
  const qty=(v,zero=false)=>{if(!['number','string'].includes(typeof v)||v===''||!Number.isSafeInteger(+v)||+v<(zero?0:1)||+v>1000000000)fail('Số lượng phải là số nguyên hợp lệ, tối đa 1 tỷ theo đơn vị đã chọn');return +v};
  const id=v=>qty(v);
  const now=()=>new Date().toISOString();
- const person=v=>{const p=db.prepare('SELECT id,name,locked FROM users WHERE id=?').get(id(v));if(!p||p.locked)fail('Người nhận không tồn tại hoặc đã khóa');return p};
+ const person=v=>{const p=db.prepare('SELECT id,name,role,locked FROM users WHERE id=?').get(id(v));if(!p||p.locked)fail('Người nhận không tồn tại hoặc đã khóa');return p};
  const product=v=>{const p=db.prepare('SELECT * FROM products WHERE id=?').get(id(v));if(!p||p.locked)fail('Mặt hàng không tồn tại hoặc đã khóa');return p};
  const access=req=>roleAccess(req.session.user.role,db.prepare('SELECT team FROM ops_access WHERE userId=?').get(req.session.user.id)?.team||'');
  const requireRight=(req,right)=>{if(!access(req)[right])fail(right==='warehouse'?'Chỉ người được giao quyền kho được xuất / nhận hàng':'Bạn không có quyền thực hiện thao tác này',403)};
@@ -31,7 +32,7 @@ export function setupOperations(app,db,audit){
   try{if(mutation)db.exec('BEGIN IMMEDIATE');const result=fn(req,res);if(mutation)db.exec('COMMIT');if(!res.headersSent)res.json(result??{ok:true})}
   catch(e){if(mutation&&db.isTransaction)db.exec('ROLLBACK');if(e.status)res.status(e.status).json({error:e.message});else next(e)}
  };
- const event=(req,requestId,type,payload={},token=null)=>{db.prepare('INSERT INTO ops_events(requestId,type,payload,actorId,date,token) VALUES(?,?,?,?,?,?)').run(requestId,type,JSON.stringify(payload),req.session.user.id,now(),token);audit(req,`${requestId?'YC-'+String(requestId).padStart(6,'0'):'Điều phối'} · ${type}`)};
+ const event=(req,requestId,type,payload={},token=null)=>{db.prepare('INSERT INTO ops_events(requestId,type,payload,actorId,date,token) VALUES(?,?,?,?,?,?)').run(requestId,type,JSON.stringify(payload),req.session.user.id,now(),token);audit(req,`${requestId?requestCode({id:requestId,...db.prepare('SELECT type,purpose,channel FROM ops_requests WHERE id=?').get(requestId)}):'Điều phối'} · ${type}`)};
  const load=v=>{const r=db.prepare('SELECT * FROM ops_requests WHERE id=?').get(id(v));if(!r)fail('Không tìm thấy yêu cầu',404);return {...r,inputs:JSON.parse(r.inputs),outputs:JSON.parse(r.outputs),snapshot:JSON.parse(r.snapshot)}};
  const store=r=>db.prepare('UPDATE ops_requests SET status=?,inputs=?,outputs=? WHERE id=?').run(r.status,JSON.stringify(r.inputs),JSON.stringify(r.outputs),r.id);
  const date=v=>{if(typeof v!=='string'||!v.trim()||!Number.isFinite(Date.parse(v)))fail('Cần chọn hạn trả hợp lệ');return new Date(v).toISOString()};
@@ -50,7 +51,7 @@ export function setupOperations(app,db,audit){
   for(const l of items)db.prepare('INSERT INTO movements(productId,kind,bucket,quantity,note,status,user,date,operation,receiptId) VALUES(?,?,?,?,?,?,?,?,?,?)').run(l.productId,kind,l.bucket||'stock',l.quantity,note,'completed',req.session.user.name,d,operation,rid);
   return rid;
  };
- const authorizeWork=(req,r)=>{if(req.session.user.id!==r.assigneeId&&!access(req).warehouse)fail('Chỉ người nhận việc, Admin hoặc nhân viên kho được cập nhật công việc này',403)};
+ const authorizeWork=(req,r)=>{if(req.session.user.role==='packer'&&r.type!=='delivery')fail('Nhân viên đóng gói chỉ nhận bàn giao hàng đóng / giao',403);if(req.session.user.id!==r.assigneeId&&!access(req).warehouse)fail('Chỉ người nhận việc, Admin hoặc nhân viên kho được cập nhật công việc này',403)};
  const remaining=l=>l.issued-l.consumed-l.returned;
  const settle=(r,afterReceipt=false)=>{
   const done=r.outputs.every(l=>l.good+l.faulty===l.quantity),left=r.inputs.some(l=>remaining(l)>0),bad=r.outputs.some(l=>l.faulty>0);
@@ -72,9 +73,10 @@ export function setupOperations(app,db,audit){
    suppliers:rights.warehouse?db.prepare('SELECT * FROM ops_suppliers ORDER BY name').all():[],purchases:rights.warehouse?db.prepare('SELECT * FROM ops_purchases ORDER BY id DESC').all():[]};
  }));
  app.post('/api/ops/access',route(req=>{
-  requireRight(req,'admin');const p=person(req.body.userId),current=db.prepare('SELECT role FROM users WHERE id=?').get(p.id).role;
+  requireRight(req,'manageRoles');const p=person(req.body.userId),current=db.prepare('SELECT role FROM users WHERE id=?').get(p.id).role;
   const role=normalizeRole(req.body.role??(req.body.warehouse===undefined?current:req.body.warehouse?'warehouse':'processor'));
-  if(!['admin','warehouse','processor'].includes(role))fail('Vai trò không hợp lệ');
+  if(!['admin','warehouse','processor','packer'].includes(role))fail('Vai trò không hợp lệ');
+  if(!access(req).admin&&(current==='admin'||role==='admin'))fail('Chỉ Admin được cấp vai trò hoặc thay đổi tài khoản Admin',403);
   if(current==='admin'&&role!=='admin'&&db.prepare("SELECT COUNT(*) n FROM users WHERE role='admin' AND locked=0").get().n<=1)fail('Cần giữ ít nhất một Admin đang hoạt động');
   const rights=roleAccess(role);db.prepare('UPDATE users SET role=? WHERE id=?').run(role,p.id);
   db.prepare('INSERT INTO ops_access(userId,warehouse,buyer,team) VALUES(?,?,?,?) ON CONFLICT(userId) DO UPDATE SET warehouse=excluded.warehouse,buyer=excluded.buyer,team=excluded.team').run(p.id,rights.warehouse?1:0,rights.buyer?1:0,text(req.body.team||'',80));event(req,null,'Phân quyền',{userId:p.id,old:current,role});
@@ -89,7 +91,7 @@ export function setupOperations(app,db,audit){
   db.prepare('INSERT INTO ops_boms(productId,version,lines,actor,date) VALUES(?,?,?,?,?)').run(p.id,version,JSON.stringify(ls.map(({productId,quantity})=>({productId,quantity}))),req.session.user.id,now());event(req,null,'Lưu định mức',{productId:p.id,version});return {ok:true,version};
  },true));
  app.post('/api/ops/requests',route(req=>{
-  const b=req.body;if(!access(req).warehouse&&!['delivery','supply'].includes(b.type))fail('Nhân viên gia công chỉ gửi yêu cầu đi đơn hoặc cấp bổ sung; kho tạo lệnh gia công / sửa',403);if(!Object.hasOwn(workTypes,b.type))fail('Chọn loại yêu cầu');
+  const b=req.body;if(req.session.user.role==='packer'&&b.type!=='delivery')fail('Nhân viên đóng gói chỉ tạo yêu cầu lấy hàng đóng / giao',403);if(!access(req).warehouse&&!['delivery','supply'].includes(b.type))fail('Nhân viên gia công chỉ gửi yêu cầu đi đơn hoặc cấp bổ sung; kho tạo lệnh gia công / sửa',403);if(!Object.hasOwn(workTypes,b.type))fail('Chọn loại yêu cầu');
   if(!['order','stock'].includes(b.purpose))fail('Chọn mục đích làm cho đơn hoặc bổ sung tồn');
   if(!access(req).warehouse&&+b.assigneeId!==req.session.user.id)fail('Yêu cầu của nhân viên phải giao cho chính người yêu cầu',403);
   const assignee=person(b.assigneeId),due=date(b.dueDate),destination=text(b.destination,160,true),reference=text(b.reference||'',100);
@@ -108,36 +110,45 @@ export function setupOperations(app,db,audit){
    if(parent.assigneeId!==assignee.id)fail('Vật tư bổ sung phải giao người nhận của lệnh gốc');if(b.purpose!==parent.purpose||reference!==parent.reference||destination!==parent.destination)fail('Cấp bổ sung cần cùng mục đích, tham chiếu và nơi nhận của lệnh gốc');if(!access(req).warehouse&&req.session.user.id!==parent.assigneeId)fail('Chỉ người nhận việc được xin vật tư bổ sung cho lệnh này',403);
    parentId=parent.id;inputs=lines(b.inputs,true);if(inputs.some(l=>l.source!=='stock'))fail('Vật tư bổ sung phải từ kho đạt');
   }else inputs=lines(outputs.map(o=>({...o,source:b.type==='repair'?'faulty':'stock'})),true);
+  if(assignee.role==='packer'&&b.type!=='delivery')fail('Chỉ giao lệnh đóng / giao hàng cho nhân viên đóng gói');
+  const channel=b.type==='delivery'&&(req.session.user.role==='packer'||assignee.role==='packer')?'packing':'general';let orderDate=null;
+  if(channel==='packing'){
+   orderDate=b.orderDate??new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Ho_Chi_Minh',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+   if(typeof orderDate!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(orderDate)||!Number.isFinite(Date.parse(orderDate))||new Date(orderDate).toISOString().slice(0,10)!==orderDate)fail('Ngày đóng gói không hợp lệ');
+  }
   if(b.type!=='repair'&&inputs.some(l=>l.source==='faulty'))fail('Chỉ lệnh sửa được lấy từ hàng lỗi');
-  const rid=Number(db.prepare('INSERT INTO ops_requests(type,purpose,reference,destination,assigneeId,requesterId,dueDate,note,outputs,inputs,snapshot,allowPartial,parentId,createdAt) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)').run(b.type,b.purpose,reference,destination,assignee.id,req.session.user.id,due,text(b.note||'',1000),JSON.stringify(outputs),JSON.stringify(inputs),JSON.stringify(snapshot),b.allowPartial?1:0,parentId,now()).lastInsertRowid);
+  const rid=Number(db.prepare('INSERT INTO ops_requests(type,purpose,reference,destination,assigneeId,requesterId,dueDate,note,outputs,inputs,snapshot,allowPartial,parentId,createdAt,channel,orderDate) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)').run(b.type,b.purpose,reference,destination,assignee.id,req.session.user.id,due,text(b.note||'',1000),JSON.stringify(outputs),JSON.stringify(inputs),JSON.stringify(snapshot),b.allowPartial?1:0,parentId,now(),channel,orderDate).lastInsertRowid);
   event(req,rid,'Tạo yêu cầu',{type:b.type});return {ok:true,id:rid};
  },true));
+ app.post('/api/ops/requests/:id/approve',route(req=>{
+  requireRight(req,'warehouse');const r=load(req.params.id);if(r.status!=='pending')fail('Yêu cầu không còn chờ kho xác nhận');person(r.assigneeId);r.status='approved';store(r);event(req,r.id,'Kho xác nhận yêu cầu',{note:text(req.body.note||'',500)});
+ },true));
  app.post('/api/ops/requests/:id/issue',route(req=>{
-  requireRight(req,'warehouse');const r=load(req.params.id);if(r.status!=='pending')fail('Yêu cầu đã xuất hoặc không còn chờ duyệt');person(r.assigneeId);
+  requireRight(req,'warehouse');const r=load(req.params.id);if(!['pending','approved'].includes(r.status)||r.type==='delivery'&&r.status!=='approved')fail('Kho cần xác nhận yêu cầu đóng / giao trước khi xuất; yêu cầu phải chưa xuất');person(r.assigneeId);
   let parent=r.type==='supply'?load(r.parentId):null;if(parent&&(parent.assigneeId!==r.assigneeId||!['issued','working','partial','quality','ready'].includes(parent.status)))fail('Lệnh gốc không còn mở');
   for(const l of r.inputs){product(l.productId);change(l.productId,l.source,-l.quantity);change(l.productId,bucketFor(parent?.type||r.type),l.quantity);l.issued=l.quantity;
    if(parent){let target=parent.inputs.find(x=>x.productId===l.productId&&x.source===l.source);if(!target){target={...l,quantity:0,issued:0};parent.inputs.push(target)}target.issued+=l.quantity;target.quantity+=l.quantity;}
   }
-  const rid=receipt(req,'out','issue_stock',r.inputs.map(l=>({...l,bucket:l.source})),`ops:${r.id}`,`${workTypes[r.type]} YC-${r.id} → ${r.destination}`);
+  const rid=receipt(req,'out','issue_stock',r.inputs.map(l=>({...l,bucket:l.source})),`ops:${r.id}`,`${workTypes[r.type]} ${requestCode(r)} → ${r.destination}`);
   r.status='issued';store(r);if(parent){store(parent);event(req,parent.id,'Cấp bổ sung',{requestId:r.id,items:r.inputs})}
   db.prepare('UPDATE ops_requests SET issuedAt=? WHERE id=?').run(now(),r.id);event(req,r.id,'Kho đã xuất',{receiptId:rid});return {ok:true,receiptId:rid};
  },true));
  app.post('/api/ops/requests/:id/accept',route(req=>{
   const r=load(req.params.id);authorizeWork(req,r);if(r.status!=='issued')fail('Chỉ nhận việc sau khi kho đã xuất');
-  if(r.type==='delivery')for(const l of r.inputs){change(l.productId,'inTransit',-l.issued);l.consumed=l.issued}
+  if(r.type==='delivery'){for(const l of r.inputs){change(l.productId,'inTransit',-l.issued);l.consumed=l.issued}for(const o of r.outputs)o.good=o.quantity}
   r.status=['delivery','supply'].includes(r.type)?'completed':r.outputs.some(l=>l.good+l.faulty>0)?'partial':'working';store(r);db.prepare('UPDATE ops_requests SET acceptedAt=? WHERE id=?').run(now(),r.id);event(req,r.id,'Đã nhận bàn giao',{destination:r.destination});
  },true));
  app.post('/api/ops/requests/:id/deadline',route(req=>{
   const r=load(req.params.id);authorizeWork(req,r);if(['completed','cancelled'].includes(r.status))fail('Công việc đã kết thúc');const due=date(req.body.dueDate),reason=text(req.body.reason,500,true);event(req,r.id,'Đổi hạn',{old:r.dueDate,new:due,reason});db.prepare('UPDATE ops_requests SET dueDate=? WHERE id=?').run(due,r.id);
  },true));
  app.post('/api/ops/requests/:id/reassign',route(req=>{
-  requireRight(req,'warehouse');const r=load(req.params.id);if(['completed','cancelled'].includes(r.status)||r.type==='supply')fail('Chỉ đổi người ở lệnh gốc đang mở');const next=person(req.body.assigneeId),reason=text(req.body.reason,500,true);if(next.id===r.assigneeId)fail('Người nhận mới phải khác người hiện tại');const previous=r.assigneeId;
-  db.prepare('UPDATE ops_requests SET assigneeId=?,status=?,acceptedAt=NULL WHERE id=?').run(next.id,r.status==='pending'?'pending':'issued',r.id);
+  requireRight(req,'warehouse');const r=load(req.params.id);if(['completed','cancelled'].includes(r.status)||r.type==='supply')fail('Chỉ đổi người ở lệnh gốc đang mở');const next=person(req.body.assigneeId);if(next.role==='packer'&&r.type!=='delivery')fail('Chỉ bàn giao lệnh đóng / giao cho nhân viên đóng gói');const reason=text(req.body.reason,500,true);if(next.id===r.assigneeId)fail('Người nhận mới phải khác người hiện tại');const previous=r.assigneeId;
+  db.prepare('UPDATE ops_requests SET assigneeId=?,status=?,acceptedAt=NULL WHERE id=?').run(next.id,['pending','approved'].includes(r.status)?r.status:'issued',r.id);
   for(const child of db.prepare("SELECT id FROM ops_requests WHERE parentId=? AND status='pending'").all(r.id)){db.prepare('UPDATE ops_requests SET assigneeId=? WHERE id=?').run(next.id,child.id);event(req,child.id,'Đổi người nhận theo lệnh gốc',{old:previous,new:next.id,reason})}
   event(req,r.id,'Bàn giao đổi người',{old:previous,new:next.id,reason});
  },true));
  app.post('/api/ops/requests/:id/cancel',route(req=>{
-  const r=load(req.params.id);if(r.requesterId!==req.session.user.id&&!access(req).warehouse)fail('Không có quyền hủy yêu cầu này',403);if(r.status!=='pending')fail('Đã xuất hàng: cần đối chiếu / trả vật tư, không thể hủy');const reason=text(req.body.reason,500,true);r.status='cancelled';store(r);event(req,r.id,'Hủy yêu cầu',{reason});
+  const r=load(req.params.id);if(r.requesterId!==req.session.user.id&&!access(req).warehouse)fail('Không có quyền hủy yêu cầu này',403);if(!['pending','approved'].includes(r.status))fail('Đã xuất hàng: cần đối chiếu / trả vật tư, không thể hủy');const reason=text(req.body.reason,500,true);r.status='cancelled';store(r);event(req,r.id,'Hủy yêu cầu',{reason});
  },true));
  app.post('/api/ops/requests/:id/report',route(req=>{
   const r=load(req.params.id);authorizeWork(req,r);if(!['working','partial'].includes(r.status)||['delivery','supply'].includes(r.type))fail('Công việc chưa nhận, đã báo bàn giao hoặc đã kết thúc');

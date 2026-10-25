@@ -17,7 +17,7 @@ test('three roles enforce account delegation and warehouse ↔ processing workfl
  const request=(body,who=warehouse,expected=200)=>who.req('ops/requests',{type:'production',purpose:'stock',reference:'',destination:'Tổ gia công',assigneeId:workerId,dueDate:new Date(Date.now()+86400000).toISOString(),allowPartial:true,note:'',...body},expected);
  const action=(id,name,body={},who=warehouse,status=200)=>who.req(`ops/requests/${id}/${name}`,body,status);
  const product=async id=>(await admin.req('data')).products.find(p=>p.id===id);
- await t.test('warehouse creates and manages employees but cannot grant roles or alter Admin',async()=>{
+ await t.test('warehouse creates and manages employees but cannot grant Admin or alter Admin',async()=>{
   await warehouse.req('users',{name:'Gia công A',username:'processor_a',password});await warehouse.req('users',{name:'Gia công B',username:'processor_b',password});
   const staff=await warehouse.req('users');assert.ok(staff.every(u=>u.role!=='admin'&&!('password' in u)));workerId=staff.find(u=>u.username==='processor_a').id;otherId=staff.find(u=>u.username==='processor_b').id;warehouseId=staff.find(u=>u.username==='kho').id;
   await worker.login('processor_a');await other.login('processor_b');assert.equal((await worker.req('session')).user.role,'processor');
@@ -51,7 +51,7 @@ test('three roles enforce account delegation and warehouse ↔ processing workfl
  });
  await t.test('processor requests order dispatch; warehouse receives the request, issues, then processor confirms',async()=>{
   const result=await request({type:'delivery',purpose:'order',reference:'DON-GIAO-01',destination:'Đội đi đơn',outputs:[{productId:finished,quantity:1}]},worker),id=result.id;
-  assert.equal((await product(finished)).stock,1);assert.equal((await warehouse.req('ops')).requests.find(r=>r.id===id).status,'pending');await action(id,'issue',{},worker,403);await action(id,'issue');assert.equal((await product(finished)).stock,0);assert.equal((await product(finished)).inTransit,1);await action(id,'accept',{},worker);assert.equal((await product(finished)).inTransit,0);assert.equal((await worker.req('ops')).requests.find(r=>r.id===id).status,'completed');
+  assert.equal((await product(finished)).stock,1);assert.equal((await warehouse.req('ops')).requests.find(r=>r.id===id).status,'pending');await action(id,'issue',{},worker,403);await action(id,'issue',{},warehouse,400);await action(id,'approve');await action(id,'issue');assert.equal((await product(finished)).stock,0);assert.equal((await product(finished)).inTransit,1);await action(id,'accept',{},worker);assert.equal((await product(finished)).inTransit,0);assert.equal((await worker.req('ops')).requests.find(r=>r.id===id).status,'completed');
  });
  await t.test('Admin can assign every role; effective permission changes on existing sessions and last Admin remains protected',async()=>{
   const root=(await admin.req('users')).find(u=>u.username==='admin');await admin.req('ops/access',{userId:root.id,role:'processor',team:''},400);await admin.req(`users/${root.id}/lock`,{},400);

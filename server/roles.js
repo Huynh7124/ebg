@@ -15,8 +15,8 @@ export function registerPeople(app,db,audit,bcrypt,normalizeEmail,validEmail){
  const list=req=>db.prepare(`SELECT id,name,username,email,role,locked FROM users ${req.session.user.role==='admin'?'':"WHERE role<>'admin'"} ORDER BY id`).all();
  const mayTarget=(req,u)=>req.session.user.role==='admin'||u.role!=='admin';
  const cleanRole=(req,wanted,current)=>{
-  const role=normalizeRole(wanted??current??'processor');if(!['admin','warehouse','processor'].includes(role))return {error:'Chọn vai trò Admin, nhân viên kho hoặc nhân viên gia công',status:400};
-  if(req.session.user.role!=='admin'&&role!==(current||'processor'))return {error:'Chỉ Admin được phân hoặc thay đổi vai trò',status:403};return {role};
+  const role=normalizeRole(wanted??current??'processor');if(!['admin','warehouse','processor','packer'].includes(role))return {error:'Chọn vai trò Admin, kho, gia công hoặc đóng gói',status:400};
+  if(req.session.user.role!=='admin'&&(role==='admin'||current==='admin'))return {error:'Chỉ Admin được cấp vai trò hoặc thay đổi tài khoản Admin',status:403};return {role};
  };
  const lastAdmin=u=>u.role==='admin'&&!u.locked&&db.prepare("SELECT COUNT(*) n FROM users WHERE role='admin' AND locked=0").get().n<=1;
  app.get('/api/users',guard,(req,res)=>res.json(list(req)));

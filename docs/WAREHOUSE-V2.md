@@ -25,7 +25,7 @@ Kiểm thử dùng database tạm; không sử dụng kho thật. `test:operatio
 
 ## Bắt đầu với dữ liệu thật
 
-1. Admin phân một trong ba vai trò tại **Điều phối kho → Dữ liệu & quyền** hoặc **Nhân viên**. Nhân viên kho có quyền quản lý hàng, danh mục, định mức, yêu cầu, mua vật tư và tài khoản nhân viên. Nhân viên kho không được thay đổi vai trò hoặc quản lý tài khoản Admin. Nhân viên gia công chỉ tạo yêu cầu đi đơn/cấp bổ sung, nhận việc được giao và báo sẵn sàng bàn giao. Bản sao SQLite gồm tài khoản/phiên vẫn chỉ Admin được tải; kho có xuất JSON nghiệp vụ.
+1. Admin phân một trong bốn vai trò tại **Điều phối kho → Dữ liệu & quyền** hoặc **Nhân viên**. Nhân viên kho có quyền quản lý hàng, danh mục, định mức, yêu cầu, mua vật tư và tài khoản nhân viên. Nhân viên kho được phân các vai trò warehouse/processor/packer cho nhân viên khác; không được cấp vai trò hoặc quản lý tài khoản Admin. Nhân viên gia công chỉ tạo yêu cầu đi đơn/cấp bổ sung, nhận việc được giao và báo sẵn sàng bàn giao. Bản sao SQLite gồm tài khoản/phiên vẫn chỉ Admin được tải; kho có xuất JSON nghiệp vụ.
 2. Tạo danh mục phụ kiện/dòng xe ở màn hình cũ. Nguyên liệu dùng chung có thể để trống dòng xe.
 3. Trong form sản phẩm, xác định loại hàng: nguyên liệu, cụm/bán thành phẩm, thành phẩm hoặc chưa phân loại; đơn vị cơ sở và vị trí tại kho.
 4. Mỗi số lượng là số nguyên theo đơn vị cơ sở, ví dụ cái, bộ, tấm, mm hoặc g. Không đổi đơn vị của mã đã có tồn/lịch sử/định mức/yêu cầu. Muốn quản lý đơn vị khác phải đối chiếu và tạo mã thích hợp, không sửa tên đơn vị để tự chuyển số lượng.
@@ -117,6 +117,16 @@ Bản này quản lý vị trí tại kho trên mã hàng và nơi giữ theo l�
 
 ## Chuyển đổi vai trò
 
-Các vai trò lưu trong database là `admin`, `warehouse`, `processor`. `staff` trong API cũ được hiểu là `processor` khi tạo tài khoản; giao diện và CLI mới dùng ba tên chuẩn. Quyền kho/mua dựa trên vai trò, không dựa vào cờ quyền cũ. Tài khoản `staff` đã có cờ kho chuyển thành `warehouse`; các `staff` còn lại thành `processor`. Bản rất cũ chưa có bảng quyền giữ quyền kho của nhân viên đã vận hành. Vai trò `it` chuyển thành `processor`, `warehouse` giữ nguyên. Không xóa số dư, phiếu, tài khoản hoặc mật khẩu.
+Các vai trò lưu trong database là `admin`, `warehouse`, `processor`, `packer`. `staff` trong API cũ được hiểu là `processor` khi tạo tài khoản; giao diện và CLI mới dùng bốn tên chuẩn. Quyền kho/mua dựa trên vai trò, không dựa vào cờ quyền cũ. Tài khoản `staff` đã có cờ kho chuyển thành `warehouse`; các `staff` còn lại thành `processor`. Bản rất cũ chưa có bảng quyền giữ quyền kho của nhân viên đã vận hành. Vai trò `it` chuyển thành `processor`, `warehouse` giữ nguyên. Không xóa số dư, phiếu, tài khoản hoặc mật khẩu.
 
 Nhân viên gia công nhìn danh sách công việc mình được giao hoặc đã yêu cầu; kho/Admin nhìn toàn bộ. Tạo yêu cầu gia công/sửa mới thuộc kho; nhân viên đi đơn gửi loại **Đóng/giao hàng** với mục đích **Phục vụ đơn hàng**, người nhận là chính mình và có mã tham chiếu. Yêu cầu này chờ kho duyệt, chưa trừ tồn.
+
+## Đóng gói đầu ngày và phân quyền từ kho
+
+Nhân viên kho tạo tài khoản với vai trò **Nhân viên đóng gói**, hoặc đổi vai trò nhân viên hiện có ở **Nhân viên / Dữ liệu & quyền**. Kho được phân vai trò kho, gia công hoặc đóng gói; không thấy lựa chọn Admin và máy chủ cũng chặn mọi cách cấp quyền/đổi tài khoản Admin. Admin vẫn có mọi quyền.
+
+Mỗi sáng nhân viên đóng gói mở **Điều phối kho → Lên đơn đóng gói**, nhập mã đơn/danh sách, ngày đóng gói, hàng và số lượng. Mã yêu cầu tự có tiền tố DG; không ghi số lượng ví dụ làm số dư. Kho thấy hộp **Đơn đóng gói đầu ngày** và có thể lọc theo ngày. Nhân viên đóng gói chỉ thấy yêu cầu mình tạo hoặc được giao.
+
+Luồng gồm bốn trạng thái: **Chờ kho duyệt → Kho đã xác nhận → Chờ nhận việc → Hoàn tất**. Kho bấm **Kho xác nhận yêu cầu** trước; bước này không trừ tồn. Sau đó bấm **Kho xuất thực tế**, lúc này mới giảm tồn và ghi hàng chờ bàn giao. Nhân viên đóng gói bấm **Xác nhận đã nhận bàn giao** khi nhận hàng thực tế; hệ thống chống xuất/nhận hai lần. Luồng Đóng/giao hàng của nhân viên gia công cũng dùng hai bước xác nhận và xuất. Các yêu cầu đóng/giao đang chờ từ bản trước cần xác nhận trước khi xuất; phiếu đã xuất giữ nguyên.
+
+Đóng gói không được tự tạo lệnh sản xuất/sửa, cấp vật tư từ kho hoặc phân quyền. Nếu thiếu hàng, kho xử lý yêu cầu và điều phối sản xuất trước, rồi xuất khi có đủ; tạo hoặc xác nhận yêu cầu không tạo hàng giả. Chưa có tác vụ tự tạo đơn lúc sáng: nhân viên chủ động lên danh sách mỗi ngày.

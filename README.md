@@ -55,13 +55,15 @@ Kiểm tra trình duyệt bằng `npm run test:pwa` sau build (cần Chromium c�
 
 Ứng dụng vẫn dùng SQLite cho đến khi có cấu hình dự án Firebase và hoàn tất chuyển đổi. Xem [hướng dẫn chuẩn bị Firebase Spark](docs/FIREBASE-SPARK.md). Chưa có chức năng backup tự động hoặc triển khai Firebase ở bản này.
 
-## Ba vai trò Admin / Nhân viên kho / Nhân viên gia công
+## Bốn vai trò Admin / Kho / Gia công / Đóng gói
 
 - **Admin:** toàn quyền, tạo/sửa/khóa tài khoản và phân vai trò cho mọi người. Hệ thống luôn giữ ít nhất một Admin hoạt động.
-- **Nhân viên kho:** quản lý sản phẩm, danh mục, định mức, nhập/xuất/kiểm hàng, duyệt yêu cầu, tạo lệnh gia công/sửa, mua vật tư và quản lý tài khoản nhân viên. Kho được tạo tài khoản gia công, sửa/khóa/đặt lại mật khẩu nhân viên; không thay đổi vai trò hoặc sửa tài khoản Admin.
+- **Nhân viên kho:** quản lý sản phẩm, danh mục, định mức, nhập/xuất/kiểm hàng, duyệt yêu cầu, tạo lệnh gia công/sửa, mua vật tư và quản lý tài khoản nhân viên. Kho được tạo tài khoản, sửa/khóa/đặt lại mật khẩu và phân các vai trò kho, gia công, đóng gói cho nhân viên; chỉ Admin cấp quyền hoặc quản lý tài khoản Admin.
 - **Nhân viên gia công:** nhận công việc theo đơn hoặc làm bổ sung tồn do kho giao, báo sẵn sàng bàn giao, xin cấp bổ sung cho việc mình nhận và gửi yêu cầu đi đơn. Kho duyệt và xuất thực tế rồi nhân viên xác nhận nhận. Nhân viên gia công không tự thay đổi tồn hoặc nhận kiểm hàng thay kho.
 
-Luồng làm hàng: Kho tạo lệnh → kho xuất → nhân viên nhận → báo sẵn sàng → kho kiểm nhận đạt/lỗi. Báo hoàn thành không tự tăng tồn. Luồng đi đơn: Nhân viên gửi yêu cầu có mã đơn → kho duyệt/xuất → nhân viên nhận hàng đi đơn.
+- **Nhân viên đóng gói:** mỗi sáng lên danh sách hàng theo ngày và mã đơn; chờ kho xác nhận, xuất thực tế rồi xác nhận nhận hàng. Chỉ xem yêu cầu của mình, không tự xuất kho hoặc phân quyền.
+
+Luồng làm hàng: Kho tạo lệnh → kho xuất → nhân viên nhận → báo sẵn sàng → kho kiểm nhận đạt/lỗi. Báo hoàn thành không tự tăng tồn. Luồng đi đơn: Nhân viên gửi yêu cầu có mã đơn → kho xác nhận (chưa trừ tồn) → kho xuất thực tế → nhân viên nhận hàng. Đơn đóng gói có mã DG và ngày đóng gói để kho theo dõi đầu ngày.
 
 Khi nâng cấp, giữ dữ liệu và mật khẩu. Tài khoản `warehouse` giữ vai trò kho; `it` chuyển thành gia công. `staff` của bản có quyền kho riêng được chuyển dựa vào quyền kho đã có; tài khoản không có quyền kho chuyển thành gia công. Tài khoản `staff` từ bản cũ chưa có bảng quyền giữ nghiệp vụ kho đã được dùng trước đây. Các cờ quyền mua/kho cũ không thể vượt quyền của vai trò mới. Phân quyền có hiệu lực ở yêu cầu API tiếp theo của phiên đang đăng nhập.
 
@@ -177,6 +179,6 @@ Màn hình **Điều phối kho** bổ sung yêu cầu cấp hàng hai chiều, 
 
 Tạo yêu cầu chưa trừ tồn; kho xuất thực tế mới trừ. Định mức đã chụp trong lệnh không đổi khi cập nhật phiên bản mới. Các lỗi hoặc vật tư còn thừa cần đối chiếu trước khi đóng. Không tự nhập ngược vật tư qua ngày và không tự trừ linh kiện lần nữa khi xuất thành phẩm.
 
-Dữ liệu cũ được giữ. Nhân viên mới mặc định là gia công. Admin phân vai trò tại **Dữ liệu & quyền** hoặc **Nhân viên**; nhân viên kho quản lý toàn bộ nghiệp vụ và duyệt yêu cầu. Có nạp CSV xem trước/chặn ghi đè số dư, hồ sơ nhà cung cấp/đề nghị mua, nhãn QR theo mã hàng và sao lưu SQLite nhất quán. Quét camera phụ thuộc hỗ trợ trình duyệt; có tra mã từ đầu đọc hoặc bàn phím.
+Dữ liệu cũ được giữ. Nhân viên mới mặc định là gia công. Admin hoặc kho phân vai trò nhân viên tại **Dữ liệu & quyền** hoặc **Nhân viên**; chỉ Admin cấp vai trò Admin. Có nạp CSV xem trước/chặn ghi đè số dư, hồ sơ nhà cung cấp/đề nghị mua, nhãn QR theo mã hàng và sao lưu SQLite nhất quán. Quét camera phụ thuộc hỗ trợ trình duyệt; có tra mã từ đầu đọc hoặc bàn phím.
 
 Hướng dẫn vận hành, đơn vị, nhập dữ liệu và khôi phục: [docs/WAREHOUSE-V2.md](docs/WAREHOUSE-V2.md). Kiểm tra giao diện điều phối sau build bằng `CHROMIUM_PATH=/usr/bin/chromium npm run test:operations`.

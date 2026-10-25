@@ -71,7 +71,7 @@ test('warehouse operations preserve quantities, snapshots, responsibility and du
  await t.test('insufficient multi-line issue rolls back every item and delivery handoff is explicit',async()=>{
   const low=await create('OPS-LOW'),end=await create('OPS-END','finished');await admin.req('ops/boms',{productId:end,lines:[{productId:a,quantity:1},{productId:low,quantity:1}]});const before=(await item(a)).stock;
   const id=(await request({outputs:[{productId:end,quantity:1}]})).id;await act(id,'issue',{},admin,400);assert.equal((await item(a)).stock,before);assert.equal((await item(a)).inProduction,0);await act(id,'cancel',{reason:'Thiếu vật tư'});
-  const delivery=(await request({type:'delivery',purpose:'order',reference:'DON-01',outputs:[{productId:fg,quantity:1}]})).id;await act(delivery,'issue');assert.equal((await item(fg)).inTransit,1);await act(delivery,'cancel',{reason:'Không được hủy sau xuất'},worker,403);await act(delivery,'accept',{},worker);assert.equal((await item(fg)).inTransit,0);
+  const delivery=(await request({type:'delivery',purpose:'order',reference:'DON-01',outputs:[{productId:fg,quantity:1}]})).id;await act(delivery,'issue',{},admin,400);await act(delivery,'approve');await act(delivery,'issue');assert.equal((await item(fg)).inTransit,1);await act(delivery,'cancel',{reason:'Không được hủy sau xuất'},worker,403);await act(delivery,'accept',{},worker);assert.equal((await item(fg)).inTransit,0);
  });
  await t.test('handover to another person preserves custody and requires acceptance again',async()=>{
   const id=(await request({type:'repair',outputs:[{productId:a,quantity:1}]})).id;

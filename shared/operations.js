@@ -1,5 +1,5 @@
 export const workTypes={production:'Sản xuất / lắp ráp',anode:'Anode đổi màu',carbon:'Cắt / gia công Carbon',repair:'Sửa hàng lỗi',delivery:'Đóng / giao hàng',supply:'Cấp vật tư bổ sung'};
-export const workStates={pending:'Chờ kho duyệt',issued:'Chờ nhận việc',working:'Đang thực hiện',ready:'Chờ kho nhận kết quả',partial:'Đã trả một phần',quality:'Cần xử lý kết quả',completed:'Hoàn tất',cancelled:'Đã hủy'};
+export const workStates={pending:'Chờ kho duyệt',approved:'Kho đã xác nhận',issued:'Chờ nhận việc',working:'Đang thực hiện',ready:'Chờ kho nhận kết quả',partial:'Đã trả một phần',quality:'Cần xử lý kết quả',completed:'Hoàn tất',cancelled:'Đã hủy'};
 export const materialKinds={unclassified:'Chưa phân loại',raw:'Nguyên vật liệu',semi:'Cụm / bán thành phẩm',finished:'Thành phẩm'};
 export const bucketFor=type=>type==='anode'?'anote':type==='repair'?'repair':type==='delivery'?'inTransit':'inProduction';
 export function assemblyCapacity(bom,products){
@@ -27,3 +27,5 @@ export function parseCSV(text){
  return rows.map((r,i)=>{if(r.length!==headers.length)throw Error(`Dòng ${i+2}: số cột không khớp`);return Object.fromEntries(headers.map((h,j)=>[h,r[j].trim()]))});
 }
 export const csvCell=v=>'"'+String(v??'').replaceAll('"','""').replace(/^[=+@-]/,"'")+'"';
+
+export const requestCode=r=>(r.channel==='packing'?'DG':r.purpose==='stock'&&['production','carbon'].includes(r.type)?'ST':'YC')+'-'+String(r.id).padStart(6,'0');
