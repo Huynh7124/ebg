@@ -1,4 +1,5 @@
 import {setupStockStages,productsWithStages,changeStock,resolveStockStage} from './server/stock-stages.js';
+import {createStockWorkOrder,setupStockWorkOrders} from './server/stock-work-orders.js';
 import {setupPackingOrders} from './server/packing-orders.js';
 import {migrateRoles,registerPeople} from './server/roles.js';
 import {setupAccounts} from './scripts/setup-accounts.mjs';
@@ -75,6 +76,7 @@ app.use('/api',(req,res,next)=>req.session.user?next():res.status(401).json({err
 setupOperations(app,db,audit);
 setupStockStages(app,db,audit);
 setupPackingOrders(app,db,audit);
+setupStockWorkOrders(app,db,audit);
 app.post('/api/profile',(req,res)=>{const name=req.body.name;if(typeof name!=='string'||!name.trim()||name.trim().length>100)return res.status(400).json({error:'Họ tên cần từ 1 đến 100 ký tự'});db.prepare('UPDATE users SET name=? WHERE id=?').run(name.trim(),req.session.user.id);audit(req,'Đổi họ tên hiển thị');req.session.user.name=name.trim();res.json({ok:true})});
 
 app.post('/api/password',(req,res)=>{const {currentPassword,newPassword}=req.body;const u=db.prepare('SELECT * FROM users WHERE id=?').get(req.session.user.id);if(typeof newPassword!=='string'||newPassword.length<12||newPassword.length>128)return res.status(400).json({error:'Mật khẩu mới phải có từ 12 đến 128 ký tự'});if(!bcrypt.compareSync(String(currentPassword||''),u.password))return res.status(400).json({error:'Mật khẩu hiện tại không đúng'});db.prepare('UPDATE users SET password=? WHERE id=?').run(bcrypt.hashSync(newPassword,12),u.id);audit(req,'Đổi mật khẩu tài khoản');res.json({ok:true})});
@@ -108,7 +110,7 @@ app.post('/api/movements',(req,res)=>{
   seen.add(+item.productId);lines.push({productId:+item.productId,quantity:+item.quantity,stage:item.stage});
  }
  if(!Number.isSafeInteger(lines.reduce((sum,line)=>sum+line.quantity,0)))return res.status(400).json({error:'Tổng số lượng vượt giới hạn'});
- const waiting=['send_anode','send_repair'].includes(operation),status=waiting?'pending':'completed';
+ const waiting=['send_anode','send_repair'].includes(operation),stockWork=operation==='send_stock',status=waiting?'pending':'completed';
  if(req.body.status&&req.body.status!==status||req.body.bucket&&req.body.bucket!==type.bucket)return res.status(400).json({error:'Trạng thái hoặc nhóm hàng không khớp loại phiếu'});
  db.exec('BEGIN IMMEDIATE');
  try{
@@ -117,7 +119,7 @@ app.post('/api/movements',(req,res)=>{
    const p=db.prepare('SELECT * FROM products WHERE id=?').get(line.productId);
    if(!p||p.locked){db.exec('ROLLBACK');return res.status(400).json({error:`Sản phẩm #${line.productId} không tồn tại hoặc đã khóa`})}
    if(type.kind==='out'&&p.stock<line.quantity){db.exec('ROLLBACK');return res.status(400).json({error:`${p.code}: chỉ còn ${p.stock}, không đủ xuất ${line.quantity}`})}
-   if((type.kind==='in'||waiting)&&!Number.isSafeInteger(p[type.bucket]+line.quantity)){db.exec('ROLLBACK');return res.status(400).json({error:`${p.code}: số lượng vượt giới hạn`})}
+   if((type.kind==='in'||waiting)&&!Number.isSafeInteger(p[type.bucket]+line.quantity)||stockWork&&!Number.isSafeInteger(p.inProduction+line.quantity)){db.exec('ROLLBACK');return res.status(400).json({error:`${p.code}: số lượng vượt giới hạn`})}
    if(type.bucket==='stock'||type.kind==='out')line.stage=resolveStockStage(db,p.id,type.kind==='in'?line.quantity:-line.quantity,line.stage);
    products.push(p);
   }
@@ -125,10 +127,11 @@ app.post('/api/movements',(req,res)=>{
   const id=Number(db.prepare('INSERT INTO receipts(kind,operation,note,status,user,date,anodeVendor) VALUES(?,?,?,?,?,?,?)').run(type.kind,operation,cleanNote,status,req.session.user.name,date,anodeVendor).lastInsertRowid);
   lines.forEach((line,i)=>{
    const q=line.quantity,p=products[i];
-   if(type.kind==='in'){if(type.bucket==='stock')changeStock(db,p.id,q,line.stage);else db.prepare(`UPDATE products SET ${type.bucket}=${type.bucket}+? WHERE id=?`).run(q,p.id)}else{changeStock(db,p.id,-q,line.stage);if(waiting)db.prepare(`UPDATE products SET ${type.bucket}=${type.bucket}+? WHERE id=?`).run(q,p.id)}
+   if(type.kind==='in'){if(type.bucket==='stock')changeStock(db,p.id,q,line.stage);else db.prepare(`UPDATE products SET ${type.bucket}=${type.bucket}+? WHERE id=?`).run(q,p.id)}else{changeStock(db,p.id,-q,line.stage);if(waiting)db.prepare(`UPDATE products SET ${type.bucket}=${type.bucket}+? WHERE id=?`).run(q,p.id);if(stockWork)db.prepare('UPDATE products SET inProduction=inProduction+? WHERE id=?').run(q,p.id)}
    db.prepare('INSERT INTO movements(productId,kind,bucket,quantity,note,status,user,date,operation,receiptId) VALUES(?,?,?,?,?,?,?,?,?,?)').run(p.id,type.kind,type.bucket,q,cleanNote,status,req.session.user.name,date,operation,id);
    db.prepare('UPDATE movements SET stage=? WHERE receiptId=? AND productId=?').run(line.stage||null,id,p.id);
   });
+  if(stockWork)createStockWorkOrder(db,id,req.session.user.name,date);
   const code=receiptCode({id,kind:type.kind});audit(req,`${type.label} ${code}: ${lines.map((l,i)=>`${l.quantity} × ${products[i].code}`).join(', ')}${waiting?' (chờ nhận về kho)':''}`);
   db.exec('COMMIT');res.json({ok:true,receiptId:id,code});
  }catch(e){db.exec('ROLLBACK');throw e}

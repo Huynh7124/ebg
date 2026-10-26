@@ -8,6 +8,8 @@ Quy trình nghiệp vụ: [Tạo sản phẩm mới, phân loại NVL/BTP/TP và
 
 Mỗi sản phẩm hiển thị ba số tồn tại kho và phần chưa phân loại nếu có. Phiếu nhập/xuất chọn giai đoạn; kho chuyển công đoạn qua nút ba chấm của sản phẩm. Mục Định mức đã bỏ khỏi giao diện; đơn mới dùng danh sách vật tư thực cấp. Xem [hướng dẫn và cách giữ dữ liệu cũ](docs/TON-NVL-BTP-TP.md). Các mô tả định mức phía dưới là lịch sử luồng trước.
 
+Loại phiếu **Xuất kho để stock** không yêu cầu kho chọn người hoặc thời gian. Sau khi xuất, gia công thấy yêu cầu `STOCK-...`, nhận việc và tự chọn ngày giờ dự kiến trả. Kiểm tra luồng trên trình duyệt bằng `npm run test:stock-work` sau khi build.
+
 ## Khởi động
 
 ```sh

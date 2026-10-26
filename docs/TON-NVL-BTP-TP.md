@@ -24,6 +24,8 @@ Chỉ Admin và kho được chuyển. Có kiểm tra số dư, mã khóa, lịc
 
 Đơn mới không tự lấy định mức: kho nhập vật tư thực cấp, lượng và giai đoạn xuất. Phiếu đã chuẩn bị giữ danh sách vật tư đã lưu. Gia công vẫn nhận, khai báo hàng lỗi, hoàn thành và chuyển hàng đạt về đóng gói. Hàng đạt nhập lại kho theo luồng stock được ghi vào TP; đi đơn được theo dõi tại đóng gói, không tăng tồn tại kho.
 
+Kho có thêm loại **Xuất kho để stock** trong phiếu xuất thông thường. Kho chỉ chọn mặt hàng, giai đoạn và số lượng; không chọn người gia công hoặc hạn trả. Phiếu được hoàn tất và in như phiếu xuất kho khác, đồng thời tạo yêu cầu `STOCK-...`. Tất cả nhân viên gia công thấy yêu cầu đang mở; người nhận đầu tiên chọn ngày giờ dự kiến trả. Sau khi nhận, yêu cầu chỉ còn hiển thị cho người đó và kho/Admin. Bước này chỉ ghi nhận lịch hẹn trả, chưa ghi nhận hàng hoàn thành hoặc nhập lại kho.
+
 Mục Định mức được bỏ khỏi giao diện. Dữ liệu định mức và API cũ được giữ để không mất lịch sử và tương thích các lệnh cũ; giao diện tạo yêu cầu sản xuất cũ cũng gửi danh sách vật tư thủ công.
 
 ## Lưu trữ và đối chiếu
