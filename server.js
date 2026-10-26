@@ -1,3 +1,4 @@
+import {setupStockStages,productsWithStages,changeStock,resolveStockStage} from './server/stock-stages.js';
 import {setupPackingOrders} from './server/packing-orders.js';
 import {migrateRoles,registerPeople} from './server/roles.js';
 import {setupAccounts} from './scripts/setup-accounts.mjs';
@@ -72,12 +73,13 @@ app.post('/api/logout',(req,res)=>req.session.destroy(()=>res.json({ok:true})));
 app.post('/api/forgot-password',rateLimit({windowMs:15*60000,limit:5}),(req,res)=>{const username=String(req.body.username||'').trim().slice(0,254);const u=db.prepare("SELECT id FROM users WHERE (username=? OR email=? COLLATE NOCASE) AND role<>'admin' AND locked=0").get(username,normalizeEmail(username));if(u)db.prepare('INSERT INTO password_reset_requests(userId,requestedAt) VALUES(?,?) ON CONFLICT(userId) DO UPDATE SET requestedAt=excluded.requestedAt').run(u.id,new Date().toISOString());res.json({ok:true})});
 app.use('/api',(req,res,next)=>req.session.user?next():res.status(401).json({error:'Vui lòng đăng nhập'}));
 setupOperations(app,db,audit);
+setupStockStages(app,db,audit);
 setupPackingOrders(app,db,audit);
 app.post('/api/profile',(req,res)=>{const name=req.body.name;if(typeof name!=='string'||!name.trim()||name.trim().length>100)return res.status(400).json({error:'Họ tên cần từ 1 đến 100 ký tự'});db.prepare('UPDATE users SET name=? WHERE id=?').run(name.trim(),req.session.user.id);audit(req,'Đổi họ tên hiển thị');req.session.user.name=name.trim();res.json({ok:true})});
 
 app.post('/api/password',(req,res)=>{const {currentPassword,newPassword}=req.body;const u=db.prepare('SELECT * FROM users WHERE id=?').get(req.session.user.id);if(typeof newPassword!=='string'||newPassword.length<12||newPassword.length>128)return res.status(400).json({error:'Mật khẩu mới phải có từ 12 đến 128 ký tự'});if(!bcrypt.compareSync(String(currentPassword||''),u.password))return res.status(400).json({error:'Mật khẩu hiện tại không đúng'});db.prepare('UPDATE users SET password=? WHERE id=?').run(bcrypt.hashSync(newPassword,12),u.id);audit(req,'Đổi mật khẩu tài khoản');res.json({ok:true})});
 const staffList=registerPeople(app,db,audit,bcrypt,normalizeEmail,validEmail,{passwordRequired});
-app.get('/api/data',(req,res)=>res.json({recoveryRequests:managesWarehouse(req.session.user)?db.prepare("SELECT r.userId,r.requestedAt,u.username,u.name FROM password_reset_requests r JOIN users u ON u.id=r.userId WHERE u.role<>'admin' AND u.locked=0 ORDER BY r.requestedAt DESC").all():[],receipts:db.prepare('SELECT * FROM receipts ORDER BY id DESC').all(),users:managesWarehouse(req.session.user)?staffList(req):[],products:db.prepare('SELECT * FROM products ORDER BY id').all(),categories:db.prepare('SELECT * FROM categories').all(),movements:db.prepare('SELECT * FROM movements ORDER BY id DESC').all(),audit:db.prepare('SELECT * FROM audit ORDER BY id DESC LIMIT 200').all()}));
+app.get('/api/data',(req,res)=>res.json({recoveryRequests:managesWarehouse(req.session.user)?db.prepare("SELECT r.userId,r.requestedAt,u.username,u.name FROM password_reset_requests r JOIN users u ON u.id=r.userId WHERE u.role<>'admin' AND u.locked=0 ORDER BY r.requestedAt DESC").all():[],receipts:db.prepare('SELECT * FROM receipts ORDER BY id DESC').all(),users:managesWarehouse(req.session.user)?staffList(req):[],products:productsWithStages(db),categories:db.prepare('SELECT * FROM categories').all(),movements:db.prepare('SELECT * FROM movements ORDER BY id DESC').all(),audit:db.prepare('SELECT * FROM audit ORDER BY id DESC LIMIT 200').all()}));
 app.post('/api/categories',warehouseOnly,(req,res)=>{const {name,type}=req.body;if(typeof name!=='string'||!name.trim()||name.trim().length>100||!['accessory','vehicle'].includes(type))return res.status(400).json({error:'Danh mục không hợp lệ'});try{db.prepare('INSERT INTO categories(name,type) VALUES(?,?)').run(name.trim(),type);audit(req,`Thêm danh mục ${name.trim()}`);res.json({ok:true})}catch{res.status(400).json({error:'Danh mục đã tồn tại'})}});
 app.post('/api/categories/:id',warehouseOnly,(req,res)=>{const c=db.prepare('SELECT * FROM categories WHERE id=?').get(req.params.id);if(!c)return res.status(404).json({error:'Không tìm thấy danh mục'});const {name}=req.body;if(typeof name!=='string'||!name.trim()||name.trim().length>100||req.body.type&&req.body.type!==c.type)return res.status(400).json({error:'Tên danh mục không hợp lệ; không thể đổi loại danh mục'});db.exec('BEGIN IMMEDIATE');try{db.prepare('UPDATE categories SET name=? WHERE id=?').run(name.trim(),c.id);const field=c.type==='accessory'?'category':'vehicle';db.prepare(`UPDATE products SET ${field}=? WHERE ${field}=?`).run(name.trim(),c.name);audit(req,`Sửa danh mục ${c.name} thành ${name.trim()}`);db.exec('COMMIT');res.json({ok:true})}catch{db.exec('ROLLBACK');res.status(400).json({error:'Tên danh mục đã tồn tại'})}});
 app.post('/api/categories/:id/lock',warehouseOnly,(req,res)=>{const c=db.prepare('SELECT * FROM categories WHERE id=?').get(req.params.id);if(!c)return res.status(404).json({error:'Không tìm thấy danh mục'});db.prepare('UPDATE categories SET locked=? WHERE id=?').run(c.locked?0:1,c.id);audit(req,`${c.locked?'Mở khóa':'Khóa'} danh mục ${c.name}`);res.json({ok:true})});
@@ -103,7 +105,7 @@ app.post('/api/movements',(req,res)=>{
  const seen=new Set(),lines=[];
  for(const item of items){
   if(!item||!['number','string'].includes(typeof item.productId)||!['number','string'].includes(typeof item.quantity)||!Number.isSafeInteger(+item.productId)||+item.productId<=0||!Number.isSafeInteger(+item.quantity)||+item.quantity<=0||seen.has(+item.productId))return res.status(400).json({error:'Mỗi sản phẩm chỉ chọn một lần, số lượng phải là số nguyên dương'});
-  seen.add(+item.productId);lines.push({productId:+item.productId,quantity:+item.quantity});
+  seen.add(+item.productId);lines.push({productId:+item.productId,quantity:+item.quantity,stage:item.stage});
  }
  if(!Number.isSafeInteger(lines.reduce((sum,line)=>sum+line.quantity,0)))return res.status(400).json({error:'Tổng số lượng vượt giới hạn'});
  const waiting=['send_anode','send_repair'].includes(operation),status=waiting?'pending':'completed';
@@ -116,16 +118,16 @@ app.post('/api/movements',(req,res)=>{
    if(!p||p.locked){db.exec('ROLLBACK');return res.status(400).json({error:`Sản phẩm #${line.productId} không tồn tại hoặc đã khóa`})}
    if(type.kind==='out'&&p.stock<line.quantity){db.exec('ROLLBACK');return res.status(400).json({error:`${p.code}: chỉ còn ${p.stock}, không đủ xuất ${line.quantity}`})}
    if((type.kind==='in'||waiting)&&!Number.isSafeInteger(p[type.bucket]+line.quantity)){db.exec('ROLLBACK');return res.status(400).json({error:`${p.code}: số lượng vượt giới hạn`})}
+   if(type.bucket==='stock'||type.kind==='out')line.stage=resolveStockStage(db,p.id,type.kind==='in'?line.quantity:-line.quantity,line.stage);
    products.push(p);
   }
   const date=new Date().toISOString(),cleanNote=String(note||'').slice(0,500);
   const id=Number(db.prepare('INSERT INTO receipts(kind,operation,note,status,user,date,anodeVendor) VALUES(?,?,?,?,?,?,?)').run(type.kind,operation,cleanNote,status,req.session.user.name,date,anodeVendor).lastInsertRowid);
   lines.forEach((line,i)=>{
    const q=line.quantity,p=products[i];
-   if(type.kind==='in')db.prepare(`UPDATE products SET ${type.bucket}=${type.bucket}+? WHERE id=?`).run(q,p.id);
-   else if(waiting)db.prepare(`UPDATE products SET stock=stock-?,${type.bucket}=${type.bucket}+? WHERE id=?`).run(q,q,p.id);
-   else db.prepare('UPDATE products SET stock=stock-? WHERE id=?').run(q,p.id);
+   if(type.kind==='in'){if(type.bucket==='stock')changeStock(db,p.id,q,line.stage);else db.prepare(`UPDATE products SET ${type.bucket}=${type.bucket}+? WHERE id=?`).run(q,p.id)}else{changeStock(db,p.id,-q,line.stage);if(waiting)db.prepare(`UPDATE products SET ${type.bucket}=${type.bucket}+? WHERE id=?`).run(q,p.id)}
    db.prepare('INSERT INTO movements(productId,kind,bucket,quantity,note,status,user,date,operation,receiptId) VALUES(?,?,?,?,?,?,?,?,?,?)').run(p.id,type.kind,type.bucket,q,cleanNote,status,req.session.user.name,date,operation,id);
+   db.prepare('UPDATE movements SET stage=? WHERE receiptId=? AND productId=?').run(line.stage||null,id,p.id);
   });
   const code=receiptCode({id,kind:type.kind});audit(req,`${type.label} ${code}: ${lines.map((l,i)=>`${l.quantity} × ${products[i].code}`).join(', ')}${waiting?' (chờ nhận về kho)':''}`);
   db.exec('COMMIT');res.json({ok:true,receiptId:id,code});
@@ -151,8 +153,9 @@ app.post(['/api/receipts/:id/complete','/api/movements/:id/complete'],(req,res)=
   if(isReturn)returnedId=Number(db.prepare('INSERT INTO receipts(kind,operation,note,status,user,date,sourceReference) VALUES(?,?,?,?,?,?,?)').run('in','receive_stock',returnNote,'completed',req.session.user.name,date,sourceReference).lastInsertRowid);
   for(const m of lines){
    if(isReturn){
-    db.prepare(`UPDATE products SET stock=stock+?,${m.bucket}=${m.bucket}-? WHERE id=?`).run(m.quantity,m.quantity,m.productId);
+    changeStock(db,m.productId,m.quantity,m.stage);db.prepare(`UPDATE products SET ${m.bucket}=${m.bucket}-? WHERE id=?`).run(m.quantity,m.productId);
     db.prepare('INSERT INTO movements(productId,kind,bucket,quantity,note,status,user,date,operation,receiptId) VALUES(?,?,?,?,?,?,?,?,?,?)').run(m.productId,'in','stock',m.quantity,returnNote,'completed',req.session.user.name,date,'receive_stock',returnedId);
+    db.prepare('UPDATE movements SET stage=? WHERE receiptId=? AND productId=?').run(m.stage,returnedId,m.productId);
    }else{const delta=m.kind==='in'?m.quantity:-m.quantity;db.prepare(`UPDATE products SET ${m.bucket}=${m.bucket}+? WHERE id=?`).run(delta,m.productId)}
    db.prepare('UPDATE movements SET status=? WHERE id=?').run('completed',m.id);
   }
@@ -178,5 +181,5 @@ app.use('/api',(req,res)=>res.status(404).json({error:'Không tìm thấy API'})
 app.use((req,res,next)=>{let path;try{path=decodeURIComponent(req.path).replaceAll('\\','/')}catch{return res.sendStatus(400)}const publicViteDependency=process.env.NODE_ENV!=='production'&&/^\/node_modules\/\.vite\/deps\/[^/]+\.(?:js|css|map)$/.test(path);if(path.split('/').some(segment=>segment.startsWith('.')&&segment!=='.well-known'&&!(segment==='.vite'&&publicViteDependency))||/(?:^|\/)(?:data|test|server)(?:\/|$)|(?:^|\/)(?:server\.js|package(?:-lock)?\.json)$|\.(?:db|sqlite|sqlite3|db-wal|db-shm|log|pem|key|crt)$/i.test(path))return res.sendStatus(404);next()});
 const httpServer=createHttpServer(app);
 if(process.env.NODE_ENV==='production'){app.use(express.static('dist'));app.get('/{*path}',(req,res)=>res.sendFile(process.cwd()+'/dist/index.html'))}else{const {createServer}=await import('vite');const vite=await createServer({server:{middlewareMode:true,hmr:{server:httpServer},fs:{strict:true,deny:['.env','.env.*','*.{crt,pem,key}','**/.git/**','**/data/**','**/*.{db,sqlite,sqlite3,db-wal,db-shm,log}','**/server.js','**/test/**','**/server/**','**/package.json','**/package-lock.json']}},appType:'spa'});app.use(vite.middlewares)}
-app.use((err,req,res,next)=>{console.error(err.message);res.status(500).json({error:'Không thể xử lý yêu cầu'})});
+app.use((err,req,res,next)=>{if(err.status)return res.status(err.status).json({error:err.message});if(err.message?.includes('STAGE_SELECTION_REQUIRED'))return res.status(400).json({error:'Chọn giai đoạn tồn để xuất; sản phẩm đang có cả NVL/BTP/TP'});console.error(err.message);res.status(500).json({error:'Không thể xử lý yêu cầu'})});
 httpServer.listen(process.env.PORT||3000,'0.0.0.0',()=>console.log('EBG server ready on port '+(process.env.PORT||3000)));

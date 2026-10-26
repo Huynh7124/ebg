@@ -1,5 +1,7 @@
 # Quy trình tạo sản phẩm mới — EBG
 
+Cập nhật mới: [theo dõi NVL/BTP/TP và chuẩn bị vật tư thủ công](TON-NVL-BTP-TP.md) thay cho yêu cầu khai báo định mức trên giao diện. Phần định mức trong tài liệu này được giữ làm tài liệu tham khảo trước thay đổi.
+
 Ngày cập nhật: 26/10/2026 (Việt Nam).
 
 Tài liệu mô tả quy trình đề xuất theo trao đổi với người dùng và bảng định mức “NVL Sản phẩm Website”. Đây là tài liệu nghiệp vụ; việc lưu tài liệu không đồng nghĩa các chức năng đề xuất đã được triển khai.

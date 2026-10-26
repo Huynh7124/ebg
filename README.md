@@ -4,6 +4,10 @@
 
 Quy trình nghiệp vụ: [Tạo sản phẩm mới, phân loại NVL/BTP/TP và lập định mức bộ](docs/QUY-TRINH-TAO-SAN-PHAM.md). Tài liệu phân biệt chức năng hiện có với phần đề xuất cần bổ sung.
 
+## Tồn NVL / BTP / TP
+
+Mỗi sản phẩm hiển thị ba số tồn tại kho và phần chưa phân loại nếu có. Phiếu nhập/xuất chọn giai đoạn; kho chuyển công đoạn qua nút ba chấm của sản phẩm. Mục Định mức đã bỏ khỏi giao diện; đơn mới dùng danh sách vật tư thực cấp. Xem [hướng dẫn và cách giữ dữ liệu cũ](docs/TON-NVL-BTP-TP.md). Các mô tả định mức phía dưới là lịch sử luồng trước.
+
 ## Khởi động
 
 ```sh
