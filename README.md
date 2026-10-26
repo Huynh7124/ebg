@@ -2,6 +2,8 @@
 
 Ứng dụng tiếng Việt với React, Express và SQLite. Yêu cầu Node.js 24 trở lên (sử dụng `node:sqlite`).
 
+Quy trình nghiệp vụ: [Tạo sản phẩm mới, phân loại NVL/BTP/TP và lập định mức bộ](docs/QUY-TRINH-TAO-SAN-PHAM.md). Tài liệu phân biệt chức năng hiện có với phần đề xuất cần bổ sung.
+
 ## Khởi động
 
 ```sh
