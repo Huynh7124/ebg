@@ -11,7 +11,7 @@ export default function QrScanner({onDetected}){
  function accept(raw){
   if(typeof raw!=='string'||!raw.trim())return false;
   setQuery(raw);const found=detected.current(raw);
-  if(found){stop();setError('');return true}
+  if(found){setError('');return true}
   setError('Không tìm thấy mã này trong kho. Kiểm tra mã trên nhãn hoặc thử quét lại.');return false;
  }
  async function start(){
@@ -28,7 +28,7 @@ export default function QrScanner({onDetected}){
    async function tick(){
     if(generation!==lifecycle.current.generation)return;
     try{
-     if(video.current?.readyState>=2){const codes=await detector.detect(video.current);if(generation!==lifecycle.current.generation)return;for(const code of codes){if(code.rawValue&&code.rawValue!==previous){previous=code.rawValue;if(accept(code.rawValue))return}}}
+     if(video.current?.readyState>=2){const codes=await detector.detect(video.current);if(generation!==lifecycle.current.generation)return;for(const code of codes){if(code.rawValue&&code.rawValue!==previous){previous=code.rawValue;accept(code.rawValue)}}}
     }catch{if(generation!==lifecycle.current.generation)return;stop();setError('Không đọc được hình ảnh camera. Thử bật lại camera hoặc nhập mã bên dưới.');return}
     lifecycle.current.timer=setTimeout(tick,250);
    }
@@ -39,5 +39,5 @@ export default function QrScanner({onDetected}){
   }
  }
  useEffect(()=>{start();return release},[]);
- return <section className="qr-scanner" aria-label="Máy quét mã hàng"><p>Đưa mã QR trên nhãn hàng vào trước camera. Quét mã để xem thông tin sản phẩm.</p><div className="qr-camera-actions"><button type="button" className="secondary" disabled={state==='opening'} onClick={state==='scanning'?stop:start}>{state==='scanning'?<Square size={17}/>:<Camera size={17}/>} {state==='opening'?'Đang mở camera...':state==='scanning'?'Dừng camera':'Bật camera'}</button><span role="status">{state==='scanning'?'Camera đang quét...':''}</span></div><video ref={video} className="ops-camera qr-camera" aria-label="Hình ảnh camera quét QR" hidden={state==='idle'} playsInline muted/>{error&&<p className="ops-alert" role="alert">{error}</p>}<form className="qr-manual-form" onSubmit={event=>{event.preventDefault();accept(query)}}><label>Mã QR / mã hàng<input autoFocus required value={query} onChange={event=>setQuery(event.target.value)} placeholder="Ví dụ: EBG:1 hoặc mã sản phẩm" autoComplete="off" autoCapitalize="none" spellCheck={false}/></label><button className="primary">Tra cứu mã</button></form></section>;
+ return <section className="qr-scanner" aria-label="Máy quét mã hàng"><p>Đưa lần lượt các mã QR vào trước camera. Camera tiếp tục quét sau khi hiển thị thông tin từng sản phẩm.</p><div className="qr-camera-actions"><button type="button" className="secondary" disabled={state==='opening'} onClick={state==='scanning'?stop:start}>{state==='scanning'?<Square size={17}/>:<Camera size={17}/>} {state==='opening'?'Đang mở camera...':state==='scanning'?'Dừng camera':'Bật camera'}</button><span role="status">{state==='scanning'?'Camera đang quét liên tục...':''}</span></div><video ref={video} className="ops-camera qr-camera" aria-label="Hình ảnh camera quét QR" hidden={state==='idle'} playsInline muted/>{error&&<p className="ops-alert" role="alert">{error}</p>}<form className="qr-manual-form" onSubmit={event=>{event.preventDefault();accept(query)}}><label>Mã QR / mã hàng<input autoFocus required value={query} onChange={event=>setQuery(event.target.value)} placeholder="Ví dụ: EBG:1 hoặc mã sản phẩm" autoComplete="off" autoCapitalize="none" spellCheck={false}/></label><button className="primary">Tra cứu mã</button></form></section>;
 }
