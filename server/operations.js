@@ -152,9 +152,11 @@ export function setupOperations(app,db,audit){
  },true));
  app.post('/api/ops/requests/:id/report',route(req=>{
   const r=load(req.params.id);authorizeWork(req,r);if(!['working','partial'].includes(r.status)||['delivery','supply'].includes(r.type))fail('Công việc chưa nhận, đã báo bàn giao hoặc đã kết thúc');
-  const items=lines(req.body.items);for(const l of items){const output=r.outputs.find(o=>o.productId===l.productId);if(!output||l.quantity>output.quantity-output.good-output.faulty)fail('Số báo bàn giao vượt số còn chờ')}
-  if(!r.allowPartial&&r.outputs.some(o=>(items.find(l=>l.productId===o.productId)?.quantity||0)!==o.quantity-o.good-o.faulty))fail('Lệnh yêu cầu bàn giao đủ một lần');
-  const token=text(req.body.token,100,true);if(db.prepare('SELECT id FROM ops_events WHERE token=?').get(token))fail('Kết quả này đã được báo');r.status='ready';store(r);event(req,r.id,'Báo sẵn sàng bàn giao',{items:items.map(({productId,quantity})=>({productId,quantity})),note:text(req.body.note||'',500)},token);
+  const rawItems=req.body.items;if(!Array.isArray(rawItems)||!rawItems.length||rawItems.length>100)fail('Cần từ 1 đến 100 mặt hàng');const seenItems=new Set();
+  const items=rawItems.map(l=>{const p=product(l.productId);if(seenItems.has(p.id))fail('Mặt hàng bị trùng');seenItems.add(p.id);const quantity=qty(l.quantity??0,true),faulty=qty(l.faulty??0,true);if(!quantity&&!faulty)fail('Cần báo số đạt hoặc số lỗi');return {productId:p.id,quantity,faulty}});
+  for(const l of items){const output=r.outputs.find(o=>o.productId===l.productId);if(!output||l.quantity+l.faulty>output.quantity-output.good-output.faulty)fail('Số báo bàn giao vượt số còn chờ')}
+  if(!r.allowPartial&&r.outputs.some(o=>{const x=items.find(l=>l.productId===o.productId);return (x?x.quantity+x.faulty:0)!==o.quantity-o.good-o.faulty}))fail('Lệnh yêu cầu bàn giao đủ một lần');
+  const token=text(req.body.token,100,true);if(db.prepare('SELECT id FROM ops_events WHERE token=?').get(token))fail('Kết quả này đã được báo');r.status='ready';store(r);event(req,r.id,'Báo sẵn sàng bàn giao',{items,note:text(req.body.note||'',500)},token);
  },true));
  app.post('/api/ops/requests/:id/receive',route(req=>{
   requireRight(req,'warehouse');const r=load(req.params.id);if(!['working','partial','quality','ready'].includes(r.status)||['delivery','supply'].includes(r.type))fail('Chưa nhận việc hoặc công việc đã kết thúc');
