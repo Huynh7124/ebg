@@ -1,0 +1,52 @@
+/* Giao diện làm mới: gọn hơn, dễ quét hơn, thân thiện điện thoại. Chỉ đổi hiển thị. */
+:root{--ok:#1f8a5b;--info:#2563b0;--warn:#b7791f;--bad:#c23538;--surface:#fff;--page:#f4f6f8;--radius:14px}
+body,.app{background:var(--page)}
+:focus-visible{outline:3px solid #2563b055;outline-offset:2px}
+
+/* Đầu trang */
+header{box-shadow:0 1px 0 var(--line)}
+.header-logout{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.header-stock-actions button{font-weight:700}
+.header-stock-actions button:first-child{background:#eaf6f0;border-color:#bfe3d0;color:#176b47}
+.header-stock-actions button:last-child{background:#fdeeee;border-color:#f1c6c7;color:#a92e32}
+.header-stock-actions button.active{box-shadow:inset 0 0 0 2px currentColor}
+
+/* Thẻ số liệu: màu theo vị trí để phân biệt nhanh */
+.ops-metrics button{border-left:5px solid #c8d0d6;border-radius:var(--radius);background:var(--surface);transition:transform .12s,box-shadow .12s}
+.ops-metrics button:hover{transform:translateY(-1px);box-shadow:0 6px 18px #20262e14}
+.ops-metrics button:nth-child(1){border-left-color:var(--warn)}
+.ops-metrics button:nth-child(2){border-left-color:var(--info)}
+.ops-metrics button:nth-child(3){border-left-color:#7c4dbc}
+.ops-metrics button:nth-child(4){border-left-color:var(--ok)}
+.ops-metrics strong{font-size:30px;line-height:1}
+.ops-panel,.card,.inventory{border-radius:var(--radius)}
+
+/* Bộ lọc sản phẩm: lưới đều */
+.product-category-filters{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px 20px;border-bottom:1px solid var(--line);background:#fafbfc}
+.product-category-filters .product-category-filter{display:flex;flex-direction:column;align-items:stretch;gap:6px;padding:0;border:0;margin:0;text-align:left;font-weight:600;font-size:12px;color:var(--muted)}
+.product-category-filters select{width:100%;min-height:42px}
+.receipt-product-filters label{text-align:left}
+
+/* Bảng sản phẩm: dòng thoáng, trạng thái nổi bật */
+tbody tr:hover{background:#fbf5f5}
+.status{font-weight:700;border-radius:999px}
+.tabs button.selected{font-weight:700}
+
+/* Nút cài ứng dụng: không đè nội dung */
+.install-app-button{position:static;margin:10px auto;display:flex;align-items:center;gap:8px;box-shadow:none;width:fit-content}
+.app>.install-app-button{position:fixed;bottom:18px;right:18px;margin:0;box-shadow:0 3px 15px #20232b16}
+
+@media(max-width:700px){
+ :root{font-size:14px}
+ header{height:auto;min-height:56px}
+ .header-logout span{display:none}
+ .header-logout{width:40px;height:40px;padding:0;border-radius:50%}
+ .header-stock-actions button{min-height:44px}
+ .ops-metrics button,.role-shortcuts>button{min-height:64px}
+ button,select,input{min-height:44px}
+ .row-check,.checkbox-cell input{min-height:0}
+ .product-category-filters{grid-template-columns:1fr;padding:12px 14px}
+ .top-nav button{min-height:52px;font-weight:600}
+ .top-nav button.active{background:#fdeeee;color:#a92e32}
+ .app>.install-app-button{bottom:calc(80px + env(safe-area-inset-bottom));right:12px}
+}
