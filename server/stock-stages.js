@@ -1,6 +1,6 @@
 import {managesWarehouse} from '../shared/roles.js';
-export const stockStages=['raw','semi','finished','unclassified'];
-export const stageNames={raw:'NVL',semi:'BTP',finished:'TP',unclassified:'Chưa phân loại'};
+export const stockStages=['rough','raw','semi','finished','unclassified'];
+export const stageNames={rough:'Hàng thô',raw:'NVL',semi:'BTP',finished:'TP',unclassified:'Chưa phân loại'};
 const fail=message=>{throw Object.assign(Error(message),{status:400})};
 export function resolveStockStage(db,pid,delta,stage){
  if(stage!==undefined&&stage!==null&&stage!==''){if(!stockStages.includes(stage))fail('Giai đoạn tồn không hợp lệ');return stage}
@@ -21,13 +21,19 @@ export function changeStock(db,pid,delta,stage){
  return stage;
 }
 export function setupStockStages(app,db,audit){
+ const stageSql=db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='product_stage_stock'").get()?.sql||'';
+ if(stageSql&&!stageSql.includes("'rough'"))db.exec(`BEGIN IMMEDIATE;
+ DROP TRIGGER IF EXISTS stage_stock_insert;DROP TRIGGER IF EXISTS stage_stock_update;
+ ALTER TABLE product_stage_stock RENAME TO product_stage_stock_legacy;
+ CREATE TABLE product_stage_stock(productId INTEGER NOT NULL,stage TEXT NOT NULL CHECK(stage IN ('rough','raw','semi','finished','unclassified')),quantity INTEGER NOT NULL DEFAULT 0 CHECK(typeof(quantity)='integer' AND quantity>=0),PRIMARY KEY(productId,stage));
+ INSERT INTO product_stage_stock SELECT * FROM product_stage_stock_legacy;DROP TABLE product_stage_stock_legacy;COMMIT;`);
  db.exec(`BEGIN IMMEDIATE;
- CREATE TABLE IF NOT EXISTS product_stage_stock(productId INTEGER NOT NULL,stage TEXT NOT NULL CHECK(stage IN ('raw','semi','finished','unclassified')),quantity INTEGER NOT NULL DEFAULT 0 CHECK(typeof(quantity)='integer' AND quantity>=0),PRIMARY KEY(productId,stage));
+ CREATE TABLE IF NOT EXISTS product_stage_stock(productId INTEGER NOT NULL,stage TEXT NOT NULL CHECK(stage IN ('rough','raw','semi','finished','unclassified')),quantity INTEGER NOT NULL DEFAULT 0 CHECK(typeof(quantity)='integer' AND quantity>=0),PRIMARY KEY(productId,stage));
  CREATE TABLE IF NOT EXISTS stock_stage_context(productId INTEGER PRIMARY KEY,stage TEXT NOT NULL);
  CREATE TABLE IF NOT EXISTS stage_transfers(id INTEGER PRIMARY KEY AUTOINCREMENT,productId INTEGER NOT NULL,source TEXT NOT NULL,destination TEXT NOT NULL,quantity INTEGER NOT NULL,actor TEXT NOT NULL,date TEXT NOT NULL,token TEXT NOT NULL UNIQUE);
- INSERT INTO product_stage_stock(productId,stage,quantity) SELECT p.id,CASE WHEN materialKind IN ('raw','semi','finished') THEN materialKind ELSE 'unclassified' END,p.stock FROM products p WHERE NOT EXISTS(SELECT 1 FROM product_stage_stock s WHERE s.productId=p.id);
+ INSERT INTO product_stage_stock(productId,stage,quantity) SELECT p.id,CASE WHEN materialKind IN ('rough','raw','semi','finished') THEN materialKind ELSE 'unclassified' END,p.stock FROM products p WHERE NOT EXISTS(SELECT 1 FROM product_stage_stock s WHERE s.productId=p.id);
  CREATE TRIGGER IF NOT EXISTS stage_stock_insert AFTER INSERT ON products BEGIN
- INSERT INTO product_stage_stock(productId,stage,quantity) VALUES(NEW.id,CASE WHEN NEW.materialKind IN ('raw','semi','finished') THEN NEW.materialKind ELSE 'unclassified' END,NEW.stock);
+ INSERT INTO product_stage_stock(productId,stage,quantity) VALUES(NEW.id,CASE WHEN NEW.materialKind IN ('rough','raw','semi','finished') THEN NEW.materialKind ELSE 'unclassified' END,NEW.stock);
  END;
  CREATE TRIGGER IF NOT EXISTS stage_stock_update AFTER UPDATE OF stock ON products WHEN NEW.stock<>OLD.stock BEGIN
  SELECT CASE WHEN NEW.stock<OLD.stock AND NOT EXISTS(SELECT 1 FROM stock_stage_context WHERE productId=NEW.id) AND (SELECT COUNT(*) FROM product_stage_stock WHERE productId=NEW.id AND quantity>0)>1 THEN RAISE(ABORT,'STAGE_SELECTION_REQUIRED') END;
@@ -39,7 +45,7 @@ export function setupStockStages(app,db,audit){
  app.post('/api/products/:id/stage-transfer',(req,res,next)=>{
   if(!managesWarehouse(req.session.user))return res.status(403).json({error:'Chỉ kho hoặc Admin được chuyển giai đoạn'});
   try{const {source,destination,quantity,token}=req.body,q=Number(quantity);
-   if(!stockStages.includes(source)||!stockStages.includes(destination)||source===destination||!['string','number'].includes(typeof quantity)||!Number.isSafeInteger(q)||q<=0||q>1e9||typeof token!=='string'||!token||token.length>100)fail('Chọn hai giai đoạn khác nhau và số lượng nguyên dương hợp lệ');
+   if(!stockStages.includes(source)||!stockStages.includes(destination)||source===destination||!['string','number'].includes(typeof quantity)||!Number.isSafeInteger(q)||q<=0||q>1e9||typeof token!=='string'||!token||token.length>100)fail('Chọn hai loại hàng khác nhau và số lượng nguyên dương hợp lệ');
    db.exec('BEGIN IMMEDIATE');const p=db.prepare('SELECT * FROM products WHERE id=?').get(req.params.id);if(!p||p.locked)fail('Sản phẩm không tồn tại hoặc đã khóa');
    const prev=db.prepare('SELECT * FROM stage_transfers WHERE token=?').get(token);if(prev){if(prev.productId!==p.id||prev.source!==source||prev.destination!==destination||prev.quantity!==q)fail('Mã giao dịch đã dùng cho thao tác khác');db.exec('COMMIT');return res.json({ok:true})}
    const from=db.prepare('SELECT quantity FROM product_stage_stock WHERE productId=? AND stage=?').get(p.id,source)?.quantity||0;if(from<q)fail('Không đủ tồn '+stageNames[source]);
@@ -50,4 +56,4 @@ export function setupStockStages(app,db,audit){
   }catch(e){if(db.isTransaction)db.exec('ROLLBACK');if(e.status)res.status(e.status).json({error:e.message});else next(e)}
  });
 }
-export function productsWithStages(db){const stages=new Map();for(const row of db.prepare('SELECT * FROM product_stage_stock').all()){if(!stages.has(row.productId))stages.set(row.productId,{raw:0,semi:0,finished:0,unclassified:0});stages.get(row.productId)[row.stage]=row.quantity}return db.prepare('SELECT * FROM products ORDER BY id').all().map(p=>({...p,stages:stages.get(p.id)}))}
+export function productsWithStages(db){const stages=new Map();for(const row of db.prepare('SELECT * FROM product_stage_stock').all()){if(!stages.has(row.productId))stages.set(row.productId,{rough:0,raw:0,semi:0,finished:0,unclassified:0});stages.get(row.productId)[row.stage]=row.quantity}return db.prepare('SELECT * FROM products ORDER BY id').all().map(p=>({...p,stages:stages.get(p.id)}))}

@@ -90,6 +90,17 @@ test('warehouse operations preserve quantities, snapshots, responsibility and du
   assert.equal((await admin.req('ops/import/preview',{mode:'metadata',rows})).errors.length,1);
   const metadata=rows.map(({stock,faulty,...r})=>({...r,name:'Ốc cập nhật'}));preview=await admin.req('ops/import/preview',{mode:'metadata',rows:metadata});await admin.req('ops/import',{mode:'metadata',rows:metadata,confirmation:preview.digest});assert.equal((await item(imported.id)).stock,7);
  });
+ await t.test('Excel composition import creates NVL, BTP and TP and calculates embedded physical stock',async()=>{
+  const payload={fileName:'cau-tao.xlsx',skipped:['Trang tính1'],blocks:[
+   {sheet:'Cụm',row:2,name:'Cụm A',code:'',components:[{row:3,name:'Ốc cấu tạo',code:'',quantity:'2'}]},
+   {sheet:'Thành phẩm',row:2,name:'Bộ X',code:'',components:[{row:3,name:'Cụm A',code:'',quantity:'1'},{row:4,name:'Ốc cấu tạo',code:'',quantity:'3'}]}
+  ]};
+  const preview=await admin.req('ops/import-xlsx/preview',payload);assert.equal(preview.errors.length,0);assert.equal(preview.count,3);assert.equal(preview.compositionCount,3);assert.equal(preview.rows.find(row=>row.name==='Ốc cấu tạo').materialKind,'raw');assert.equal(preview.rows.find(row=>row.name==='Cụm A').materialKind,'semi');assert.equal(preview.rows.find(row=>row.name==='Bộ X').materialKind,'finished');
+  await admin.req('ops/import-xlsx',{...payload,confirmation:preview.digest});await admin.req('ops/import-xlsx',{...payload,confirmation:preview.digest},400);
+  const imported=(await admin.req('data')).products,bolt=imported.find(product=>product.name==='Ốc cấu tạo'),semi=imported.find(product=>product.name==='Cụm A'),finished=imported.find(product=>product.name==='Bộ X');assert.ok(bolt.code.startsWith('SP-'));assert.equal(semi.composition.length,1);assert.equal(finished.composition.length,2);
+  await stock(bolt.id,100);await stock(semi.id,10);await stock(finished.id,5);const counted=await item(bolt.id);assert.deepEqual(counted.embedded,{loose:100,inSemi:20,inFinished:25,total:145});
+  const rough=await create('OPS-ROUGH','rough');await stock(rough,4);assert.equal((await item(rough)).stages.rough,4);
+ });
  await t.test('warehouse can purchase and receive; processors cannot perform warehouse actions',async()=>{
   await worker.req('ops/suppliers',{name:'NCC test'},403);await admin.req('ops/access',{userId:workerId,role:'warehouse',team:'Kho'});await worker.req('ops/suppliers',{name:'NCC test',contact:'Đầu mối'});
   const supplier=(await admin.req('ops')).suppliers[0],id=(await worker.req('ops/purchases',{productId:a,quantity:5,reason:'Bổ sung'})).id;

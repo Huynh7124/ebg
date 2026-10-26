@@ -6,7 +6,7 @@ Quy trình nghiệp vụ: [Tạo sản phẩm mới, phân loại NVL/BTP/TP và
 
 ## Tồn NVL / BTP / TP
 
-Mỗi sản phẩm hiển thị ba số tồn tại kho và phần chưa phân loại nếu có. Phiếu nhập/xuất chọn giai đoạn; kho chuyển công đoạn qua nút ba chấm của sản phẩm. Mục Định mức đã bỏ khỏi giao diện; đơn mới dùng danh sách vật tư thực cấp. Xem [hướng dẫn và cách giữ dữ liệu cũ](docs/TON-NVL-BTP-TP.md). Các mô tả định mức phía dưới là lịch sử luồng trước.
+Mỗi mã được phân loại Hàng thô / NVL / BTP / TP. Màn hình sản phẩm hiển thị số lượng rời, đang nằm trong BTP, đang nằm trong TP và tổng vật lý. **Dữ liệu & quyền → Nhập cấu tạo từ Excel** đọc trực tiếp file `.xlsx` nhiều sheet theo mẫu thực tế, xem trước rồi mới lưu và không thay đổi tồn kho. Xem [hướng dẫn và cách giữ dữ liệu cũ](docs/TON-NVL-BTP-TP.md).
 
 Loại phiếu **Xuất kho để stock** không yêu cầu kho chọn người hoặc thời gian. Sau khi xuất, gia công thấy yêu cầu `STOCK-...`, nhận việc và tự chọn ngày giờ dự kiến trả. Kiểm tra luồng trên trình duyệt bằng `npm run test:stock-work` sau khi build.
 
@@ -25,7 +25,7 @@ Nếu muốn dùng lại màn hình email/tên đăng nhập và mật khẩu, �
 
 Kiểm tra luồng bấm tên và bốn vai trò trên trình duyệt sau build: `npm run test:account-login`.
 
-Nút **QR** cạnh ô tìm kiếm trên header mở máy quét mã cho cả bốn vai trò. Camera nhận nhãn `EBG:<id>` hoặc mã sản phẩm, rồi mở thông tin hàng; không tự ghi nhập/xuất hoặc đổi tồn kho. Có ô **Mã QR / mã hàng** để dùng máy quét cầm tay (gửi Enter) hoặc nhập trực tiếp. Camera dùng bộ đọc có sẵn khi hỗ trợ, hoặc bộ giải mã jsQR cục bộ cho webcam máy tính và camera điện thoại. Cần quyền camera và HTTPS/localhost; nếu không có camera hoặc bị từ chối quyền, vẫn tra bằng mã được. Đóng cửa sổ hoặc quét thành công sẽ tắt camera. Màn hình **Tra / quét mã** dùng cùng máy quét và vẫn xem/in nhãn. Kiểm tra sau build bằng `npm run test:qr` (camera giả lập, không thay cho kiểm tra thiết bị thật).
+Nút **QR** cạnh ô tìm kiếm trên header mở máy quét mã cho cả bốn vai trò. Camera nhận nhãn `EBG:<id>` hoặc mã sản phẩm, hiển thị thông tin hàng và tiếp tục quét mã kế tiếp; không tự ghi nhập/xuất hoặc đổi tồn kho. Có ô **Mã QR / mã hàng** để dùng máy quét cầm tay (gửi Enter) hoặc nhập trực tiếp. Camera dùng bộ đọc có sẵn khi hỗ trợ, hoặc bộ giải mã jsQR cục bộ cho webcam máy tính và camera điện thoại. Cần quyền camera và HTTPS/localhost; nếu không có camera hoặc bị từ chối quyền, vẫn tra bằng mã được. Camera chỉ tắt khi người dùng dừng hoặc đóng máy quét. Màn hình **Tra / quét mã** dùng cùng máy quét và vẫn xem/in nhãn. Kiểm tra sau build bằng `npm run test:qr` (camera giả lập, không thay cho kiểm tra thiết bị thật).
 
 ## Chức năng
 

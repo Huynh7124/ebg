@@ -2,6 +2,14 @@
 
 Áp dụng thay cho việc phải tạo định mức trước khi chuẩn bị đơn mới.
 
+## Loại mã, cấu tạo và file Excel
+
+Mỗi mã được phân loại là **Hàng thô**, **Nguyên vật liệu**, **Bán thành phẩm** hoặc **Thành phẩm**. Cấu tạo sản phẩm lưu số lượng mã thành phần trong một BTP/TP; một BTP có thể tiếp tục là thành phần của TP.
+
+Vào **Điều phối kho → Dữ liệu & quyền → Nhập cấu tạo từ Excel** để chọn file `.xlsx`. Hệ thống đọc các sheet có cột `Tên hàng hóa`, `Mã sản phẩm`, `Mã thành phần`, `Tên thành phần`, `Số lượng`; dòng trống Tên hàng hóa tiếp tục thuộc sản phẩm gần nhất. Mã trống được sinh ổn định từ tên. Sản phẩm mặc định là TP, thành phần là NVL, còn mã xuất hiện ở cả hai vai trò được nhận là BTP. Người dùng xem trước mã, loại, đơn vị, cảnh báo và lỗi trước khi xác nhận. Nhập cấu tạo không cộng hoặc đặt lại tồn kho.
+
+Với mỗi mã thành phần, hệ thống hiển thị **Rời trong kho**, **Trong BTP**, **Trong TP** và **Tổng vật lý**. Phép tính khai triển cả cấu tạo lồng nhau: nếu TP chứa BTP thì các NVL của BTP cũng được tính vào TP.
+
 ## Xem số lượng
 
 Mỗi mã hàng có NVL, BTP, TP tại kho. Tổng tồn kho bằng tổng ba nhóm cộng phần Chưa phân loại (nếu còn). Hàng đang gia công, chờ giao, lỗi, sửa và Anode là các nhóm theo dõi riêng, không cộng trùng vào tồn sẵn có tại kho.
