@@ -85,10 +85,6 @@ code,name,category,vehicle,color,unit,materialKind,min,stock,faulty
 
 Xuất JSON dùng đối chiếu danh mục, phiếu, lệnh và lịch sử. JSON này không chứa bảng mật khẩu hay phiên đăng nhập, không thay thế bản sao SQLite.
 
-## Mua vật tư
-
-Mọi người lập đề nghị theo mã/đơn vị/lý do. Admin hoặc nhân viên kho duyệt, chọn nhà cung cấp và xác nhận đã đặt. Người có quyền kho nhận thực tế theo đợt, tách đạt/lỗi; số chưa về vẫn chờ. Nhà cung cấp có thông tin liên hệ và ghi chú báo giá/điều kiện, không có thanh toán hoặc công nợ.
-
 ## Tra và quét mã
 
 Nhãn QR đại diện **một mã hàng**, chứa `EBG:<id>` và in kèm mã/tên/đơn vị để đọc bằng mắt. Chưa đại diện thùng nhiều mã hay lô sản xuất. Có thể tra bằng mã hàng từ đầu đọc bàn phím.

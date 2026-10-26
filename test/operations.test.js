@@ -101,13 +101,6 @@ test('warehouse operations preserve quantities, snapshots, responsibility and du
   await stock(bolt.id,100);await stock(semi.id,10);await stock(finished.id,5);const counted=await item(bolt.id);assert.deepEqual(counted.embedded,{loose:100,inSemi:20,inFinished:25,total:145});
   const rough=await create('OPS-ROUGH','rough');await stock(rough,4);assert.equal((await item(rough)).stages.rough,4);
  });
- await t.test('warehouse can purchase and receive; processors cannot perform warehouse actions',async()=>{
-  await worker.req('ops/suppliers',{name:'NCC test'},403);await admin.req('ops/access',{userId:workerId,role:'warehouse',team:'Kho'});await worker.req('ops/suppliers',{name:'NCC test',contact:'Đầu mối'});
-  const supplier=(await admin.req('ops')).suppliers[0],id=(await worker.req('ops/purchases',{productId:a,quantity:5,reason:'Bổ sung'})).id;
-  await worker.req(`ops/purchases/${id}/state`,{status:'approved'});await worker.req(`ops/purchases/${id}/state`,{status:'ordered',supplierId:supplier.id});
-  await outsider.req(`ops/purchases/${id}/receive`,{good:1,faulty:0,token:randomUUID()},403);
-  const before=(await item(a)).stock;await admin.req(`ops/purchases/${id}/receive`,{good:3,faulty:1,defectReason:'Hỏng',token:randomUUID()});await admin.req(`ops/purchases/${id}/receive`,{good:2,faulty:0,token:randomUUID()},400);await admin.req(`ops/purchases/${id}/receive`,{good:1,faulty:0,token:randomUUID()});assert.equal((await item(a)).stock,before+4);assert.equal((await item(a)).faulty,1);
- });
  await t.test('private modules stay private and SQLite backup is consistent and restorable',async()=>{
   await worker.req('ops/backup',undefined,403);
   for(const path of ['/server/operations.js','/server/operations.js?raw'])assert.equal((await fetch('http://127.0.0.1:3226'+path)).status,404);

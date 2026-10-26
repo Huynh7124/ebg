@@ -32,7 +32,7 @@ test('three roles enforce account delegation and warehouse ↔ processing workfl
   for(const [code,kind]of [['ROLE-RAW','raw'],['ROLE-FG','finished']])await warehouse.req('products',{name:code,code,category:'Nhóm thử vai trò',vehicle:'',color:'',min:0,materialKind:kind,unit:'cái'});
   const products=(await admin.req('data')).products;raw=products.find(p=>p.code==='ROLE-RAW').id;finished=products.find(p=>p.code==='ROLE-FG').id;
   await warehouse.req('movements',{operation:'receive_stock',items:[{productId:raw,quantity:10}]});await warehouse.req('ops/boms',{productId:finished,lines:[{productId:raw,quantity:2}]});
-  for(const [path,body]of [['categories',{name:'Không cho',type:'vehicle'}],['products',{name:'Không cho'}],['movements',{operation:'receive_stock',items:[{productId:raw,quantity:1}]}],['ops/boms',{productId:finished,lines:[{productId:raw,quantity:1}]}],['users',{name:'No'}],['receipts/1/print',{printData:{}}],['ops/import/preview',{mode:'create',rows:[]}],['ops/purchases',{productId:raw,quantity:1,reason:'Không cho'}]])await worker.req(path,body,403);
+  for(const [path,body]of [['categories',{name:'Không cho',type:'vehicle'}],['products',{name:'Không cho'}],['movements',{operation:'receive_stock',items:[{productId:raw,quantity:1}]}],['ops/boms',{productId:finished,lines:[{productId:raw,quantity:1}]}],['users',{name:'No'}],['receipts/1/print',{printData:{}}],['ops/import/preview',{mode:'create',rows:[]}]])await worker.req(path,body,403);
   for(const type of ['production','anode','carbon','repair'])await request({type,outputs:[{productId:finished,quantity:1}]},worker,403);
  });
  await t.test('processor sees own order and stock jobs and can request materials, but warehouse issues them',async()=>{

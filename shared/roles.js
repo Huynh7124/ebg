@@ -3,7 +3,7 @@ export const normalizeRole=role=>role==='staff'?'processor':role;
 export const managesWarehouse=user=>['admin','warehouse'].includes(user?.role);
 export function roleAccess(role,team=''){
  const warehouse=['admin','warehouse'].includes(role);
- return {admin:role==='admin',warehouse,buyer:warehouse,manageStaff:warehouse,manageRoles:warehouse,packing:role==='packer',team};
+ return {admin:role==='admin',warehouse,buyer:false,manageStaff:warehouse,manageRoles:warehouse,packing:role==='packer',team};
 }
 
 export const assignableRoles=actorRole=>Object.keys(roleNames).filter(role=>actorRole==='admin'||actorRole==='warehouse'&&role!=='admin');

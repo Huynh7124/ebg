@@ -1,5 +1,5 @@
 const managementPages={products:'Sản phẩm',in:'Nhập kho',out:'Xuất kho',categories:'Danh mục',employees:'Nhân viên',history:'Lịch sử hoạt động'};
-const managementTabs={overview:'Tổng quan',requests:'Yêu cầu',work:'Công việc',purchase:'Mua vật tư',labels:'Tra / quét mã',data:'Dữ liệu & quyền'};
+const managementTabs={overview:'Tổng quan',requests:'Yêu cầu',work:'Công việc',labels:'Tra / quét mã',data:'Dữ liệu & quyền'};
 
 const workspaces={
  admin:{title:'Quản trị hệ thống',headline:'Quản lý đội ngũ và toàn bộ hoạt động.',description:'Phân quyền nhân viên, theo dõi kho, gia công và đóng gói từ một nơi.',navigation:{operations:'Quản trị hệ thống',...managementPages},tabs:managementTabs,requestLabel:'Tạo yêu cầu'},

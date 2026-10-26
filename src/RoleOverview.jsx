@@ -39,7 +39,6 @@ export default function RoleOverview({role,data,products,onNavigate,onTab,onSele
    {label:'Nhân viên hoạt động',count:people.length,onClick:()=>onNavigate('employees')},
    metric('Công việc đang mở',live,'requests','active'),
    metric('Yêu cầu chờ duyệt',requests.filter(r=>r.status==='pending'),'requests','pending'),
-   metric('Đề nghị mua chờ duyệt',data.purchases.filter(p=>p.status==='pending'),'purchase')
   ]}/>
   <Shortcuts items={[
    {label:'Quản lý nhân viên',detail:'Tạo, sửa và khóa tài khoản',Icon:Users,onClick:()=>onNavigate('employees')},
