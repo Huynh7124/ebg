@@ -44,9 +44,9 @@ test('three roles enforce account delegation and warehouse ↔ processing workfl
   const extra=(await request({type:'supply',purpose:'order',reference:'DON-SX-01',parentId:workId,inputs:[{productId:raw,quantity:1}],outputs:[]},worker)).id;assert.equal((await product(raw)).stock,6);await action(extra,'issue');await action(extra,'accept',{},worker);assert.equal((await product(raw)).stock,5);
  });
  await t.test('reporting finished work does not add stock until warehouse QC',async()=>{
-  const token=randomUUID();await action(workId,'report',{token,items:[{productId:finished,quantity:2}],note:'Sẵn sàng giao 2 bộ'},worker);
+  const token=randomUUID();await action(workId,'report',{token,items:[{productId:finished,quantity:3,faulty:0}]},worker,400);await action(workId,'report',{token:randomUUID(),items:[{productId:finished,quantity:0,faulty:0}]},worker,400);await action(workId,'report',{token,items:[{productId:finished,quantity:1,faulty:1}],note:'Xong 1 đạt, 1 lỗi'},worker);assert.deepEqual((await worker.req('ops')).events.find(e=>e.requestId===workId&&e.type==='Báo sẵn sàng bàn giao').payload.items,[{productId:finished,quantity:1,faulty:1}]);
   assert.equal((await worker.req('ops')).requests.find(r=>r.id===workId).status,'ready');assert.equal((await product(finished)).stock,0);assert.equal((await product(raw)).inProduction,5);
-  await action(workId,'report',{token,items:[{productId:finished,quantity:2}]},worker,400);await action(workId,'receive',{token:randomUUID(),items:[{productId:finished,good:2,faulty:0}]},worker,403);
+  await action(workId,'report',{token,items:[{productId:finished,quantity:1,faulty:1}]},worker,400);await action(workId,'receive',{token:randomUUID(),items:[{productId:finished,good:2,faulty:0}]},worker,403);
   await action(workId,'receive',{token:randomUUID(),items:[{productId:finished,good:1,faulty:1}],defectReason:'Một bộ cần sửa'});await action(workId,'return',{items:[{productId:raw,quantity:1}],reason:'Vật tư bổ sung chưa sử dụng'});await action(workId,'close',{reason:'Đã nhận đủ, phần lỗi theo dõi riêng'});assert.equal((await product(finished)).stock,1);assert.equal((await product(finished)).faulty,1);
  });
  await t.test('processor requests order dispatch; warehouse receives the request, issues, then processor confirms',async()=>{
