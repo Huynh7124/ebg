@@ -1,14 +1,16 @@
-import React,{useEffect,useState} from 'react';
+import React,{useEffect,useState,useRef,useImperativeHandle} from 'react';
 const states={pending:'Chờ kho chuẩn bị',prepared:'Kho đã chuẩn bị',issued:'Chờ gia công nhận',working:'Gia công đang làm',awaiting_packing:'Chờ đóng gói kiểm nhận',received:'Đã nhận đủ, chờ hoàn thành',completed:'Hoàn thành'};
 const purposeName=r=>r.purpose==='stock'?'Làm hàng để stock':'Đi đơn hàng';
 const code=r=>'DGGC-'+String(r.id).padStart(6,'0');
 const day=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Ho_Chi_Minh',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 const line=()=>({productId:'',quantity:1});
-export default function PackingOrders({api,products,people,role,userId,reload,creating,onClose,onCreate,onReceipt}){
+export default function PackingOrders({refreshRef,api,products,people,role,userId,reload,creating,onClose,onCreate,onReceipt}){
  const [queue,setQueue]=useState('active'),[loading,setLoading]=useState(true);
  const [orders,setOrders]=useState([]),[selected,setSelected]=useState(null),[error,setError]=useState(''),[busy,setBusy]=useState(false),[items,setItems]=useState([line()]),[inputs,setInputs]=useState([]),[processor,setProcessor]=useState(''),[receiveToken,setReceiveToken]=useState(''),[receiving,setReceiving]=useState(false);
+ const refreshSequence=useRef(0);
  const manager=['admin','warehouse'].includes(role),byId=new Map(products.map(p=>[p.id,p]));
- async function refresh(){try{setOrders(await api('packing-orders'))}finally{setLoading(false)}}
+ async function refresh(){const sequence=++refreshSequence.current;try{const fresh=await api('packing-orders');if(sequence===refreshSequence.current){setOrders(fresh);setError('')}}finally{if(sequence===refreshSequence.current)setLoading(false)}}
+ useImperativeHandle(refreshRef,()=>({refresh}));
  useEffect(()=>{refresh().catch(e=>setError(e.message));const timer=setInterval(()=>{if(document.visibilityState==='visible')refresh().catch(e=>setError(e.message))},15000);return()=>clearInterval(timer)},[]);
  async function run(path,body){if(busy)return;setBusy(true);setError('');try{const result=await api('packing-orders'+path,body);await Promise.all([refresh(),reload()]);setReceiving(false);if(result.receiptId&&onReceipt){setSelected(null);await onReceipt(result.receiptId)}return true}catch(e){setError(e.message);return false}finally{setBusy(false)}}
  const r=orders.find(r=>r.id===selected);

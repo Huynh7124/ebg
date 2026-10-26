@@ -41,3 +41,5 @@
 .operations-heading{flex-wrap:wrap}.operations-heading .heading-actions{flex-wrap:wrap;max-width:100%;gap:8px}.operations-heading .heading-actions button{min-height:42px}.operations-heading .heading-actions .primary{font-size:13px}
 @media(max-width:700px){.operations-heading .heading-actions{width:100%;padding:0}.operations-heading .heading-actions button{font-size:12px}.operations-heading .heading-actions .primary{font-size:12px;padding:10px 12px}}
 .operations-heading .heading-actions .secondary{display:inline-flex}
+
+.operations-refresh-notice{flex-basis:100%;font-size:12px;color:#53655d;text-align:right;overflow-wrap:anywhere}
