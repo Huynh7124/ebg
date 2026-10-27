@@ -149,9 +149,10 @@ body,.app,.main{background:#fff}
 header{background:#fff;color:#20262e;border-bottom:1px solid #e3e6e9}
 .header-account,.header-account-name small,.header-logout,.header-right .bell{color:#252b32}
 .header-account-name small{color:#64707b}
-.header-logout{background:#fff;border-color:#d9dfe5}
+.header-logout{display:inline-flex;align-items:center;justify-content:center;gap:7px;background:#fff;border-color:#d9dfe5}.header-logout svg{display:none}
 .header-logout:hover{background:#f3f5f7}
 .header-account:focus-visible,.header-logout:focus-visible{outline-color:var(--red)}
+@media(max-width:700px){.header-logout{width:40px;height:40px;min-height:40px;padding:0;border-radius:50%}.header-logout span{display:none}.header-logout svg{display:block}}
 .header-right .avatar.small{background:#f4f5f7;border-color:#dce1e6;color:#252b32}
 .header-product-search{background:#f7f8fa;border-color:#e0e4e8}
 .header-product-search:focus-within{outline-color:#c2353840}
