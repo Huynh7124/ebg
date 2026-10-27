@@ -5,8 +5,8 @@ export function loadQrDecoder(){
  return loading;
 }
 async function javascriptDetector(){
- const decode=await loadQrDecoder(),canvas=document.createElement('canvas'),context=canvas.getContext('2d',{willReadFrequently:true});
- return {async detect(video){if(!video.videoWidth||!video.videoHeight)return [];const scale=Math.min(1,960/video.videoWidth);canvas.width=Math.round(video.videoWidth*scale);canvas.height=Math.round(video.videoHeight*scale);context.drawImage(video,0,0,canvas.width,canvas.height);const pixels=context.getImageData(0,0,canvas.width,canvas.height),result=decode(pixels.data,pixels.width,pixels.height,{inversionAttempts:'attemptBoth'});return result?[{rawValue:result.data}]:[]}};
+ const decode=await loadQrDecoder(),canvas=document.createElement('canvas'),context=canvas.getContext('2d',{willReadFrequently:true});let attempts=0;
+ return {async detect(video){if(!video.videoWidth||!video.videoHeight)return [];const scale=Math.min(1,720/video.videoWidth),width=Math.round(video.videoWidth*scale),height=Math.round(video.videoHeight*scale);if(canvas.width!==width)canvas.width=width;if(canvas.height!==height)canvas.height=height;context.drawImage(video,0,0,width,height);const pixels=context.getImageData(0,0,width,height),result=decode(pixels.data,pixels.width,pixels.height,{inversionAttempts:++attempts%5===0?'attemptBoth':'dontInvert'});return result?[{rawValue:result.data}]:[]}};
 }
 export async function createQrDetector(){
  if(window.BarcodeDetector){try{

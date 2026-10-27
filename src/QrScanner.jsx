@@ -18,11 +18,12 @@ export default function QrScanner({onDetected}){
   release();const generation=lifecycle.current.generation;setState('opening');setError('');
   try{
    if(!navigator.mediaDevices?.getUserMedia)throw Error('Thiết bị chưa hỗ trợ camera ở địa chỉ này. Mở bằng HTTPS hoặc localhost, hoặc nhập mã bên dưới.');
-   const detector=await createQrDetector();
-   if(generation!==lifecycle.current.generation)return;
+   const detectorPromise=createQrDetector();detectorPromise.catch(()=>{});
    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
    if(generation!==lifecycle.current.generation){stream.getTracks().forEach(track=>track.stop());return}
    lifecycle.current.stream=stream;video.current.srcObject=stream;await video.current.play();
+   if(generation!==lifecycle.current.generation)return;
+   const detector=await detectorPromise;
    if(generation!==lifecycle.current.generation)return;
    setState('scanning');let previous='';
    async function tick(){
@@ -30,7 +31,7 @@ export default function QrScanner({onDetected}){
     try{
      if(video.current?.readyState>=2){const codes=await detector.detect(video.current);if(generation!==lifecycle.current.generation)return;for(const code of codes){if(code.rawValue&&code.rawValue!==previous){previous=code.rawValue;accept(code.rawValue)}}}
     }catch{if(generation!==lifecycle.current.generation)return;stop();setError('Không đọc được hình ảnh camera. Thử bật lại camera hoặc nhập mã bên dưới.');return}
-    lifecycle.current.timer=setTimeout(tick,250);
+    lifecycle.current.timer=setTimeout(tick,100);
    }
    tick();
   }catch(error){
