@@ -9,6 +9,7 @@ import {withCompositionSummary} from './server/composition-summary.js';
 import {validateOutboundPrint} from './shared/outbound-print.js';
 import {movementTypes,receiptCode} from './shared/movements.js';
 import {matchesProduct} from './shared/product-filters.js';
+import {googleAuthConfig,registerGoogleAuth} from './server/google-auth.js';
 import express from 'express';
 import {createServer as createHttpServer} from 'node:http';
 import session from 'express-session';
@@ -22,6 +23,7 @@ import {randomBytes} from 'node:crypto';
 if(process.argv.includes('--production'))process.env.NODE_ENV='production';
 const dataDir=process.env.DATA_DIR||'data';
 const passwordRequired=process.env.REQUIRE_PASSWORD==='1';
+const googleAuth=googleAuthConfig();
 mkdirSync(dataDir,{recursive:true});
 const db=new DatabaseSync(join(dataDir,'ebg.db'));
 db.exec(`PRAGMA journal_mode=WAL; CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY,name TEXT,username TEXT UNIQUE,password TEXT,role TEXT); CREATE TABLE IF NOT EXISTS categories(id INTEGER PRIMARY KEY,name TEXT UNIQUE,type TEXT); CREATE TABLE IF NOT EXISTS products(id INTEGER PRIMARY KEY,name TEXT,code TEXT UNIQUE,category TEXT,vehicle TEXT,color TEXT,stock INTEGER DEFAULT 0,repair INTEGER DEFAULT 0,anote INTEGER DEFAULT 0,min INTEGER DEFAULT 5,locked INTEGER DEFAULT 0,image TEXT); CREATE TABLE IF NOT EXISTS movements(id INTEGER PRIMARY KEY,productId INTEGER,kind TEXT,bucket TEXT,quantity INTEGER,note TEXT,status TEXT,user TEXT,date TEXT); CREATE TABLE IF NOT EXISTS audit(id INTEGER PRIMARY KEY,user TEXT,action TEXT,date TEXT);`);
@@ -61,15 +63,16 @@ class SQLiteStore extends session.Store {
  set(sid,value,cb){try{db.prepare('INSERT OR REPLACE INTO sessions(sid,data,expires) VALUES(?,?,?)').run(sid,JSON.stringify(value),value.cookie.expires?new Date(value.cookie.expires).getTime():Date.now()+8*3600000);db.prepare('DELETE FROM sessions WHERE expires<?').run(Date.now());cb?.()}catch(e){cb?.(e)}}
  destroy(sid,cb){try{db.prepare('DELETE FROM sessions WHERE sid=?').run(sid);cb?.()}catch(e){cb?.(e)}}
 }
-const app=express();if(process.env.TRUST_PROXY==='1')app.set('trust proxy',1);app.disable('x-powered-by');app.use(helmet({contentSecurityPolicy:process.env.NODE_ENV==='production'?undefined:false}));app.use('/api',(req,res,next)=>{res.set('Cache-Control','no-store');next()});app.use(express.json({limit:'2mb'}));app.use(session({store:new SQLiteStore(),secret:process.env.SESSION_SECRET||randomBytes(32).toString('hex'),resave:false,saveUninitialized:false,cookie:{httpOnly:true,sameSite:'strict',secure:process.env.COOKIE_SECURE==='true',maxAge:8*3600000}}));
+const app=express();if(process.env.TRUST_PROXY==='1')app.set('trust proxy',1);app.disable('x-powered-by');app.use(helmet({contentSecurityPolicy:process.env.NODE_ENV==='production'?undefined:false}));app.use('/api',(req,res,next)=>{res.set('Cache-Control','no-store');next()});app.use(express.json({limit:'2mb'}));app.use(session({store:new SQLiteStore(),secret:process.env.SESSION_SECRET||randomBytes(32).toString('hex'),resave:false,saveUninitialized:false,cookie:{httpOnly:true,sameSite:'lax',secure:process.env.COOKIE_SECURE==='true',maxAge:8*3600000}}));
 const publicUser=user=>user?{name:user.name,role:user.role}:null;
 const audit=(req,action)=>db.prepare('INSERT INTO audit(user,action,date) VALUES(?,?,?)').run(req.session.user.name,action,new Date().toISOString());
 app.use('/api',(req,res,next)=>{if(req.session.user){const current=db.prepare('SELECT id,name,role,locked FROM users WHERE id=?').get(req.session.user.id);if(!current||current.locked)delete req.session.user;else req.session.user={id:current.id,name:current.name,role:current.role}}next()});
 const warehouseOnly=(req,res,next)=>managesWarehouse(req.session.user)?next():res.status(403).json({error:'Chỉ Admin hoặc nhân viên kho có quyền thực hiện thao tác này'});
 db.exec('CREATE TABLE IF NOT EXISTS password_reset_requests(userId INTEGER PRIMARY KEY,requestedAt TEXT NOT NULL)');
 
-app.get('/api/session',(req,res)=>{if(!req.session.csrf)req.session.csrf=randomBytes(24).toString('hex');res.json({user:publicUser(req.session.user),csrf:req.session.csrf,passwordRequired})});
+app.get('/api/session',(req,res)=>{if(!req.session.csrf)req.session.csrf=randomBytes(24).toString('hex');res.json({user:publicUser(req.session.user),csrf:req.session.csrf,passwordRequired,googleAuthEnabled:googleAuth.enabled})});
 app.get('/api/login-users',(req,res)=>{if(passwordRequired)return res.status(404).json({error:'Đăng nhập bằng mật khẩu đang bật'});res.json(db.prepare('SELECT name,username,role FROM users WHERE locked=0 ORDER BY id').all())});
+registerGoogleAuth(app,db,{publicUser,normalizeEmail,config:googleAuth});
 app.use('/api',(req,res,next)=>{if(req.method!=='GET'&&(!req.session.csrf||req.get('x-csrf-token')!==req.session.csrf))return res.status(403).json({error:'Phiên không hợp lệ. Vui lòng tải lại trang.'});next()});
 app.post('/api/login',rateLimit({windowMs:15*60000,limit:passwordRequired?10:120}), (req,res)=>{const u=db.prepare('SELECT * FROM users WHERE username=? OR email=? COLLATE NOCASE').get(String(req.body.username||'').trim(),normalizeEmail(req.body.username));if(!u||u.locked||passwordRequired&&!bcrypt.compareSync(String(req.body.password||''),u.password))return res.status(401).json({error:passwordRequired?'Tên đăng nhập hoặc mật khẩu không đúng':'Tài khoản không tồn tại hoặc đã khóa'});req.session.regenerate(err=>{if(err)return res.status(500).json({error:'Không thể tạo phiên'});req.session.user={id:u.id,name:u.name,role:u.role};req.session.csrf=randomBytes(24).toString('hex');res.json({user:publicUser(req.session.user),csrf:req.session.csrf})})});
 app.post('/api/logout',(req,res)=>req.session.destroy(()=>res.json({ok:true})));

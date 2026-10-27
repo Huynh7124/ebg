@@ -100,6 +100,18 @@ Có thể chạy `npm run test:dev` để kiểm tra giao diện dev bằng Chro
 
 ## Đăng nhập bằng email và tạo tài khoản chủ kho trên máy chạy ứng dụng
 
+### Đăng nhập bằng Google theo danh sách được cấp quyền
+
+Tạo OAuth 2.0 Web Client trong Google Cloud Console, thêm callback `http://localhost:3000/api/auth/google/callback` khi chạy tại máy và cấu hình ba biến môi trường:
+
+```bash
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+GOOGLE_CALLBACK_URL=http://localhost:3000/api/auth/google/callback
+```
+
+Trước khi bật cấu hình, Admin hoặc nhân viên kho phải nhập đúng Gmail vào tài khoản nhân viên và chọn vai trò. Khi Google OAuth được cấu hình đủ, trang đăng nhập chỉ hiện **Đăng nhập bằng Google**. Google chỉ xác minh Gmail; máy chủ tìm tài khoản có email trùng khớp và lấy vai trò đã lưu. Gmail chưa được cấp quyền hoặc tài khoản bị khóa đều không đăng nhập được. Người đăng nhập không có API hay giao diện để tự chọn vai trò. Nhân viên kho chỉ cấp các vai trò nhân viên; chỉ Admin được cấp quyền Admin.
+
 Các hướng dẫn mật khẩu dưới đây áp dụng khi bật `REQUIRE_PASSWORD=1`. Chế độ mặc định chỉ cần bấm tài khoản trên màn hình đăng nhập.
 
 Admin có thể gán email cho nhân viên trong màn hình Nhân viên. Email là duy nhất (không phân biệt hoa/thường), dùng được thay cho tên đăng nhập; tên đăng nhập cũ vẫn hoạt động. Email chưa được xác minh và chưa có chức năng gửi thư tự động. Email không được dùng để tự cấp quyền.
