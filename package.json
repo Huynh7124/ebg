@@ -20,7 +20,8 @@
     "test:webcam-qr": "node scripts/check-webcam-qr.mjs",
     "test:qr": "node scripts/check-qr.mjs",
     "backup": "node scripts/backup-database.mjs",
-    "backup:restore": "node scripts/restore-backup.mjs"
+    "backup:restore": "node scripts/restore-backup.mjs",
+    "import:kho-ebg": "node scripts/import-kho-ebg.mjs"
   },
   "repository": {
     "type": "git",

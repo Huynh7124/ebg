@@ -94,6 +94,7 @@ app.post('/api/categories/:id',warehouseOnly,(req,res)=>{const c=db.prepare('SEL
 app.post('/api/categories/:id/lock',warehouseOnly,(req,res)=>{const c=db.prepare('SELECT * FROM categories WHERE id=?').get(req.params.id);if(!c)return res.status(404).json({error:'Không tìm thấy danh mục'});db.prepare('UPDATE categories SET locked=? WHERE id=?').run(c.locked?0:1,c.id);audit(req,`${c.locked?'Mở khóa':'Khóa'} danh mục ${c.name}`);res.json({ok:true})});
 app.post('/api/products',(req,res)=>{
  const p=req.body,existing=p.id?db.prepare('SELECT * FROM products WHERE id=?').get(p.id):null;
+ if(!p.code)p.code=existing?.code||'EBG-'+randomBytes(8).toString('hex');
  if(p.id&&!existing)return res.status(404).json({error:'Không tìm thấy sản phẩm'});
  const size=p.size===undefined?(existing?.size||''):String(p.size);if(!['','220','230','240','250','270'].includes(size))return res.status(400).json({error:'Size không hợp lệ'});
  const unitType=p.unitType===undefined?(existing?.unitType||''):p.unitType;
