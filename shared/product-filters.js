@@ -3,6 +3,7 @@ export const emptyProductFilters={search:'',vehicle:'',color:'',unitType:''};
 const normalize=text=>String(text||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLocaleLowerCase('vi').trim();
 export function matchesProduct(product,filters){
  if(!product)return false;
+ if(filters.size&&(filters.size==='none'?!!product.size:product.size!==filters.size))return false;
  return (!filters.search||normalize([product.name,product.code].join(' ')).includes(normalize(filters.search)))&&(!filters.vehicle||product.vehicle===filters.vehicle)&&(!filters.color||product.color===filters.color)&&(!filters.unitType||(filters.unitType==='unclassified'?!product.unitType:product.unitType===filters.unitType));
 }
 export function matchesReceipt(receipt,products,filters){
