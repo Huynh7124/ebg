@@ -174,4 +174,5 @@ header{background:#fff;color:#20262e;border-bottom:1px solid #e3e6e9}
 .app-role-processor .main{--header-height:88px}
 .app-role-processor .main>header{height:88px;grid-template-columns:auto minmax(0,1fr);grid-template-rows:1fr;align-items:center;gap:12px;padding-block:10px}
 .app-role-processor .header-right{grid-column:2;grid-row:1;justify-self:end;align-items:center}
+@media(min-width:1201px){.app-role-processor .main>header{grid-template-columns:auto minmax(0,1fr) auto;gap:24px}.app-role-processor .header-right{grid-column:3;display:flex;justify-content:flex-end}.app-role-processor .header-account-name{display:flex}}
 @media(max-width:700px){.app-role-processor .main{--header-height:76px}.app-role-processor .main>header{height:76px}.app-role-processor .header-right{gap:10px}}
