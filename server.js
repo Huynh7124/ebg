@@ -119,6 +119,7 @@ app.post('/api/movements',(req,res)=>{
   seen.add(+item.productId);lines.push({productId:+item.productId,quantity:+item.quantity,stage:item.stage});
  }
  if(!Number.isSafeInteger(lines.reduce((sum,line)=>sum+line.quantity,0)))return res.status(400).json({error:'Tổng số lượng vượt giới hạn'});
+ const repairFaulty=operation==='send_repair'&&req.body.source==='faulty';
  const waiting=['send_anode','send_repair'].includes(operation),stockWork=operation==='send_stock',status=waiting?'pending':'completed';
  if(req.body.status&&req.body.status!==status||req.body.bucket&&req.body.bucket!==type.bucket)return res.status(400).json({error:'Trạng thái hoặc nhóm hàng không khớp loại phiếu'});
  db.exec('BEGIN IMMEDIATE');
@@ -127,16 +128,16 @@ app.post('/api/movements',(req,res)=>{
   for(const line of lines){
    const p=db.prepare('SELECT * FROM products WHERE id=?').get(line.productId);
    if(!p||p.locked){db.exec('ROLLBACK');return res.status(400).json({error:`Sản phẩm #${line.productId} không tồn tại hoặc đã khóa`})}
-   if(type.kind==='out'&&p.stock<line.quantity){db.exec('ROLLBACK');return res.status(400).json({error:`${p.code}: chỉ còn ${p.stock}, không đủ xuất ${line.quantity}`})}
+   if(type.kind==='out'&&p[repairFaulty?'faulty':'stock']<line.quantity){db.exec('ROLLBACK');return res.status(400).json({error:`${p.code}: chỉ còn ${p.stock}, không đủ xuất ${line.quantity}`})}
    if((type.kind==='in'||waiting)&&!Number.isSafeInteger(p[type.bucket]+line.quantity)||stockWork&&!Number.isSafeInteger(p.inProduction+line.quantity)){db.exec('ROLLBACK');return res.status(400).json({error:`${p.code}: số lượng vượt giới hạn`})}
-   if(type.bucket==='stock'||type.kind==='out')line.stage=resolveStockStage(db,p.id,type.kind==='in'?line.quantity:-line.quantity,line.stage);
+   if(!repairFaulty&&(type.bucket==='stock'||type.kind==='out'))line.stage=resolveStockStage(db,p.id,type.kind==='in'?line.quantity:-line.quantity,line.stage);
    products.push(p);
   }
   const date=new Date().toISOString(),cleanNote=String(note||'').slice(0,500);
   const id=Number(db.prepare('INSERT INTO receipts(kind,operation,note,status,user,date,anodeVendor) VALUES(?,?,?,?,?,?,?)').run(type.kind,operation,cleanNote,status,req.session.user.name,date,anodeVendor).lastInsertRowid);
   lines.forEach((line,i)=>{
    const q=line.quantity,p=products[i];
-   if(type.kind==='in'){if(type.bucket==='stock')changeStock(db,p.id,q,line.stage);else db.prepare(`UPDATE products SET ${type.bucket}=${type.bucket}+? WHERE id=?`).run(q,p.id)}else{changeStock(db,p.id,-q,line.stage);if(waiting)db.prepare(`UPDATE products SET ${type.bucket}=${type.bucket}+? WHERE id=?`).run(q,p.id);if(stockWork)db.prepare('UPDATE products SET inProduction=inProduction+? WHERE id=?').run(q,p.id)}
+   if(type.kind==='in'){if(type.bucket==='stock')changeStock(db,p.id,q,line.stage);else db.prepare(`UPDATE products SET ${type.bucket}=${type.bucket}+? WHERE id=?`).run(q,p.id)}else{if(repairFaulty)db.prepare('UPDATE products SET faulty=faulty-? WHERE id=?').run(q,p.id);else changeStock(db,p.id,-q,line.stage);if(waiting)db.prepare(`UPDATE products SET ${type.bucket}=${type.bucket}+? WHERE id=?`).run(q,p.id);if(stockWork)db.prepare('UPDATE products SET inProduction=inProduction+? WHERE id=?').run(q,p.id)}
    db.prepare('INSERT INTO movements(productId,kind,bucket,quantity,note,status,user,date,operation,receiptId) VALUES(?,?,?,?,?,?,?,?,?,?)').run(p.id,type.kind,type.bucket,q,cleanNote,status,req.session.user.name,date,operation,id);
    db.prepare('UPDATE movements SET stage=? WHERE receiptId=? AND productId=?').run(line.stage||null,id,p.id);
   });
@@ -145,7 +146,7 @@ app.post('/api/movements',(req,res)=>{
   db.exec('COMMIT');res.json({ok:true,receiptId:id,code});
  }catch(e){db.exec('ROLLBACK');throw e}
 });
-app.post(['/api/receipts/:id/complete','/api/movements/:id/complete'],(req,res)=>{
+app.post(['/api/receipts/:id/complete','/api/movements/:id/complete'],warehouseOnly,(req,res)=>{
  db.exec('BEGIN IMMEDIATE');
  try{
   let header,lines;
@@ -160,13 +161,16 @@ app.post(['/api/receipts/:id/complete','/api/movements/:id/complete'],(req,res)=
    if(isReturn?(p[m.bucket]<m.quantity||!Number.isSafeInteger(p.stock+m.quantity)):p[m.bucket]+delta<0){db.exec('ROLLBACK');return res.status(400).json({error:`${p.code}: số lượng không đủ hoặc vượt giới hạn; chưa cập nhật phiếu`})}
    products.push(p);
   }
+  const faults=req.body.faults||{};if(typeof faults!=='object'||Array.isArray(faults)||Object.keys(faults).some(id=>!lines.some(m=>String(m.id)===id))||lines.some(m=>!Number.isSafeInteger(Number(faults[m.id]||0))||Number(faults[m.id]||0)<0||Number(faults[m.id]||0)>m.quantity)){db.exec('ROLLBACK');return res.status(400).json({error:'Số hàng lỗi không hợp lệ'})}
   const source=header?receiptCode(header):`#${lines[0].id}`,sourceReference=header?`receipt:${header.id}`:`movement:${lines[0].id}`;
   let returnedId=null;const date=new Date().toISOString(),returnNote=`Nhận về từ phiếu ${source}`;
   if(isReturn)returnedId=Number(db.prepare('INSERT INTO receipts(kind,operation,note,status,user,date,sourceReference) VALUES(?,?,?,?,?,?,?)').run('in','receive_stock',returnNote,'completed',req.session.user.name,date,sourceReference).lastInsertRowid);
   for(const m of lines){
    if(isReturn){
-    changeStock(db,m.productId,m.quantity,m.stage);db.prepare(`UPDATE products SET ${m.bucket}=${m.bucket}-? WHERE id=?`).run(m.quantity,m.productId);
-    db.prepare('INSERT INTO movements(productId,kind,bucket,quantity,note,status,user,date,operation,receiptId) VALUES(?,?,?,?,?,?,?,?,?,?)').run(m.productId,'in','stock',m.quantity,returnNote,'completed',req.session.user.name,date,'receive_stock',returnedId);
+    const faulty=Number(faults[m.id]||0),good=m.quantity-faulty;
+    if(good)changeStock(db,m.productId,good,m.stage||undefined);
+    if(faulty){db.prepare('UPDATE products SET faulty=faulty+? WHERE id=?').run(faulty,m.productId);const fid=Number(db.prepare('INSERT INTO receipts(kind,operation,note,status,user,date,sourceReference) VALUES(?,?,?,?,?,?,?)').run('in','receive_faulty',returnNote,'completed',req.session.user.name,date,sourceReference).lastInsertRowid);db.prepare('INSERT INTO movements(productId,kind,bucket,quantity,note,status,user,date,operation,receiptId) VALUES(?,?,?,?,?,?,?,?,?,?)').run(m.productId,'in','faulty',faulty,returnNote,'completed',req.session.user.name,date,'receive_faulty',fid)}db.prepare(`UPDATE products SET ${m.bucket}=${m.bucket}-? WHERE id=?`).run(m.quantity,m.productId);
+    if(good)db.prepare('INSERT INTO movements(productId,kind,bucket,quantity,note,status,user,date,operation,receiptId) VALUES(?,?,?,?,?,?,?,?,?,?)').run(m.productId,'in','stock',good,returnNote,'completed',req.session.user.name,date,'receive_stock',returnedId);
     db.prepare('UPDATE movements SET stage=? WHERE receiptId=? AND productId=?').run(m.stage,returnedId,m.productId);
    }else{const delta=m.kind==='in'?m.quantity:-m.quantity;db.prepare(`UPDATE products SET ${m.bucket}=${m.bucket}+? WHERE id=?`).run(delta,m.productId)}
    db.prepare('UPDATE movements SET status=? WHERE id=?').run('completed',m.id);
