@@ -42,5 +42,5 @@ export async function parseCompositionWorkbook(file){
   }
  }
  if(!blocks.length)throw Error('Không tìm thấy bảng có cột Tên hàng hóa, Tên thành phần và Số lượng');
- return {fileName:file.name,blocks,skipped};
+ return {fileName:file.name,blocks,skipped,mappingMode:'tp-nvl'};
 }

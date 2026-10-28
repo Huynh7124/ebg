@@ -101,6 +101,14 @@ test('warehouse operations preserve quantities, snapshots, responsibility and du
   await stock(bolt.id,100);await stock(semi.id,10);await stock(finished.id,5);const counted=await item(bolt.id);assert.deepEqual(counted.embedded,{loose:100,inSemi:20,inFinished:25,total:145});
   const rough=await create('OPS-ROUGH','rough');await stock(rough,4);assert.equal((await item(rough)).stages.rough,4);
  });
+ await t.test('TP/NVL workbook mapping separates same-name roles, saves sizes and preserves stock',async()=>{
+  const payload={fileName:'mapping-test.xlsx',mappingMode:'tp-nvl',blocks:[{sheet:'Đĩa phanh',row:2,name:'Đĩa thử 220mm',components:[{row:2,name:'Đĩa thử 220mm',quantity:'1'},{row:3,name:'Ốc thử',quantity:'6'},{row:4,name:'Linh kiện thiếu lượng',quantity:''}]}]};
+  const plan=await admin.req('ops/import-xlsx/preview',payload);assert.equal(plan.errors.length,0);
+  const same=plan.rows.filter(r=>r.name==='Đĩa thử 220mm');assert.equal(same.length,2);assert.deepEqual(same.map(r=>r.materialKind).sort(),['finished','raw']);assert.ok(same.every(r=>r.size==='220'));assert.ok(plan.rows.some(r=>r.name==='Linh kiện thiếu lượng'&&r.materialKind==='raw'));
+  await admin.req('ops/import-xlsx',{...payload,confirmation:plan.digest});
+  const products=(await admin.req('data')).products;for(const row of plan.rows){const saved=products.find(p=>p.code===row.code);assert.equal(saved.materialKind,row.materialKind);assert.equal(saved.size,row.size);assert.equal(saved.stock,0)}
+  await admin.req('ops/import-xlsx',{...payload,confirmation:plan.digest},400);
+ });
  await t.test('private modules stay private and SQLite backup is consistent and restorable',async()=>{
   await worker.req('ops/backup',undefined,403);
   for(const path of ['/server/operations.js','/server/operations.js?raw'])assert.equal((await fetch('http://127.0.0.1:3226'+path)).status,404);
