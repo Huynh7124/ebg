@@ -29,7 +29,7 @@ export function registerPeople(app,db,audit,bcrypt,normalizeEmail,validEmail,{pa
  });
  app.post('/api/users/:id',guard,(req,res)=>{
   const u=db.prepare('SELECT * FROM users WHERE id=?').get(req.params.id);if(!u)return res.status(404).json({error:'Không tìm thấy nhân viên'});if(!mayTarget(req,u))return res.status(403).json({error:'Nhân viên kho không được sửa tài khoản Admin'});
-  const {name,username,password}=req.body,email=req.body.email===undefined?u.email:normalizeEmail(req.body.email),result=cleanRole(req,req.body.role,u.role);
+  const {name=u.name,username=u.username,password}=req.body,email=req.body.email===undefined?u.email:normalizeEmail(req.body.email),result=cleanRole(req,req.body.role,u.role);
   if(result.error)return res.status(result.status).json({error:result.error});if(result.role!=='admin'&&lastAdmin(u))return res.status(400).json({error:'Cần giữ ít nhất một Admin đang hoạt động'});
   if(typeof name!=='string'||!name.trim()||name.length>100||typeof username!=='string'||!/^[a-zA-Z0-9_.-]{1,40}$/.test(username)||email&&!validEmail(email)||password&&(typeof password!=='string'||password.length<12||password.length>128))return res.status(400).json({error:'Thông tin nhân viên không hợp lệ'});
   db.exec('BEGIN IMMEDIATE');try{
