@@ -1,3 +1,4 @@
+import {registerDashboardActivity} from './server/dashboard-activity.js';
 import {setupStockStages,productsWithStages,changeStock,resolveStockStage} from './server/stock-stages.js';
 import {createStockWorkOrder,setupStockWorkOrders} from './server/stock-work-orders.js';
 import {setupPackingOrders} from './server/packing-orders.js';
@@ -83,6 +84,7 @@ setupOperations(app,db,audit);
 setupStockStages(app,db,audit);
 setupPackingOrders(app,db,audit);
 setupStockWorkOrders(app,db,audit);
+registerDashboardActivity(app,db);
 app.post('/api/profile',(req,res)=>{const name=req.body.name;if(typeof name!=='string'||!name.trim()||name.trim().length>100)return res.status(400).json({error:'Họ tên cần từ 1 đến 100 ký tự'});db.prepare('UPDATE users SET name=? WHERE id=?').run(name.trim(),req.session.user.id);audit(req,'Đổi họ tên hiển thị');req.session.user.name=name.trim();res.json({ok:true})});
 
 app.post('/api/password',(req,res)=>{const {currentPassword,newPassword}=req.body;const u=db.prepare('SELECT * FROM users WHERE id=?').get(req.session.user.id);if(typeof newPassword!=='string'||newPassword.length<12||newPassword.length>128)return res.status(400).json({error:'Mật khẩu mới phải có từ 12 đến 128 ký tự'});if(!bcrypt.compareSync(String(currentPassword||''),u.password))return res.status(400).json({error:'Mật khẩu hiện tại không đúng'});db.prepare('UPDATE users SET password=? WHERE id=?').run(bcrypt.hashSync(newPassword,12),u.id);audit(req,'Đổi mật khẩu tài khoản');res.json({ok:true})});

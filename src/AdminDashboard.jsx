@@ -1,3 +1,4 @@
+import DashboardActivity from './DashboardActivity.jsx';
 import React,{useMemo,useState} from 'react';
 import {Package,AlertTriangle,PackageX,ShieldAlert,ArrowUpRight,Layers} from 'lucide-react';
 import './admin-dashboard.css';
@@ -6,7 +7,7 @@ const number=value=>Number(value)||0;
 const format=value=>value.toLocaleString('vi-VN');
 const stages=[['rough','Hàng thô','#64748b'],['unclassified','Chưa phân loại','#94a3b8'],['raw','Nguyên vật liệu','#b8343a'],['semi','Bán thành phẩm','#d89b35'],['finished','Thành phẩm','#32816a']];
 
-export default function AdminDashboard({products,receipts,onProducts}){
+export default function AdminDashboard({products,receipts,onProducts,api}){
  const [unit,setUnit]=useState('');
  const units=useMemo(()=>[...new Set(products.map(p=>p.unit||'cái'))].sort((a,b)=>a.localeCompare(b,'vi')), [products]);
  const selectedUnit=units.includes(unit)?unit:units[0]||'cái';
@@ -21,6 +22,7 @@ export default function AdminDashboard({products,receipts,onProducts}){
  return <div className="admin-dashboard" aria-label="Dashboard tồn kho Admin">
   <div className="dash-intro"><div><span className="dash-eyebrow">TỔNG QUAN KHO EBG</span><h2>Nắm nhanh tình hình tồn kho</h2><p>Số liệu từ dữ liệu kho đang lưu. Dùng nút tải lại trên header để cập nhật.</p></div><button className="secondary" onClick={onProducts}>Xem sản phẩm <ArrowUpRight size={16}/></button></div>
   <div className="dash-metrics">{cards.map(([label,value,detail,Icon,tone])=><article className={'dash-metric dash-tone-'+tone} key={label}><div><span>{label}</span><Icon size={20}/></div><strong>{format(value)}</strong><p>{detail}</p></article>)}</div>
+  <DashboardActivity api={api}/>
   <div className="dash-section-title"><div><h3>Phân bổ số lượng</h3><p>Xem riêng từng đơn vị để không cộng lẫn cái, bộ và chiều dài.</p></div><label>Đơn vị<select aria-label="Đơn vị dashboard" value={selectedUnit} onChange={e=>setUnit(e.target.value)}>{(units.length?units:['cái']).map(u=><option key={u}>{u}</option>)}</select></label></div>
   <div className="dash-grid">
    <section className="dash-panel"><div className="dash-panel-heading"><h3><Layers size={18}/> Tồn tại kho</h3><span>{selected.length} sản phẩm</span></div><div className="dash-total"><strong>{format(total)}</strong><span>{selectedUnit} tại kho</span></div><div className="dash-bars">{allocation.map(s=><div className="dash-bar-row" key={s.key}><div><span><i style={{background:s.color}}/>{s.label}</span><b>{format(s.value)}</b></div><div className="dash-track"><span style={{width:`${s.value/max*100}%`,background:s.color}}/></div></div>)}</div></section>
