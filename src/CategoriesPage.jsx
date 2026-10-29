@@ -27,9 +27,8 @@ export default function CategoriesPage({brands, categories, products, action, on
       <button className="text-button" disabled={!search && !type && !brand && !status} onClick={reset}>Xóa lọc</button>
     </section>
     {type !== 'accessory' && <BrandsCatalog brands={visibleBrands} categories={filtered} action={action} onEditModel={onEdit}/>}
-    <div className="info-strip" role="status">Hiển thị {filtered.length} / {categories.length} danh mục. Admin và nhân viên kho có thể thêm, sửa và khóa danh mục.</div>
     {!filtered.length && <section className="card category-empty">Không có danh mục phù hợp với bộ lọc.</section>}
-    <div className="bottom-grid">{['accessory', 'vehicle'].filter(kind => !type || kind === type).map(kind => {
+    <div className="category-sections">{['accessory', 'vehicle'].filter(kind => !type || kind === type).map(kind => {
       const rows = filtered.filter(c => c.type === kind);
       return <section key={kind} className="card"><div className="section-heading"><h2>{kind === 'accessory' ? 'Dòng phụ kiện' : 'Dòng sản phẩm'}</h2><span className="count">{rows.length}</span></div>
         {rows.map(c => <div className="category-row" key={c.id}>
