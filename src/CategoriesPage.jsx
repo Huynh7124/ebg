@@ -13,10 +13,10 @@ export default function CategoriesPage({brands, categories, products, action, on
     (!brand || String(category.brandId) === brand) &&
     (!status || Boolean(category.locked) === (status === 'locked')) &&
     (!query || normalize(category.name).includes(query) || normalize(brands.find(b => b.id === category.brandId)?.name).includes(query))
-  );
+  ).sort((a, b) => b.id - a.id);
   const visibleBrands = brands.filter(b => (!brand || String(b.id) === brand) &&
     (!query || normalize(b.name).includes(query) || filtered.some(c => c.brandId === b.id)) &&
-    (!status || filtered.some(c => c.brandId === b.id)));
+    (!status || filtered.some(c => c.brandId === b.id))).sort((a, b) => b.id - a.id);
   const reset = () => {setSearch(''); setType(''); setBrand(''); setStatus('');};
   return <>
     <section className="card category-filters" aria-label="Bộ lọc danh mục">
@@ -31,12 +31,12 @@ export default function CategoriesPage({brands, categories, products, action, on
     <div className="category-sections">{['accessory', 'vehicle'].filter(kind => !type || kind === type).map(kind => {
       const rows = filtered.filter(c => c.type === kind);
       return <section key={kind} className="card"><div className="section-heading"><h2>{kind === 'accessory' ? 'Dòng phụ kiện' : 'Dòng sản phẩm'}</h2><span className="count">{rows.length}</span></div>
-        {rows.map(c => <div className="category-row" key={c.id}>
+        <div className="category-items-grid">{rows.map(c => <div className="category-row" key={c.id}>
           <b>{c.name}{kind === 'vehicle' && <span className="category-brand-name">{brands.find(b => b.id === c.brandId)?.name || 'Chưa có thương hiệu'}</span>}</b>
           <span>{products.filter(p => p[kind === 'accessory' ? 'category' : 'vehicle'] === c.name).length} sản phẩm</span>
           <span className={'status ' + (c.locked ? 'locked' : 'available')}><i/>{c.locked ? 'Đã khóa' : 'Hoạt động'}</span>
           <div className="management-actions"><button className="secondary" aria-label={'Sửa danh mục ' + c.name} onClick={() => onEdit(c)}>Sửa</button><button className="secondary" aria-label={(c.locked ? 'Mở khóa' : 'Khóa') + ' danh mục ' + c.name} onClick={() => action('categories/' + c.id + '/lock', {})}>{c.locked ? 'Mở khóa' : 'Khóa'}</button></div>
-        </div>)}
+        </div>)}</div>
       </section>;
     })}</div>
   </>;
