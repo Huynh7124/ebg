@@ -1,3 +1,4 @@
+import {defaultPackingPrint,packingPrintHtml} from '../shared/packing-print.js';
 import {DatabaseSync} from 'node:sqlite';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
@@ -22,6 +23,23 @@ test('packing order passes through warehouse and production, then packing separa
   assert.equal((await other.req('packing-orders')).length,0);assert.equal((await worker.req('packing-orders')).length,0);
   await action(packer,'prepare',{processorId},403);await action(warehouse,'prepare',{processorId},400);
   await action(warehouse,'prepare',{inputs:[{productId:raw.id,quantity:10}]});assert.deepEqual((await admin.req('data')).products,before);assert.equal((await worker.req('packing-orders')).length,0);
+ });
+ await t.test('packing print forms persist for warehouse without changing stock or assigning workers',async()=>{
+  const original=(await packer.req('packing-orders')).find(r=>r.id===id);
+  for(const type of ['pickup','production']){
+   const draft=defaultPackingPrint(original,before,users,type);draft.receiver='Tên trên giấy';draft.lines[0].note='<script>test</script>';
+   await action(other,'print-forms/'+type,draft,403);await action(worker,'print-forms/'+type,draft,403);
+   await action(packer,'print-forms/'+type,{...draft,date:'2026-02-30'},400);
+   await action(packer,'print-forms/'+type,{...draft,lines:[]},400);
+   const saved=(await action(packer,'print-forms/'+type,{...draft,lines:draft.lines.map(l=>({...l,quantity:999,name:'Fake'}))})).form;
+   assert.equal(saved.lines[0].quantity,10);assert.equal(saved.lines[0].name,output.name);
+   const warehouseOrder=(await warehouse.req('packing-orders')).find(r=>r.id===id);
+   assert.deepEqual(warehouseOrder.printForms[type],saved);assert.equal(warehouseOrder.status,original.status);assert.equal(warehouseOrder.processorId,null);
+   const html=packingPrintHtml(saved,type);assert.ok(html.includes('&lt;script&gt;test&lt;/script&gt;'));assert.ok(!html.includes(output.code));
+   await action(warehouse,'print-forms/'+type,{...saved,receiver:'Kho cập nhật'});
+   assert.equal((await packer.req('packing-orders')).find(r=>r.id===id).printForms[type].receiver,'Kho cập nhật');
+  }
+  assert.deepEqual((await admin.req('data')).products,before);
  });
  await t.test('warehouse issues to packing; owner dispatches once and a processor claims the shared queue',async()=>{
   await action(worker,'finish',{},403);await action(packer,'issue',{},403);await action(warehouse,'issue');await action(warehouse,'issue',{},400);

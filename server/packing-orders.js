@@ -1,3 +1,4 @@
+import {validatePackingPrint,packingPrintLabels} from '../shared/packing-print.js';
 import {defaultOutboundPrint} from '../shared/outbound-print.js';
 import {changeStock,resolveStockStage} from './stock-stages.js';
 import {managesWarehouse} from '../shared/roles.js';
@@ -27,6 +28,13 @@ export function setupPackingOrders(app,db,audit){
   const purpose=b.purpose??'order';if(!['order','stock'].includes(purpose))fail('Loại đơn không hợp lệ');
   const payload={flowVersion:2,purpose,reference:text(b.reference??'',false,100),orderDate,dueDate:dueDate?new Date(dueDate).toISOString():null,note:text(b.note||''),items:rows(b.items).map(l=>({...l,good:0,faulty:0})),inputs:[],snapshot:[],events:[],tokens:[],createdAt:new Date().toISOString()};
   const id=Number(db.prepare("INSERT INTO packing_orders(requesterId,status,payload) VALUES(?,'pending',?)").run(req.session.user.id,JSON.stringify(payload)).lastInsertRowid);const r=read(id);event(req,r,'Đóng gói tạo đơn');return {ok:true,id};
+ },true));
+ app.post('/api/packing-orders/:id/print-forms/:type',route(req=>{
+  const r=read(req.params.id),type=req.params.type;
+  if(!Object.hasOwn(packingPrintLabels,type))fail('Loại phiếu không hợp lệ');
+  if(!managesWarehouse(req.session.user))owner(req,r);
+  let form;try{form=validatePackingPrint(req.body,r,db.prepare('SELECT id,name,unit FROM products').all(),db.prepare('SELECT id,name FROM users').all(),type)}catch(e){fail(e.message)}
+  r.printForms={...r.printForms,[type]:form};event(req,r,'Lưu mẫu '+packingPrintLabels[type]);return {ok:true,form};
  },true));
  app.post('/api/packing-orders/:id/prepare',route(req=>{
   warehouse(req);const r=read(req.params.id);state(r,'pending');
