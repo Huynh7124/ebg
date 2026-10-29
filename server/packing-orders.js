@@ -13,6 +13,7 @@ export function setupPackingOrders(app,db,audit){
  const save=r=>{const {id,requesterId,processorId,status,...payload}=r;db.prepare('UPDATE packing_orders SET processorId=?,status=?,payload=? WHERE id=?').run(processorId,status,JSON.stringify(payload),id)};
  const change=(pid,bucket,q)=>{const p=db.prepare('SELECT * FROM products WHERE id=?').get(pid);if(!p||!Number.isSafeInteger(p[bucket]+q)||p[bucket]+q<0||p[bucket]+q>1e9)fail('Tồn không đủ hoặc vượt giới hạn: '+(p?.code||pid));db.prepare(`UPDATE products SET ${bucket}=${bucket}+? WHERE id=?`).run(q,pid)};
  const rows=(items)=>{if(!Array.isArray(items)||!items.length||items.length>100)fail('Cần 1–100 mặt hàng');const seen=new Set();return items.map(l=>{const p=product(l.productId);if(seen.has(p.id))fail('Trùng mã hàng');seen.add(p.id);return {productId:p.id,quantity:qty(l.quantity),...(l.stage?{stage:resolveStockStage(db,p.id,-1,l.stage)}:{})}})};
+ const sameLines=(a,b)=>a.length===b.length&&a.every(l=>b.some(x=>x.productId===l.productId&&x.quantity===l.quantity));
  const event=(req,r,action,details={})=>{r.events.push({action,actor:req.session.user.name,date:new Date().toISOString(),...details});save(r);audit(req,`DGGC-${String(r.id).padStart(6,'0')} · ${action}`)};
  const receipt=(req,r,kind,bucket,operation,items)=>{if(!items.length)return;const date=new Date().toISOString(),note=(kind==='out'&&r.flowVersion===2?'Kho xuất cho đóng gói DGGC-':'Đơn đóng gói → gia công DGGC-')+String(r.id).padStart(6,'0');const rid=Number(db.prepare('INSERT INTO receipts(kind,operation,note,status,user,date,sourceReference) VALUES(?,?,?,?,?,?,?)').run(kind,operation,note,'completed',req.session.user.name,date,'packing:'+r.id).lastInsertRowid);for(const l of items)db.prepare('INSERT INTO movements(productId,kind,bucket,quantity,note,status,user,date,operation,receiptId) VALUES(?,?,?,?,?,?,?,?,?,?)').run(l.productId,kind,bucket,l.quantity,note,'completed',req.session.user.name,date,operation,rid);return rid};
  const route=(fn,mutation=false)=>(req,res,next)=>{try{if(mutation)db.exec('BEGIN IMMEDIATE');const result=fn(req);if(mutation)db.exec('COMMIT');res.json(result??{ok:true})}catch(e){if(mutation&&db.isTransaction)db.exec('ROLLBACK');if(e.status)res.status(e.status).json({error:e.message});else next(e)}};
@@ -26,7 +27,7 @@ export function setupPackingOrders(app,db,audit){
   const b=req.body,orderDate=text(b.orderDate,true,10);if(!/^\d{4}-\d{2}-\d{2}$/.test(orderDate)||!Number.isFinite(Date.parse(orderDate))||new Date(orderDate).toISOString().slice(0,10)!==orderDate)fail('Ngày đơn không hợp lệ');
   const dueDate=b.dueDate?text(b.dueDate,true,50):null;if(dueDate&&!Number.isFinite(Date.parse(dueDate)))fail('Hạn cần hàng không hợp lệ');
   const purpose=b.purpose??'order';if(!['order','stock'].includes(purpose))fail('Loại đơn không hợp lệ');
-  const payload={flowVersion:2,purpose,reference:text(b.reference??'',false,100),orderDate,dueDate:dueDate?new Date(dueDate).toISOString():null,note:text(b.note||''),items:rows(b.items).map(l=>({...l,good:0,faulty:0})),inputs:[],snapshot:[],events:[],tokens:[],createdAt:new Date().toISOString()};
+  const payload={...(b.pickupItems?{pickupItems:rows(b.pickupItems).map(({productId,quantity})=>({productId,quantity}))}:{}),flowVersion:2,purpose,reference:text(b.reference??'',false,100),orderDate,dueDate:dueDate?new Date(dueDate).toISOString():null,note:text(b.note||''),items:rows(b.items).map(l=>({...l,good:0,faulty:0})),inputs:[],snapshot:[],events:[],tokens:[],createdAt:new Date().toISOString()};
   const id=Number(db.prepare("INSERT INTO packing_orders(requesterId,status,payload) VALUES(?,'pending',?)").run(req.session.user.id,JSON.stringify(payload)).lastInsertRowid);const r=read(id);event(req,r,'Đóng gói tạo đơn');return {ok:true,id};
  },true));
  app.post('/api/packing-orders/:id/print-forms/:type',route(req=>{
@@ -34,17 +35,28 @@ export function setupPackingOrders(app,db,audit){
   if(!Object.hasOwn(packingPrintLabels,type))fail('Loại phiếu không hợp lệ');
   if(!managesWarehouse(req.session.user))owner(req,r);
   let form;try{form=validatePackingPrint(req.body,r,db.prepare('SELECT id,name,unit FROM products').all(),db.prepare('SELECT id,name FROM users').all(),type)}catch(e){fail(e.message)}
+  const selected=form.lines.map(({productId,quantity})=>({productId,quantity}));
+  const previous=type==='pickup'?(r.pickupItems||r.inputs):r.items;
+  if(!sameLines(selected,previous)){
+   const allowed=type==='pickup'?['pending','prepared']:['pending','prepared','warehouse_issued','packing_received'];
+   if(!allowed.includes(r.status))fail(type==='pickup'?'Kho đã xuất: không thể đổi hàng trên phiếu lấy hàng':'Đã chuyển gia công: không thể đổi danh sách sản phẩm',409);
+   for(const l of selected)product(l.productId);
+   if(type==='pickup'){r.pickupItems=selected;r.inputs=[];if(r.status==='prepared')r.status='pending';}
+   else r.items=selected.map(l=>({...l,good:0,faulty:0}));
+  }else if(type==='pickup'&&!r.pickupItems)r.pickupItems=selected;
   r.printForms={...r.printForms,[type]:form};event(req,r,'Lưu mẫu '+packingPrintLabels[type]);return {ok:true,form};
  },true));
  app.post('/api/packing-orders/:id/prepare',route(req=>{
   warehouse(req);const r=read(req.params.id);state(r,'pending');
   const snapshot=[];for(const item of r.items)product(item.productId);r.inputs=rows(req.body.inputs);
+  if(r.pickupItems&&!sameLines(r.inputs,r.pickupItems))fail('Hàng chuẩn bị phải đúng mặt hàng và số lượng trên phiếu lấy hàng');
   r.inputs=r.inputs.map(l=>({...l,issued:0,consumed:0}));r.snapshot=snapshot;r.flowVersion=2;r.processorId=null;r.status='prepared';event(req,r,'Kho chuẩn bị xong',{inputs:r.inputs});
  },true));
  app.post('/api/packing-orders/:id/issue',route(req=>{
   warehouse(req);const r=read(req.params.id);state(r,'prepared');r.flowVersion=2;
   const packer=db.prepare("SELECT id,name FROM users WHERE id=? AND role='packer' AND locked=0").get(r.requesterId);if(!packer)fail('Người đóng gói đã khóa hoặc đổi vai trò');
   if(!r.inputs.length)fail('Chưa có hàng chuẩn bị');
+  if(r.pickupItems&&!sameLines(r.inputs,r.pickupItems))fail('Hàng xuất không khớp phiếu lấy hàng');
   for(const l of r.inputs){product(l.productId);l.stage=resolveStockStage(db,l.productId,-l.quantity,l.stage);changeStock(db,l.productId,-l.quantity,l.stage);change(l.productId,'withPacking',l.quantity);l.issued=l.quantity}
   r.issueReceipt=receipt(req,r,'out','stock','issue_stock',r.inputs);for(const l of r.inputs)db.prepare('UPDATE movements SET stage=? WHERE receiptId=? AND productId=?').run(l.stage,r.issueReceipt,l.productId);
   const header=db.prepare('SELECT * FROM receipts WHERE id=?').get(r.issueReceipt);const lines=db.prepare('SELECT * FROM movements WHERE receiptId=?').all(r.issueReceipt);

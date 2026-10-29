@@ -31,18 +31,31 @@ test('packing order passes through warehouse and production, then packing separa
    await action(other,'print-forms/'+type,draft,403);await action(worker,'print-forms/'+type,draft,403);
    await action(packer,'print-forms/'+type,{...draft,date:'2026-02-30'},400);
    await action(packer,'print-forms/'+type,{...draft,lines:[]},400);
-   const saved=(await action(packer,'print-forms/'+type,{...draft,lines:draft.lines.map(l=>({...l,quantity:999,name:'Fake'}))})).form;
-   assert.equal(saved.lines[0].quantity,10);assert.equal(saved.lines[0].name,output.name);
+   const saved=(await action(packer,'print-forms/'+type,{...draft,lines:draft.lines.map(l=>({...l,name:'Fake'}))})).form;
+   assert.equal(saved.lines[0].quantity,10);assert.equal(saved.lines[0].name,type==='pickup'?raw.name:output.name);
    const warehouseOrder=(await warehouse.req('packing-orders')).find(r=>r.id===id);
    assert.deepEqual(warehouseOrder.printForms[type],saved);assert.equal(warehouseOrder.status,original.status);assert.equal(warehouseOrder.processorId,null);
    const html=packingPrintHtml(saved,type);assert.ok(html.includes('&lt;script&gt;test&lt;/script&gt;'));assert.ok(!html.includes(output.code));
    await action(warehouse,'print-forms/'+type,{...saved,receiver:'Kho cập nhật'});
    assert.equal((await packer.req('packing-orders')).find(r=>r.id===id).printForms[type].receiver,'Kho cập nhật');
   }
+  const current=(await packer.req('packing-orders')).find(r=>r.id===id);
+  const pickup=current.printForms.pickup,production=current.printForms.production;
+  await action(packer,'print-forms/pickup',{...pickup,lines:pickup.lines.map(l=>({...l,quantity:8}))});
+  let changed=(await warehouse.req('packing-orders')).find(r=>r.id===id);assert.equal(changed.status,'pending');assert.equal(changed.inputs.length,0);assert.equal(changed.pickupItems[0].quantity,8);
+  await action(warehouse,'prepare',{inputs:[{productId:raw.id,quantity:10}]},400);
+  await action(warehouse,'prepare',{inputs:[{productId:output.id,quantity:8}]},400);
+  await action(packer,'print-forms/production',{...production,lines:production.lines.map(l=>({...l,quantity:12}))});
+  changed=(await warehouse.req('packing-orders')).find(r=>r.id===id);assert.equal(changed.items[0].quantity,12);assert.equal(changed.pickupItems[0].quantity,8);
+  await action(packer,'print-forms/production',production);await action(packer,'print-forms/pickup',pickup);
+  await action(warehouse,'prepare',{inputs:[{productId:raw.id,quantity:10}]});
   assert.deepEqual((await admin.req('data')).products,before);
  });
  await t.test('warehouse issues to packing; owner dispatches once and a processor claims the shared queue',async()=>{
   await action(worker,'finish',{},403);await action(packer,'issue',{},403);await action(warehouse,'issue');await action(warehouse,'issue',{},400);
+  const issued=(await packer.req('packing-orders')).find(r=>r.id===id);
+  await action(packer,'print-forms/pickup',{...issued.printForms.pickup,lines:issued.printForms.pickup.lines.map(l=>({...l,quantity:1}))},409);
+  assert.equal((await warehouse.req('packing-orders')).find(r=>r.id===id).inputs[0].quantity,issued.pickupItems[0].quantity);
   let products=(await admin.req('data')).products;assert.equal(products.find(p=>p.id===raw.id).stock,raw.stock-10);assert.equal(products.find(p=>p.id===raw.id).inProduction,raw.inProduction);assert.equal(products.find(p=>p.id===raw.id).withPacking,raw.withPacking+10);
   assert.equal((await worker.req('packing-orders')).length,0);
   await action(worker,'accept',{},400);await action(packer,'send-processing',{},400);
@@ -50,6 +63,7 @@ test('packing order passes through warehouse and production, then packing separa
   await action(packer,'receive-materials');await action(packer,'receive-materials',{},400);
   await action(other,'send-processing',{},403);await action(worker,'send-processing',{},403);
   const transferred=await action(packer,'send-processing');assert.match(transferred.productionSlipCode,/GC-DGGC-/);await action(packer,'send-processing',{},400);
+  await action(packer,'print-forms/production',{...issued.printForms.production,lines:issued.printForms.production.lines.map(l=>({...l,quantity:1}))},409);
   const ready=(await worker.req('packing-orders')).find(r=>r.id===id);assert.equal(ready.processorId,null);assert.equal(ready.status,'issued');
   assert.ok((await worker2.req('packing-orders')).some(r=>r.id===id));
   products=(await admin.req('data')).products;assert.equal(products.find(p=>p.id===raw.id).stock,raw.stock-10);assert.equal(products.find(p=>p.id===raw.id).withPacking,raw.withPacking);assert.equal(products.find(p=>p.id===raw.id).inProduction,raw.inProduction+10);

@@ -1,7 +1,7 @@
 export const packingPrintLabels={pickup:'Phiếu lấy hàng',production:'Phiếu gia công'};
 export function defaultPackingPrint(order,products,people,type){
  const byId=new Map(products.map(p=>[p.id,p]));
- return {date:order.orderDate,warehouse:'Cao Lỗ',requester:people.find(p=>p.id===order.requesterId)?.name||order.events?.[0]?.actor||'',receiver:type==='production'?(people.find(p=>p.id===order.processorId)?.name||''):(order.events?.find(e=>e.action==='Kho chuẩn bị xong')?.actor||''),senderDepartment:'Shipping',receiverDepartment:'Gia Công',note:'',lines:order.items.map(l=>({productId:l.productId,name:byId.get(l.productId)?.name||'Sản phẩm không còn trong danh mục',unit:byId.get(l.productId)?.unit||'',quantity:l.quantity,note:''}))};
+ return {date:order.orderDate,warehouse:'Cao Lỗ',requester:people.find(p=>p.id===order.requesterId)?.name||order.events?.[0]?.actor||'',receiver:type==='production'?(people.find(p=>p.id===order.processorId)?.name||''):(order.events?.find(e=>e.action==='Kho chuẩn bị xong')?.actor||''),senderDepartment:'Shipping',receiverDepartment:'Gia Công',note:'',lines:(type==='pickup'?(order.pickupItems||order.inputs||[]):order.items).map(l=>({productId:l.productId,name:byId.get(l.productId)?.name||'Sản phẩm không còn trong danh mục',unit:byId.get(l.productId)?.unit||'',quantity:l.quantity,note:''}))};
 }
 export function validatePackingPrint(input,order,products,people,type){
  if(!input||typeof input!=='object'||Array.isArray(input))throw Error('Thông tin phiếu không hợp lệ');
@@ -10,8 +10,12 @@ export function validatePackingPrint(input,order,products,people,type){
   const value=input[key];if(typeof value!=='string'||value.length>(key==='note'?2000:200))throw Error('Thông tin phiếu thiếu hoặc quá dài');result[key]=value.trim();
  }
  if(!/^\d{4}-\d{2}-\d{2}$/.test(result.date)||!Number.isFinite(Date.parse(result.date))||new Date(result.date).toISOString().slice(0,10)!==result.date)throw Error('Ngày trên phiếu không hợp lệ');
- if(!Array.isArray(input.lines)||input.lines.length!==result.lines.length)throw Error('Danh sách hàng không khớp đơn');
- const seen=new Set();for(const line of input.lines){const target=result.lines.find(l=>l.productId===line.productId);if(!target||seen.has(line.productId)||typeof line.note!=='string'||line.note.length>500)throw Error('Ghi chú mặt hàng không hợp lệ');seen.add(line.productId);target.note=line.note.trim();}
+ if(!Array.isArray(input.lines)||!input.lines.length||input.lines.length>100)throw Error('Cần chọn 1–100 mặt hàng');
+ const seen=new Set();result.lines=input.lines.map(line=>{
+  const product=products.find(p=>p.id===Number(line.productId));
+  if(!product||seen.has(product.id)||!['number','string'].includes(typeof line.quantity)||!Number.isSafeInteger(Number(line.quantity))||Number(line.quantity)<1||Number(line.quantity)>1e9||typeof line.note!=='string'||line.note.length>500)throw Error('Mặt hàng, số lượng hoặc ghi chú không hợp lệ');
+  seen.add(product.id);return {productId:product.id,name:product.name,unit:product.unit,quantity:Number(line.quantity),note:line.note.trim()};
+ });
  // Keep saved item identities stable when the catalog is renamed later.
  const saved=order.printForms?.[type];if(saved)for(const line of result.lines){const old=saved.lines.find(l=>l.productId===line.productId);if(old){line.name=old.name;line.unit=old.unit;}}
  return result;
