@@ -4,7 +4,7 @@ import ProductSearchFilters from './ProductSearchFilters.jsx';
 import {emptyProductFilters,matchesProduct} from '../shared/product-filters.js';
 import {stockStageNames} from '../shared/stock-stages.js';
 
-export default function PackingLinePicker({products,value,onChange,title,raw=false,disabled=false,notes=false}){
+export default function PackingLinePicker({products,brands=[],categories=[],value,onChange,title,raw=false,disabled=false,notes=false}){
  const [filters,setFilters]=useState({...emptyProductFilters,size:'',category:'',kind:raw?'raw':''});
  const [query,setQuery]=useState(''),[limit,setLimit]=useState(20);
  useEffect(()=>{const timer=setTimeout(()=>setQuery(filters.search||''),250);return()=>clearTimeout(timer)},[filters.search]);
@@ -15,7 +15,7 @@ export default function PackingLinePicker({products,value,onChange,title,raw=fal
  const update=(index,patch)=>onChange(value.map((row,i)=>i===index?{...row,...patch}:row));
  return <fieldset className="ops-lines packing-line-picker" disabled={disabled}><legend>{title}</legend>
  <label className="packing-search-label">Tìm sản phẩm<div className="packing-product-search"><Search size={20} aria-hidden="true"/><input type="search" aria-label="Tìm tên hoặc mã sản phẩm trong phiếu" placeholder="Tìm tên hoặc mã sản phẩm..." value={filters.search||''} disabled={disabled} onChange={e=>setFilters({...emptyProductFilters,search:e.target.value,size:'',category:'',kind:''})} onKeyDown={e=>{if(e.key==='Enter')e.preventDefault()}}/>{filters.search&&<button type="button" aria-label="Xóa tìm kiếm sản phẩm trong phiếu" onClick={()=>{setFilters({...filters,search:''});setQuery('')}}><X size={18}/></button>}</div></label>
- <ProductSearchFilters hideSearch products={candidates} value={filters} onChange={setFilters} disabled={disabled}/>
+ <ProductSearchFilters brands={brands} categories={categories} hideSearch products={candidates} value={filters} onChange={setFilters} disabled={disabled}/>
  <div className="packing-picker-extra">
  <label>Nhóm sản phẩm<select aria-label={title+' nhóm sản phẩm'} value={filters.kind||''} onChange={e=>setFilters({...filters,kind:e.target.value})}><option value="">Tất cả sản phẩm</option>{Object.entries(stockStageNames).map(([key,name])=><option key={key} value={key}>{name}</option>)}</select></label>
  <label>Danh mục<select aria-label={title+' danh mục'} value={filters.category||''} onChange={e=>setFilters({...filters,category:e.target.value})}><option value="">Tất cả danh mục</option>{[...new Set(candidates.map(p=>p.category).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'vi')).map(name=><option key={name}>{name}</option>)}</select></label>
