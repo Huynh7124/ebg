@@ -1,0 +1,24 @@
+import React,{useState} from 'react';
+
+export function BrandModelFilters({brands=[],categories=[],products=[],brand='',vehicle='',onChange,disabled=false}){
+ const names=[...new Set([...brands.filter(b=>!b.locked).map(b=>b.name),...products.map(p=>p.brand).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,'vi'));
+ const selected=brands.find(b=>b.name===brand);
+ const models=[...new Set([...categories.filter(c=>c.type==='vehicle'&&!c.locked&&(!brand||c.brandId===selected?.id)).map(c=>c.name),...products.filter(p=>!brand||p.brand===brand).map(p=>p.vehicle).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,'vi'));
+ return <><label>Thương hiệu<select aria-label="Lọc thương hiệu" disabled={disabled} value={brand} onChange={e=>onChange(e.target.value,'')}><option value="">Tất cả thương hiệu</option>{names.map(name=><option key={name}>{name}</option>)}</select></label><label>Dòng xe<select aria-label="Lọc dòng xe" disabled={disabled} value={vehicle} onChange={e=>onChange(brand,e.target.value)}><option value="">Tất cả dòng xe</option>{models.map(name=><option key={name}>{name}</option>)}</select></label></>;
+}
+
+export function ProductBrandFields({brands,categories,product}){
+ const [brandId,setBrandId]=useState(String(product?.brandId||categories.find(c=>c.type==='vehicle'&&c.name===product?.vehicle)?.brandId||''));
+ const [vehicle,setVehicle]=useState(product?.vehicle||'');
+ return <div className="form-grid"><label>Thương hiệu<select name="brandId" value={brandId} onChange={e=>{setBrandId(e.target.value);setVehicle('')}}><option value="">Dùng chung / chưa xác định</option>{brands.filter(b=>!b.locked||String(b.id)===brandId).map(b=><option key={b.id} value={b.id}>{b.name}</option>)}</select></label><label>Dòng xe<select name="vehicle" value={vehicle} onChange={e=>{setVehicle(e.target.value);const model=categories.find(c=>c.type==='vehicle'&&c.name===e.target.value);if(model?.brandId)setBrandId(String(model.brandId))}}><option value="">Dùng chung / không theo dòng xe</option>{categories.filter(c=>c.type==='vehicle'&&(!c.locked||c.name===vehicle)&&(!brandId||String(c.brandId)===brandId)).map(c=><option key={c.id}>{c.name}</option>)}</select></label></div>;
+}
+
+export function CategoryForm({category,brands,action}){
+ const [type,setType]=useState(category?.type||'accessory');
+ return <form onSubmit={e=>{e.preventDefault();action(category?'categories/'+category.id:'categories',Object.fromEntries(new FormData(e.currentTarget)))}}><label>Loại danh mục<select name="type" value={type} onChange={e=>setType(e.target.value)} disabled={!!category}><option value="accessory">Dòng phụ kiện</option><option value="vehicle">Dòng xe</option></select></label>{type==='vehicle'&&<label>Thương hiệu<select name="brandId" defaultValue={category?.brandId||''} required><option value="">Chọn thương hiệu</option>{brands.filter(b=>!b.locked).map(b=><option key={b.id} value={b.id}>{b.name}</option>)}</select></label>}<label>Tên danh mục<input name="name" defaultValue={category?.name||''} required maxLength={100}/></label><button className="primary">{category?'Lưu danh mục':'Thêm danh mục'}</button></form>;
+}
+
+export function BrandsCatalog({brands,categories,action,onEditModel}){
+ const [name,setName]=useState(''),[editing,setEditing]=useState(null),[newName,setNewName]=useState('');
+ return <section className="card"><div className="section-heading"><h2>Thương hiệu & dòng xe</h2><span>{brands.length} thương hiệu</span></div><form className="brand-create" onSubmit={async e=>{e.preventDefault();if(await action('brands',{name}))setName('')}}><label>Thương hiệu mới<input aria-label="Tên thương hiệu mới" value={name} onChange={e=>setName(e.target.value)} required maxLength={100}/></label><button className="primary">Thêm thương hiệu</button></form><div className="brand-catalog-grid">{brands.map(b=><article key={b.id}><div className="brand-catalog-heading"><h3>{b.name}</h3><button className="text-button" onClick={()=>{setEditing(b.id);setNewName(b.name)}}>Đổi tên</button></div>{editing===b.id&&<form onSubmit={async e=>{e.preventDefault();if(await action('brands/'+b.id,{name:newName}))setEditing(null)}}><label>Tên thương hiệu<input value={newName} onChange={e=>setNewName(e.target.value)} required maxLength={100}/></label><button className="secondary">Lưu</button></form>}<div className="brand-model-chips">{categories.filter(c=>c.type==='vehicle'&&c.brandId===b.id).map(c=><button key={c.id} className="secondary" onClick={()=>onEditModel(c)}>{c.name}{c.locked?' (Đã khóa)':''}</button>)}</div><form onSubmit={async e=>{e.preventDefault();const form=e.currentTarget;const model=new FormData(form).get('name');if(await action('categories',{type:'vehicle',brandId:b.id,name:model}))form.reset()}}><label>Dòng xe mới của {b.name}<input name="name" required maxLength={100}/></label><button className="secondary">Thêm dòng xe</button></form></article>)}</div></section>;
+}

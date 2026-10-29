@@ -56,4 +56,4 @@ export function setupStockStages(app,db,audit){
   }catch(e){if(db.isTransaction)db.exec('ROLLBACK');if(e.status)res.status(e.status).json({error:e.message});else next(e)}
  });
 }
-export function productsWithStages(db){const stages=new Map();for(const row of db.prepare('SELECT * FROM product_stage_stock').all()){if(!stages.has(row.productId))stages.set(row.productId,{rough:0,raw:0,semi:0,finished:0,unclassified:0});stages.get(row.productId)[row.stage]=row.quantity}return db.prepare('SELECT * FROM products ORDER BY id').all().map(p=>({...p,stages:stages.get(p.id)}))}
+export function productsWithStages(db){const stages=new Map();for(const row of db.prepare('SELECT * FROM product_stage_stock').all()){if(!stages.has(row.productId))stages.set(row.productId,{rough:0,raw:0,semi:0,finished:0,unclassified:0});stages.get(row.productId)[row.stage]=row.quantity}return db.prepare("SELECT p.*,COALESCE(p.brandId,c.brandId) AS brandId,b.name AS brand FROM products p LEFT JOIN categories c ON c.name=p.vehicle AND c.type='vehicle' LEFT JOIN brands b ON b.id=COALESCE(p.brandId,c.brandId) ORDER BY p.id").all().map(p=>({...p,stages:stages.get(p.id)}))}

@@ -242,7 +242,7 @@ export function setupOperations(app,db,audit){
   db.prepare('INSERT INTO ops_imports(digest,date,actorId) VALUES(?,?,?)').run(plan.digest,now(),req.session.user.id);event(req,null,'Nạp cấu tạo Excel',{file:req.body.fileName,products:plan.count,lines:plan.compositionCount,versions});return {ok:true,count:plan.count,compositionCount:plan.compositionCount,versions};
  },true));
  app.get('/api/ops/export',route((req,res)=>{
-  requireRight(req,'warehouse');const tables=['products','categories','receipts','movements','ops_boms','ops_requests','ops_events','ops_suppliers','ops_purchases','packing_orders','stock_work_orders','product_stage_stock','stage_transfers'];const data={format:'ebg-inventory-export-v1',date:now()};for(const table of tables)data[table]=db.prepare(`SELECT * FROM ${table}`).all();res.set('Content-Disposition','attachment; filename="ebg-inventory.json"');res.json(data);
+  requireRight(req,'warehouse');const tables=['brands','products','categories','receipts','movements','ops_boms','ops_requests','ops_events','ops_suppliers','ops_purchases','packing_orders','stock_work_orders','product_stage_stock','stage_transfers'];const data={format:'ebg-inventory-export-v1',date:now()};for(const table of tables)data[table]=db.prepare(`SELECT * FROM ${table}`).all();res.set('Content-Disposition','attachment; filename="ebg-inventory.json"');res.json(data);
  }));
  app.get('/api/ops/backup',async(req,res,next)=>{
   let dir;try{requireRight(req,'admin');dir=await mkdtemp(join(tmpdir(),'ebg-backup-'));const path=join(dir,'ebg.db');await backup(db,path);res.download(path,'ebg-backup-'+now().slice(0,10)+'.db',async err=>{await rm(dir,{recursive:true,force:true});if(err&&!res.headersSent)next(err)});audit(req,'Tạo bản sao lưu SQLite nhất quán');}
