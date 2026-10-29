@@ -27,7 +27,7 @@ export function dashboardActivity({orders,stockOrders,receipts,users=[],period='
  }
  for(const order of stockOrders)if(order.completedAt)add('processing',order.completedAt,users.find(u=>u.id===order.processorId)?.name);
  for(const receipt of receipts)if(receipt.kind==='out')add('outbound',receipt.date,receipt.user);
- const backlog={warehouse:orders.filter(o=>['pending','prepared'].includes(o.status)).length,processing:orders.filter(o=>['issued','working'].includes(o.status)).length+stockOrders.filter(o=>o.status==='planned'&&!o.completedAt).length,packing:orders.filter(o=>['awaiting_packing','received'].includes(o.status)).length,stockOpen:stockOrders.filter(o=>o.status==='open').length,stockOverdue:stockOrders.filter(o=>!o.completedAt&&o.returnAt&&Date.parse(o.returnAt)<now).length};
+ const backlog={warehouse:orders.filter(o=>['pending','prepared'].includes(o.status)).length,processing:orders.filter(o=>['issued','working'].includes(o.status)).length+stockOrders.filter(o=>o.status==='planned'&&!o.completedAt).length,packing:orders.filter(o=>['warehouse_issued','packing_received','awaiting_packing','received'].includes(o.status)).length,stockOpen:stockOrders.filter(o=>o.status==='open').length,stockOverdue:stockOrders.filter(o=>!o.completedAt&&o.returnAt&&Date.parse(o.returnAt)<now).length};
  return {period,date,...(period==='week'?{weekStart:new Date(weekStart).toISOString().slice(0,10),weekEnd:new Date(weekEnd).toISOString().slice(0,10)}:{}),timeZone:zone,buckets,totals,backlog,staff:[...staff.values()].sort((a,b)=>(b.processing+b.packing+b.outbound)-(a.processing+a.packing+a.outbound))};
 }
 

@@ -1,3 +1,4 @@
+import {DatabaseSync} from 'node:sqlite';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
@@ -10,9 +11,9 @@ test('packing order passes through warehouse and production, then packing separa
  const child=spawn(process.execPath,[resolve('server.js'),'--production'],{cwd:root,env:{...process.env,REQUIRE_PASSWORD:'0',DATA_DIR:join(root,'data'),PORT:'3234'},stdio:['ignore','pipe','pipe']});child.stderr.on('data',d=>errors+=d);
  t.after(async()=>{if(child.exitCode===null&&child.signalCode===null){child.kill();await new Promise(r=>child.once('exit',r))}await rm(root,{recursive:true,force:true})});
  await new Promise((ok,fail)=>{const timer=setTimeout(()=>fail(Error(errors||'Startup timeout')),15000);child.stdout.on('data',d=>{if(String(d).includes('server ready')){clearTimeout(timer);ok()}});child.once('exit',()=>{clearTimeout(timer);fail(Error(errors))})});
- function client(){let cookie='',csrf='';return {async req(path,body,status=200){const response=await fetch(base+path,{method:body?'POST':'GET',headers:{cookie,'content-type':'application/json','x-csrf-token':csrf},body:body?JSON.stringify(body):undefined});const data=await response.json();if(response.headers.get('set-cookie'))cookie=response.headers.get('set-cookie').split(';')[0];if(data.csrf)csrf=data.csrf;assert.equal(response.status,status,path+': '+JSON.stringify(data));return data},async login(name){await this.req('session');await this.req('login',{username:name})}}}
- const admin=client(),warehouse=client(),worker=client(),packer=client(),other=client();await admin.login('admin');await warehouse.login('kho');await worker.login('giacong');await packer.login('donggoi');
- await admin.req('users',{name:'Đóng gói khác',username:'other_packer',role:'packer'});await other.login('other_packer');const users=await admin.req('users'),processorId=users.find(u=>u.username==='giacong').id;
+ function client(){let cookie='',csrf='';return {async req(path,body,status=200){const response=await fetch(base+path,{method:body?'POST':'GET',headers:{cookie,'content-type':'application/json','x-csrf-token':csrf},body:body?JSON.stringify(body):undefined});const data=await response.json();if(response.headers.get('set-cookie'))cookie=response.headers.get('set-cookie').split(';')[0];if(data.csrf)csrf=data.csrf;if(Array.isArray(status)){assert.ok(status.includes(response.status));return {status:response.status,data}}assert.equal(response.status,status,path+': '+JSON.stringify(data));return data},async login(name){await this.req('session');await this.req('login',{username:name})}}}
+ const admin=client(),warehouse=client(),worker=client(),packer=client(),other=client(),worker2=client();await admin.login('admin');await warehouse.login('kho');await worker.login('giacong');await packer.login('donggoi');
+ await admin.req('users',{name:'Đóng gói khác',username:'other_packer',role:'packer'});await other.login('other_packer');await admin.req('users',{name:'Gia công B',username:'worker_b',role:'processor'});await worker2.login('worker_b');const users=await admin.req('users'),processorId=users.find(u=>u.username==='giacong').id;
  const before=(await admin.req('data')).products,raw=before[0],output=before[1];let id;
  const action=(actor,step,body={},status=200)=>actor.req('packing-orders/'+id+'/'+step,body,status);
  await t.test('morning order is private and neither creation nor preparation moves inventory',async()=>{
@@ -20,12 +21,22 @@ test('packing order passes through warehouse and production, then packing separa
   await worker.req('packing-orders',order,403);await packer.req('packing-orders',{...order,orderDate:'2026-02-30'},400);id=(await packer.req('packing-orders',order)).id;
   assert.equal((await other.req('packing-orders')).length,0);assert.equal((await worker.req('packing-orders')).length,0);
   await action(packer,'prepare',{processorId},403);await action(warehouse,'prepare',{processorId},400);
-  await action(warehouse,'prepare',{processorId,inputs:[{productId:raw.id,quantity:10}]});assert.deepEqual((await admin.req('data')).products,before);assert.equal((await worker.req('packing-orders')).length,0);
+  await action(warehouse,'prepare',{inputs:[{productId:raw.id,quantity:10}]});assert.deepEqual((await admin.req('data')).products,before);assert.equal((await worker.req('packing-orders')).length,0);
  });
- await t.test('warehouse alone issues, assigned production alone accepts and finishes',async()=>{
-  await action(worker,'finish',{},400);await action(packer,'issue',{},403);await action(warehouse,'issue');await action(warehouse,'issue',{},400);
-  let products=(await admin.req('data')).products;assert.equal(products.find(p=>p.id===raw.id).stock,raw.stock-10);assert.equal(products.find(p=>p.id===raw.id).inProduction,raw.inProduction+10);
-  assert.equal((await worker.req('packing-orders')).length,1);await action(packer,'accept',{},403);await action(worker,'accept');await action(worker,'finish',{defects:[{productId:output.id,faulty:3,reason:'Lỗi'}]});await action(worker,'finish',{},400);
+ await t.test('warehouse issues to packing; owner dispatches once and a processor claims the shared queue',async()=>{
+  await action(worker,'finish',{},403);await action(packer,'issue',{},403);await action(warehouse,'issue');await action(warehouse,'issue',{},400);
+  let products=(await admin.req('data')).products;assert.equal(products.find(p=>p.id===raw.id).stock,raw.stock-10);assert.equal(products.find(p=>p.id===raw.id).inProduction,raw.inProduction);assert.equal(products.find(p=>p.id===raw.id).withPacking,raw.withPacking+10);
+  assert.equal((await worker.req('packing-orders')).length,0);
+  await action(worker,'accept',{},400);await action(packer,'send-processing',{},400);
+  await action(other,'receive-materials',{},403);await action(warehouse,'receive-materials',{},403);
+  await action(packer,'receive-materials');await action(packer,'receive-materials',{},400);
+  await action(other,'send-processing',{},403);await action(worker,'send-processing',{},403);
+  const transferred=await action(packer,'send-processing');assert.match(transferred.productionSlipCode,/GC-DGGC-/);await action(packer,'send-processing',{},400);
+  const ready=(await worker.req('packing-orders')).find(r=>r.id===id);assert.equal(ready.processorId,null);assert.equal(ready.status,'issued');
+  assert.ok((await worker2.req('packing-orders')).some(r=>r.id===id));
+  products=(await admin.req('data')).products;assert.equal(products.find(p=>p.id===raw.id).stock,raw.stock-10);assert.equal(products.find(p=>p.id===raw.id).withPacking,raw.withPacking);assert.equal(products.find(p=>p.id===raw.id).inProduction,raw.inProduction+10);
+  await action(packer,'accept',{},403);await action(worker,'accept');await action(worker2,'accept',{},403);await action(worker,'accept',{},400);
+  assert.ok(!(await worker2.req('packing-orders')).some(r=>r.id===id));await action(worker,'finish',{defects:[{productId:output.id,faulty:3,reason:'Lỗi'}]});await action(worker,'finish',{},400);
   products=(await admin.req('data')).products;assert.equal(products.find(p=>p.id===raw.id).inProduction,raw.inProduction);assert.equal(products.find(p=>p.id===output.id).inTransit,output.inTransit+7);assert.equal(products.find(p=>p.id===output.id).stock,output.stock);
  });
  await t.test('packing records partial good/faulty per SKU, rejecting excess, missing defect reason and other receivers',async()=>{
@@ -39,7 +50,7 @@ test('packing order passes through warehouse and production, then packing separa
  });
  await t.test('insufficient materials roll back the whole issue and do not expose another packer order',async()=>{
   id=(await packer.req('packing-orders',{reference:'SHORTAGE',orderDate:'2026-10-26',dueDate:new Date().toISOString(),items:[{productId:output.id,quantity:1}]})).id;
-  await action(warehouse,'prepare',{processorId,inputs:[{productId:raw.id,quantity:100000}]});const snapshot=(await admin.req('data')).products;
+  await action(warehouse,'prepare',{inputs:[{productId:raw.id,quantity:100000}]});const snapshot=(await admin.req('data')).products;
   await action(warehouse,'issue',{},400);assert.deepEqual((await admin.req('data')).products,snapshot);assert.equal((await packer.req('packing-orders')).find(r=>r.id===id).status,'prepared');assert.equal((await other.req('packing-orders')).length,0);
   assert.ok((await admin.req('ops/export')).packing_orders.some(row=>row.id===id));
  });
@@ -50,8 +61,8 @@ test('packing order passes through warehouse and production, then packing separa
   await packer.req('packing-orders',{...body,purpose:'invalid'},400);
   id=(await packer.req('packing-orders',body)).id;
   assert.equal((await warehouse.req('packing-orders')).find(r=>r.id===id).purpose,'stock');
-  await action(warehouse,'prepare',{processorId,inputs:[{productId:raw.id,quantity:5}]});
-  await action(warehouse,'issue');await action(worker,'accept');await action(worker,'finish',{defects:[{productId:output.id,faulty:1,reason:'Xước'}]});
+  await action(warehouse,'prepare',{inputs:[{productId:raw.id,quantity:5}]});
+  await action(warehouse,'issue');await action(packer,'receive-materials');await action(packer,'send-processing');await action(worker,'accept');await action(worker,'finish',{defects:[{productId:output.id,faulty:1,reason:'Xước'}]});
   const receive={token:'stock-partial',items:[{productId:output.id,good:2,faulty:0}]};
   await action(worker,'receive',receive,403);await action(packer,'receive',receive);await action(packer,'receive',receive,400);
   await action(packer,'complete',{},400);
@@ -71,8 +82,8 @@ test('packing order passes through warehouse and production, then packing separa
  await t.test('production declares faults and warehouse issue returns a printable receipt',async()=>{
   const before=(await admin.req('data')).products.find(p=>p.id===output.id);
   id=(await packer.req('packing-orders',{orderDate:'2026-10-26',items:[{productId:output.id,quantity:5}]})).id;
-  await action(warehouse,'prepare',{processorId,inputs:[{productId:raw.id,quantity:5}]});const issued=await action(warehouse,'issue');assert.ok(issued.receiptId);
-  await action(worker,'accept');await action(worker,'finish',{defects:[{productId:output.id,faulty:6,reason:'Lỗi'}]},400);
+  await action(warehouse,'prepare',{inputs:[{productId:raw.id,quantity:5}]});const issued=await action(warehouse,'issue');assert.ok(issued.receiptId);
+  await action(packer,'receive-materials');await action(packer,'send-processing');await action(worker,'accept');await action(worker,'finish',{defects:[{productId:output.id,faulty:6,reason:'Lỗi'}]},400);
   await action(worker,'finish',{defects:[{productId:output.id,faulty:2}]},400);
   await action(worker,'finish',{defects:[{productId:output.id,faulty:2,reason:'Xước'}]});
   await action(worker,'finish',{defects:[]},400);
@@ -80,6 +91,29 @@ test('packing order passes through warehouse and production, then packing separa
   await action(packer,'receive',{token:'bad',items:[{productId:output.id,good:0,faulty:1,reason:'Lỗi'}]},400);
   await action(packer,'receive',{token:'good',items:[{productId:output.id,good:3,faulty:0}]});await action(packer,'complete');
   p=(await admin.req('data')).products.find(p=>p.id===output.id);assert.equal(p.faulty,before.faulty+2);assert.equal(p.inTransit,before.inTransit);
+ });
+
+ await t.test('two processors cannot claim the same unassigned job concurrently',async()=>{
+  id=(await packer.req('packing-orders',{orderDate:'2026-10-26',items:[{productId:output.id,quantity:1}]})).id;
+  await action(warehouse,'prepare',{inputs:[{productId:raw.id,quantity:1}]});const issued=await action(warehouse,'issue');
+  const data=await admin.req('data'),header=data.receipts.find(r=>r.id===issued.receiptId);assert.equal(JSON.parse(header.printData).receiver,'Đóng gói (Bên nhận)');
+  await action(packer,'receive-materials');await action(packer,'send-processing');
+  const results=await Promise.all([action(worker,'accept',{},[200,403]),action(worker2,'accept',{},[200,403])]);assert.deepEqual(results.map(r=>r.status).sort(),[200,403]);
+  const order=(await admin.req('packing-orders')).find(r=>r.id===id);assert.equal(order.status,'working');assert.equal(order.events.filter(e=>e.action==='Gia công nhận việc').length,1);
+ });
+ await t.test('already issued legacy jobs remain with their assigned processor',async()=>{
+  id=(await packer.req('packing-orders',{orderDate:'2026-10-26',items:[{productId:output.id,quantity:1}]})).id;
+  await action(warehouse,'prepare',{inputs:[{productId:raw.id,quantity:1}]});await action(warehouse,'issue');
+  // Model a pre-upgrade issued row: inventory already belongs to production.
+  const db=new DatabaseSync(join(root,'data','ebg.db'));
+  try{db.exec('BEGIN IMMEDIATE');const payload=JSON.parse(db.prepare('SELECT payload FROM packing_orders WHERE id=?').get(id).payload);delete payload.flowVersion;
+   db.prepare("UPDATE packing_orders SET status='issued',processorId=?,payload=? WHERE id=?").run(processorId,JSON.stringify(payload),id);
+   db.prepare('UPDATE products SET withPacking=withPacking-1,inProduction=inProduction+1 WHERE id=?').run(raw.id);db.exec('COMMIT');
+  }finally{db.close()}
+  assert.ok((await worker.req('packing-orders')).some(r=>r.id===id));assert.ok(!(await worker2.req('packing-orders')).some(r=>r.id===id));
+  await action(packer,'receive-materials',{},400);await action(worker2,'accept',{},403);
+  await action(worker,'accept');await action(worker,'finish');await action(packer,'receive',{token:'legacy-return',items:[{productId:output.id,good:1,faulty:0}]});await action(packer,'complete');
+  assert.equal((await packer.req('packing-orders')).find(r=>r.id===id).status,'completed');
  });
 
 });
