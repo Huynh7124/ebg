@@ -1,0 +1,24 @@
+{
+  "products": 1432,
+  "withStock": 713,
+  "types": {
+    "finished": 735,
+    "raw": 624,
+    "unclassified": 17,
+    "semi": 56
+  },
+  "compositions": 292,
+  "warnings": [
+    "Đĩa tải · dòng 19: Đĩa tải 520 43T thiếu/sai số lượng; đã giữ danh mục NVL, chưa thêm vào cấu tạo.",
+    "Đĩa tải · dòng 23: Đĩa tải 520 43T thiếu/sai số lượng; đã giữ danh mục NVL, chưa thêm vào cấu tạo.",
+    "Nhận diện theo tên và loại TP/NVL, không dùng mã Excel để gộp sản phẩm.",
+    "1793 ô mã đang trống; hệ thống sẽ sinh mã ổn định từ tên.",
+    "40 dòng thành phần bị lặp đã được gộp, giữ số lượng lớn nhất.",
+    "2 dòng thiếu hoặc sai số lượng chưa được thêm vào cấu tạo.",
+    "Bỏ qua sheet không có bảng cấu tạo: Trang tính1.",
+    "Quy cách đóng gói và Phụ kiện đi kèm được giữ ngoài cấu tạo vì file chưa tách mã và số lượng chuẩn.",
+    "Gộp tồn các dòng [590, 596, 603, 606, 610] cùng tên/loại/đvt: Thân trợ lực VÀNG",
+    "Gộp tồn các dòng [591, 597, 604, 607, 611] cùng tên/loại/đvt: Thân trợ lực BẠC",
+    "Gộp tồn các dòng [592, 598, 605, 608, 609] cùng tên/loại/đvt: Thân trợ lực ĐEN"
+  ]
+}

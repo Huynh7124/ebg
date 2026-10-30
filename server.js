@@ -1,3 +1,4 @@
+import {importBundledCatalog} from './server/bundled-catalog.js';
 import {initializeBrands,registerBrands} from './server/brands.js';
 import {registerDashboardActivity} from './server/dashboard-activity.js';
 import {setupStockStages,productsWithStages,changeStock,resolveStockStage} from './server/stock-stages.js';
@@ -52,11 +53,13 @@ for(const [name,username,role] of [['Nguyễn Minh','admin','admin'],['Nhân vi�
 if(passwordRequired)console.log(`Tài khoản mẫu admin / kho — mật khẩu khởi tạo: ${initialPassword}`);
 for(const name of ['Hệ thống phanh','Hệ thống truyền động','Phuộc & giảm xóc','Bánh xe & lốp','Điện & pin','Phụ kiện bảo vệ'])db.prepare('INSERT INTO categories(name,type) VALUES(?,?)').run(name,'accessory');
 for(const name of ['Sur-Ron Light Bee','Talaria Sting','E Ride Pro','Sur-Ron Ultra Bee'])db.prepare('INSERT INTO categories(name,type) VALUES(?,?)').run(name,'vehicle');
+if(!process.argv.includes('--bundled-catalog')){
 const rows=[['Bộ phanh đĩa Hope Tech 4','BRK-001','Hệ thống phanh','Sur-Ron Light Bee','Đen',24,2,0,5,'brake'],['Nhông sau CNC 58T','DRV-002','Hệ thống truyền động','Talaria Sting','Đỏ',3,0,2,5,'gear'],['Phuộc trước FastAce ALX13RC','SUS-003','Phuộc & giảm xóc','Sur-Ron Light Bee','Đen',12,3,0,4,'fork'],['Lốp địa hình Shinko 241','WHL-004','Bánh xe & lốp','E Ride Pro','Đen',18,0,0,5,'tire'],['Tay thắng nhôm CNC','BRK-005','Hệ thống phanh','Talaria Sting','Bạc',4,1,3,5,'lever'],['Pin lithium 72V 40Ah','ELE-006','Điện & pin','Sur-Ron Ultra Bee','Đen',8,2,0,3,'battery'],['Ốp bảo vệ gầm nhôm','PRO-007','Phụ kiện bảo vệ','Sur-Ron Light Bee','Bạc',0,0,2,3,'guard'],['Xích tải DID 420','DRV-008','Hệ thống truyền động','E Ride Pro','Vàng',32,0,0,8,'chain']];
 for(const row of rows)db.prepare('INSERT INTO products(name,code,category,vehicle,color,stock,repair,anote,min,image) VALUES(?,?,?,?,?,?,?,?,?,?)').run(...row);
 db.prepare('INSERT INTO audit(user,action,date) VALUES(?,?,?)').run('Hệ thống','Khởi tạo dữ liệu mẫu',new Date().toISOString());
 const seedMoves=[['in','stock',12,'Bổ sung phụ kiện cho kho', 'completed',1],['out','stock',2,'Xuất phụ kiện bảo dưỡng','completed',2],['in','repair',2,'Chờ kiểm tra tình trạng phuộc','pending',3],['in','anote',3,'Chờ xử lý Anote','pending',5]];
 seedMoves.forEach(([kind,bucket,quantity,note,status,productId],i)=>{const date=new Date(Date.now()-(4-i)*3600000).toISOString();db.prepare('INSERT INTO movements(productId,kind,bucket,quantity,note,status,user,date) VALUES(?,?,?,?,?,?,?,?)').run(productId,kind,bucket,quantity,note,status,'Nguyễn Minh',date);db.prepare('INSERT INTO audit(user,action,date) VALUES(?,?,?)').run('Nguyễn Minh',`${kind==='in'?'Nhập':'Xuất'} ${quantity} × ${rows[productId-1][1]}${status==='pending'?' (chờ xử lý)':''}`,date)});
+}
 
 }
 initializeBrands(db);
@@ -88,6 +91,7 @@ setupStockStages(app,db,audit);
 setupPackingOrders(app,db,audit);
 setupStockWorkOrders(app,db,audit);
 registerDashboardActivity(app,db);
+if(process.argv.includes('--bundled-catalog')){const imported=importBundledCatalog(db,dataDir);console.log(`Dữ liệu Excel: ${imported.created} sản phẩm mới, ${imported.matched} khớp, ${imported.review.length} cần đối chiếu${imported.alreadyImported?' (đã nạp trước đó)':''}`)}
 app.post('/api/profile',(req,res)=>{const name=req.body.name;if(typeof name!=='string'||!name.trim()||name.trim().length>100)return res.status(400).json({error:'Họ tên cần từ 1 đến 100 ký tự'});db.prepare('UPDATE users SET name=? WHERE id=?').run(name.trim(),req.session.user.id);audit(req,'Đổi họ tên hiển thị');req.session.user.name=name.trim();res.json({ok:true})});
 
 app.post('/api/password',(req,res)=>{const {currentPassword,newPassword}=req.body;const u=db.prepare('SELECT * FROM users WHERE id=?').get(req.session.user.id);if(typeof newPassword!=='string'||newPassword.length<12||newPassword.length>128)return res.status(400).json({error:'Mật khẩu mới phải có từ 12 đến 128 ký tự'});if(!bcrypt.compareSync(String(currentPassword||''),u.password))return res.status(400).json({error:'Mật khẩu hiện tại không đúng'});db.prepare('UPDATE users SET password=? WHERE id=?').run(bcrypt.hashSync(newPassword,12),u.id);audit(req,'Đổi mật khẩu tài khoản');res.json({ok:true})});

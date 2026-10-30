@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "node server.js",
+    "dev": "node server.js --bundled-catalog",
     "build": "vite build && node scripts/build-pwa.mjs",
-    "start": "node server.js --production",
+    "start": "node server.js --production --bundled-catalog",
     "test": "node --test",
     "test:pwa": "node scripts/check-pwa.mjs",
     "test:dev": "node scripts/check-dev.mjs",
