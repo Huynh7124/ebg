@@ -1,9 +1,9 @@
 import React,{useState} from 'react';
 
 export function BrandModelFilters({brands=[],categories=[],products=[],brand='',vehicle='',onChange,disabled=false}){
- const names=[...new Set([...brands.filter(b=>!b.locked).map(b=>b.name),...products.map(p=>p.brand).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,'vi'));
+ const names=[...new Set([...[...brands].sort((a,b)=>b.id-a.id).filter(b=>!b.locked).map(b=>b.name),...products.map(p=>p.brand).filter(Boolean)])];
  const selected=brands.find(b=>b.name===brand);
- const models=[...new Set([...categories.filter(c=>c.type==='vehicle'&&!c.locked&&(!brand||c.brandId===selected?.id)).map(c=>c.name),...products.filter(p=>!brand||p.brand===brand).map(p=>p.vehicle).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,'vi'));
+ const models=[...new Set([...[...categories].sort((a,b)=>b.id-a.id).filter(c=>c.type==='vehicle'&&!c.locked&&(!brand||c.brandId===selected?.id)).map(c=>c.name),...products.filter(p=>!brand||p.brand===brand).map(p=>p.vehicle).filter(Boolean)])];
  return <><label>Thương hiệu<select aria-label="Lọc thương hiệu" disabled={disabled} value={brand} onChange={e=>onChange(e.target.value,'')}><option value="">Tất cả thương hiệu</option>{names.map(name=><option key={name}>{name}</option>)}</select></label><label>Dòng sản phẩm<select aria-label="Lọc dòng sản phẩm" disabled={disabled} value={vehicle} onChange={e=>onChange(brand,e.target.value)}><option value="">Tất cả dòng sản phẩm</option>{models.map(name=><option key={name}>{name}</option>)}</select></label></>;
 }
 
@@ -15,7 +15,7 @@ export function ProductBrandFields({brands,categories,product}){
 
 export function CategoryForm({category,brands,action}){
  const [type,setType]=useState(category?.type||'accessory');
- return <form onSubmit={e=>{e.preventDefault();action(category?'categories/'+category.id:'categories',Object.fromEntries(new FormData(e.currentTarget)))}}><label>Loại danh mục<select name="type" value={type} onChange={e=>setType(e.target.value)} disabled={!!category}><option value="accessory">Dòng phụ kiện</option><option value="vehicle">Dòng sản phẩm</option></select></label>{type==='vehicle'&&<label>Thương hiệu<select name="brandId" defaultValue={category?.brandId||''} required><option value="">Chọn thương hiệu</option>{brands.filter(b=>!b.locked).map(b=><option key={b.id} value={b.id}>{b.name}</option>)}</select></label>}<label>Tên danh mục<input name="name" defaultValue={category?.name||''} required maxLength={100}/></label><button className="primary">{category?'Lưu danh mục':'Thêm danh mục'}</button></form>;
+ return <form onSubmit={e=>{e.preventDefault();action(category?'categories/'+category.id:'categories',Object.fromEntries(new FormData(e.currentTarget)))}}><label>Loại danh mục<select name="type" value={type} onChange={e=>setType(e.target.value)} disabled={!!category}><option value="accessory">Dòng phụ kiện</option><option value="vehicle">Dòng sản phẩm</option></select></label>{type==='vehicle'&&<label>Thương hiệu<select name="brandId" defaultValue={category?.brandId||''} required><option value="">Chọn thương hiệu</option>{[...brands].sort((a,b)=>b.id-a.id).filter(b=>!b.locked).map(b=><option key={b.id} value={b.id}>{b.name}</option>)}</select></label>}<label>Tên danh mục<input name="name" defaultValue={category?.name||''} required maxLength={100}/></label><button className="primary">{category?'Lưu danh mục':'Thêm danh mục'}</button></form>;
 }
 
 export function BrandsCatalog({brands,categories,action,onEditModel}){

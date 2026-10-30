@@ -45,4 +45,6 @@ test('warehouse manages brands/models and paginated filtering enforces brand/mod
  assert.ok((await kho.req('products-page?version=__none__')).items.every(p=>!p.version));
  await kho.req('products',{...product,version:''});assert.equal((await kho.req('products-page?version=V2')).total,0);
 
+ const newest=(await kho.req('products-page?limit=10')).items;assert.equal(newest[0].id,product.id);assert.deepEqual(newest.map(p=>p.id),newest.map(p=>p.id).sort((a,b)=>b-a));
+
 });

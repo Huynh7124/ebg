@@ -70,7 +70,7 @@ export function setupOperations(app,db,audit){
   const requests=db.prepare('SELECT id FROM ops_requests'+(rights.warehouse?'':' WHERE assigneeId=? OR requesterId=?')+' ORDER BY id DESC').all(...(rights.warehouse?[]:[uid,uid])).map(r=>load(r.id));
   const visible=new Set(requests.map(r=>r.id));
   return {access:rights,userId:uid,
-   people:db.prepare("SELECT u.id,u.name,u.locked,COALESCE(a.team,'') team,u.role FROM users u LEFT JOIN ops_access a ON a.userId=u.id").all().map(p=>({...p,warehouse:roleAccess(p.role).warehouse,buyer:roleAccess(p.role).buyer})),
+   people:db.prepare("SELECT u.id,u.name,u.locked,COALESCE(a.team,'') team,u.role FROM users u LEFT JOIN ops_access a ON a.userId=u.id ORDER BY u.id DESC").all().map(p=>({...p,warehouse:roleAccess(p.role).warehouse,buyer:roleAccess(p.role).buyer})),
    requests,boms:db.prepare('SELECT * FROM ops_boms ORDER BY id DESC').all().map(b=>({...b,lines:JSON.parse(b.lines)})),
    events:db.prepare('SELECT * FROM ops_events ORDER BY id DESC LIMIT 1000').all().filter(e=>rights.warehouse||visible.has(e.requestId)).map(e=>({...e,payload:JSON.parse(e.payload)}))};
  }));

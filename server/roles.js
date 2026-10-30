@@ -13,7 +13,7 @@ export function migrateRoles(db){
 export function registerPeople(app,db,audit,bcrypt,normalizeEmail,validEmail,{passwordRequired=true}={}){
  const canManage=req=>roleAccess(req.session.user.role).manageStaff;
  const guard=(req,res,next)=>canManage(req)?next():res.status(403).json({error:'Chỉ Admin hoặc nhân viên kho được quản lý nhân viên'});
- const list=req=>db.prepare(`SELECT id,name,username,email,role,locked FROM users ${req.session.user.role==='admin'?'':"WHERE role<>'admin'"} ORDER BY id`).all();
+ const list=req=>db.prepare(`SELECT id,name,username,email,role,locked FROM users ${req.session.user.role==='admin'?'':"WHERE role<>'admin'"} ORDER BY id DESC`).all();
  const mayTarget=(req,u)=>req.session.user.role==='admin'||u.role!=='admin';
  const cleanRole=(req,wanted,current)=>{
   const role=normalizeRole(wanted??current??'processor');if(!['admin','warehouse','processor','packer'].includes(role))return {error:'Chọn vai trò Admin, kho, gia công hoặc đóng gói',status:400};
