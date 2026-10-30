@@ -1,3 +1,4 @@
+import ModalCloseButton from './ModalCloseButton.jsx';
 import {stockStageNames} from '../shared/stock-stages.js';
 import {createPortal} from 'react-dom';
 import {roleNames,assignableRoles} from '../shared/roles.js';
@@ -22,7 +23,7 @@ const active=r=>!['completed','cancelled'].includes(r.status);
 function saveFile(name,content,type='text/plain'){const url=URL.createObjectURL(new Blob([content],{type}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function Dialog({title,onClose,children}){
  const ref=useRef();useEffect(()=>{const before=document.activeElement;const el=ref.current;el?.querySelector('input,select,button')?.focus();const fn=e=>{if(e.key==='Escape'){e.stopPropagation();onClose()}if(e.key==='Tab'){const nodes=[...el.querySelectorAll('button,input,select,textarea,a[href]')].filter(n=>!n.disabled&&n.getClientRects().length);const first=nodes[0],last=nodes.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus()}}};el.addEventListener('keydown',fn);return()=>{el.removeEventListener('keydown',fn);before?.focus()}},[]);
- return <div className="ops-backdrop" onClick={onClose}><section ref={ref} className="ops-dialog" role="dialog" aria-modal="true" aria-label={title} onClick={e=>e.stopPropagation()}><div className="ops-dialog-heading"><h2>{title}</h2><button type="button" aria-label="Đóng điều phối" onClick={onClose}><X/></button></div>{children}</section></div>;
+ return <div className="ops-backdrop" onClick={onClose}><section ref={ref} className="ops-dialog" role="dialog" aria-modal="true" aria-label={title} onClick={e=>e.stopPropagation()}><div className="ops-dialog-heading"><h2>{title}</h2><ModalCloseButton label="Đóng điều phối" onClick={onClose}/></div>{children}</section></div>;
 }
 function ProductSelect({products,value,onChange,labelText='Mặt hàng',disabled=false}){return <label>{labelText}<select required disabled={disabled} value={value} onChange={e=>onChange(e.target.value)}><option value="">Chọn mã hàng...</option>{products.filter(p=>!p.locked).map(p=><option key={p.id} value={p.id}>{label(p)} ({p.unit||'cái'})</option>)}</select></label>}
 function LineEditor({products,value,onChange,title='Mặt hàng',inputs=false}){
