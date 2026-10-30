@@ -1,3 +1,4 @@
+import ModalCloseButton from './ModalCloseButton.jsx';
 import {Search,X} from 'lucide-react';
 import React,{useState,useEffect} from 'react';
 import ProductFilterPanel from './ProductFilterPanel.jsx';
@@ -24,7 +25,7 @@ export default function PackingLinePicker({products,brands=[],categories=[],valu
  <label>{title} {index+1}<select aria-label={title+' '+(index+1)} required value={row.productId} onChange={e=>{const product=products.find(p=>p.id===Number(e.target.value));update(index,{productId:product?.id||'',name:product?.name||'',unit:product?.unit||''})}}><option value="">Chọn hàng...</option>{options.filter(p=>p.id===Number(row.productId)||!value.some(l=>Number(l.productId)===p.id)).map(p=><option key={p.id} value={p.id}>{p.name} ({p.unit}) · Kho: {p.stock}</option>)}</select></label>
  <label>Số lượng<input aria-label={title+' số lượng '+(index+1)} type="number" required min="1" max="1000000000" step="1" value={row.quantity} onChange={e=>update(index,{quantity:e.target.value})}/></label>
  {notes&&<label>Ghi chú<input aria-label={'Ghi chú mặt hàng '+(index+1)} maxLength={500} value={row.note||''} onChange={e=>update(index,{note:e.target.value})}/></label>}
- <button type="button" aria-label={'Xóa '+title+' '+(index+1)} onClick={()=>onChange(value.filter((_,i)=>i!==index))}>×</button>
+ <ModalCloseButton label={'Xóa '+title+' '+(index+1)} disabled={disabled} onClick={()=>onChange(value.filter((_,i)=>i!==index))}/>
  </div>})}<button className="secondary" type="button" onClick={()=>onChange([...value,{productId:'',quantity:1,note:''}])}>Thêm mặt hàng</button>
  </fieldset>;
 }
