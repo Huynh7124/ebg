@@ -36,4 +36,13 @@ test('warehouse manages brands/models and paginated filtering enforces brand/mod
  assert.equal(matchesProduct(page.items[0],{brand:'Talaria'}),false);
  await kho.req('brands/'+id,{name:'Thương hiệu mới'});page=await kho.req('products-page?brand='+encodeURIComponent('Thương hiệu mới'));assert.equal(page.total,1);
  const model=(await kho.req('data')).categories.find(c=>c.name==='Dòng thử');await kho.req('categories/'+model.id,{name:'Dòng đổi tên',brandId:id});page=await kho.req('products-page?vehicle='+encodeURIComponent('Dòng đổi tên'));assert.equal(page.total,1);
+ const product=page.items[0];
+ await kho.req('products',{...product,version:' V2 '});
+ let versions=await packer.req('products-page?version=V2');assert.equal(versions.total,1);assert.equal(versions.items[0].version,'V2');
+ await kho.req('products',{...product,version:123},400);await kho.req('products',{...product,version:'x'.repeat(61)},400);
+ const {version,...withoutVersion}=versions.items[0];await kho.req('products',withoutVersion);
+ assert.equal((await kho.req('products-page?version=V2')).total,1);
+ assert.ok((await kho.req('products-page?version=__none__')).items.every(p=>!p.version));
+ await kho.req('products',{...product,version:''});assert.equal((await kho.req('products-page?version=V2')).total,0);
+
 });

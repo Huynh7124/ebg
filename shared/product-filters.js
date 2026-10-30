@@ -1,8 +1,9 @@
 export const unitTypeNames={'':'Chưa phân loại',single:'Đơn',double:'Đôi'};
-export const emptyProductFilters={search:'',brand:'',vehicle:'',color:'',unitType:''};
+export const emptyProductFilters={version:'',search:'',brand:'',vehicle:'',color:'',unitType:''};
 const normalize=text=>String(text||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLocaleLowerCase('vi').trim();
 export function matchesProduct(product,filters){
  if(!product)return false;
+ if(filters.version&&(filters.version==='__none__'?!!product.version:(product.version||'')!==filters.version))return false;
  if(filters.brand&&product.brand!==filters.brand)return false;
  if(filters.size&&(filters.size==='none'?!!product.size:product.size!==filters.size))return false;
  return (!filters.search||normalize([product.name,product.code].join(' ')).includes(normalize(filters.search)))&&(!filters.vehicle||product.vehicle===filters.vehicle)&&(!filters.color||product.color===filters.color)&&(!filters.unitType||(filters.unitType==='unclassified'?!product.unitType:product.unitType===filters.unitType));

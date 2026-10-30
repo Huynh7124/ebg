@@ -8,7 +8,7 @@ export default function PackingLinePicker({products,brands=[],categories=[],valu
  const [filters,setFilters]=useState({...emptyProductFilters,size:'',category:'',kind:raw?'raw':''});
  const [query,setQuery]=useState(''),[limit,setLimit]=useState(20);
  useEffect(()=>{const timer=setTimeout(()=>setQuery(filters.search||''),250);return()=>clearTimeout(timer)},[filters.search]);
- useEffect(()=>setLimit(20),[query,filters.brand,filters.vehicle,filters.color,filters.unitType,filters.size,filters.category,filters.kind]);
+ useEffect(()=>setLimit(20),[query,filters.brand,filters.vehicle,filters.color,filters.unitType,filters.size,filters.category,filters.kind,filters.version]);
  const candidates=products.filter(p=>!p.locked);
  const filtered=candidates.filter(p=>matchesProduct(p,{...filters,search:query,size:''})&&(!filters.size||(filters.size==='none'?!p.size:String(p.size)===filters.size))&&(!filters.category||p.category===filters.category)&&(!filters.kind||p.materialKind===filters.kind||Number(p.stages?.[filters.kind])>0));
  function add(product){if(disabled||value.some(l=>Number(l.productId)===product.id))return;const row={productId:product.id,name:product.name,unit:product.unit,quantity:1,note:''},empty=value.findIndex(l=>!l.productId);onChange(empty<0?[...value,row]:value.map((l,i)=>i===empty?row:l))}
