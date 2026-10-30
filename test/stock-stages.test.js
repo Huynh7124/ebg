@@ -24,6 +24,12 @@ test('stage transfers, selected-stage movements, repair returns and permissions 
  const move=(operation,quantity,stage)=>({operation,items:[{productId:id,quantity,stage}]});await kho.req('movements',move('issue_stock',1),400);await kho.req('movements',move('issue_stock',3,'finished'),400);await kho.req('movements',move('issue_stock',1,'finished'));assert.equal((await get()).stages.finished,1);
  await kho.req('movements',move('receive_stock',4,'semi'));const repair=await kho.req('movements',move('send_repair',2,'semi'));assert.equal((await get()).stages.semi,3);await kho.req('receipts/'+repair.receiptId+'/complete',{});assert.equal((await get()).stages.semi,5);
  const before=await get();await kho.req('movements',{operation:'issue_stock',items:[{productId:id,quantity:1,stage:'raw'},{productId:2,quantity:1000000,stage:'raw'}]},400);assert.deepEqual(await get(),before);await kho.req('products/'+id+'/stage-transfer',transfer('raw','raw',1,'same'),400);await kho.req('products/'+id+'/stage-transfer',transfer('raw','semi',1.5,'fraction'),400);await kho.req('products/'+id+'/stage-transfer',transfer('raw','semi',1,'split'),400);
+ const beforeCnc=await get();
+ await packer.req('movements',move('receive_cnc',3,'finished'),403);
+ const cnc=await kho.req('movements',move('receive_cnc',3,'finished'));
+ assert.equal((await get()).stages.rough,beforeCnc.stages.rough+3);assert.equal((await get()).stages.finished,beforeCnc.stages.finished);
+ const cncData=await kho.req('data');assert.equal(cncData.receipts.find(r=>r.id===cnc.receiptId).operation,'receive_cnc');assert.equal(cncData.movements.find(m=>m.receiptId===cnc.receiptId).stage,'rough');
+ await kho.req('movements',move('receive_repair',2,'semi'));assert.equal((await get()).stages.semi,beforeCnc.stages.semi+2);assert.equal((await get()).stock,beforeCnc.stock+5);assert.equal((await get()).repair,beforeCnc.repair);
  const exported=await kho.req('ops/export');assert.ok(exported.product_stage_stock.length);assert.equal(exported.stage_transfers.length,3);
  await kho.req('products/'+id+'/lock',{});await kho.req('products/'+id+'/stage-transfer',transfer('raw','semi',1,'locked'),400);
 });

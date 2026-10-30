@@ -128,7 +128,7 @@ app.post('/api/movements',(req,res)=>{
  const seen=new Set(),lines=[];
  for(const item of items){
   if(!item||!['number','string'].includes(typeof item.productId)||!['number','string'].includes(typeof item.quantity)||!Number.isSafeInteger(+item.productId)||+item.productId<=0||!Number.isSafeInteger(+item.quantity)||+item.quantity<=0||seen.has(+item.productId))return res.status(400).json({error:'Mỗi sản phẩm chỉ chọn một lần, số lượng phải là số nguyên dương'});
-  seen.add(+item.productId);lines.push({productId:+item.productId,quantity:+item.quantity,stage:item.stage});
+  seen.add(+item.productId);lines.push({productId:+item.productId,quantity:+item.quantity,stage:operation==='receive_cnc'?'rough':item.stage});
  }
  if(!Number.isSafeInteger(lines.reduce((sum,line)=>sum+line.quantity,0)))return res.status(400).json({error:'Tổng số lượng vượt giới hạn'});
  const repairFaulty=operation==='send_repair'&&req.body.source==='faulty';

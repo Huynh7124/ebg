@@ -1,5 +1,7 @@
 export const movementTypes={
- receive_stock:{label:'Nhập kho',kind:'in',bucket:'stock'},
+ receive_cnc:{label:'Nhập từ CNC',kind:'in',bucket:'stock'},
+ receive_repair:{label:'Nhập sửa',kind:'in',bucket:'stock'},
+ receive_stock:{label:'Nhập hàng',kind:'in',bucket:'stock'},
  receive_faulty:{label:'Nhập lỗi',kind:'in',bucket:'faulty'},
  issue_stock:{label:'Xuất kho',kind:'out',bucket:'stock'},
  send_stock:{label:'Xuất kho để stock',kind:'out',bucket:'stock'},
