@@ -8,7 +8,9 @@ Luồng mới áp dụng cho đơn đầu ngày từ nhân viên đóng gói:
 4. Chính nhân viên đóng gói tạo yêu cầu đối chiếu phiếu rồi bấm **Xác nhận đã nhận hàng từ kho**.
 5. Đóng gói bấm **Xuất qua gia công**. Toàn bộ hàng đã cấp được chuyển sang gia công, không trừ tồn thêm. Mã phiếu giao GC-DGGC liên kết cùng yêu cầu và phiếu xuất kho.
 6. Mọi gia công thấy phiếu chưa ai nhận. Người đầu tiên bấm **Nhận yêu cầu làm hàng** được ghi nhận là người phụ trách. Những người khác không nhận trùng và không còn thấy đơn đó.
-7. Gia công hoàn thành, nhập số lỗi và lý do theo từng sản phẩm. Hàng lỗi về kho lỗi; phần đạt chờ đóng gói nhận.
+7. Gia công hoàn thành, nhập số lỗi và lý do theo từng sản phẩm. Hàng lỗi ở trạng thái chờ kho xác nhận, chưa cộng tồn; phần đạt chờ đóng gói nhận. Kho mở đơn → **Xác nhận hàng lỗi** → kiểm đếm và bấm **Xác nhận đã nhận hàng lỗi vào kho** để tạo phiếu nhập lỗi và cộng tồn đúng một lần. Đóng gói nhận hàng đạt độc lập, nhưng chỉ hoàn tất đơn sau khi kho xác nhận lỗi. Đơn cũ đã nhập lỗi không bị nhập lại.
+
+Kho vào **Sản phẩm → Hàng lỗi → Xuất đi sửa** để xuất từ nguồn kho lỗi; không trừ thêm tồn thường. Xác nhận hiện áp dụng toàn bộ số lỗi trên đơn, chưa hỗ trợ nhận lỗi từng phần.
 8. Đóng gói nhận phần đạt, có thể kiểm nhận nhiều đợt như trước. Nhận đủ rồi bấm **Hoàn thành đóng gói**.
 
 Kho không thể thay đóng gói nhận/chuyển hàng. Admin có quyền xử lý qua API khi cần. Hàng cấp cho đóng gói được theo dõi bằng withPacking; hàng gia công bằng inProduction. Tồn của từng giai đoạn chỉ giảm ở bước kho xuất.

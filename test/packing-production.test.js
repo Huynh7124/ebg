@@ -76,8 +76,8 @@ test('packing order passes through warehouse and production, then packing separa
   await action(other,'receive',receive,403);await action(worker,'receive',receive,403);await action(packer,'complete',{},400);
   await action(packer,'receive',{...receive,items:[{productId:output.id,good:11,faulty:0}]},400);await action(packer,'receive',{...receive,items:[{productId:output.id,good:6,faulty:2}]},400);
   await action(packer,'receive',receive);await action(packer,'receive',receive,400);await action(packer,'complete',{},400);
-  let p=(await admin.req('data')).products.find(p=>p.id===output.id);assert.equal(p.stock,output.stock);assert.equal(p.faulty,output.faulty+3);assert.equal(p.inTransit,output.inTransit+1);
-  await action(packer,'receive',{token:'receive-2',items:[{productId:output.id,good:1,faulty:0}]});const order=(await packer.req('packing-orders')).find(r=>r.id===id);assert.equal(order.status,'received');assert.equal(order.items[0].good,7);assert.equal(order.items[0].faulty,3);assert.equal(order.payload,undefined);
+  let p=(await admin.req('data')).products.find(p=>p.id===output.id);assert.equal(p.stock,output.stock);assert.equal(p.faulty,output.faulty);assert.equal(p.inTransit,output.inTransit+1);
+  await action(packer,'receive',{token:'receive-2',items:[{productId:output.id,good:1,faulty:0}]});const order=(await packer.req('packing-orders')).find(r=>r.id===id);assert.equal(order.status,'received');assert.equal(order.items[0].good,7);assert.equal(order.items[0].faulty,3);assert.equal(order.payload,undefined);await action(packer,'complete',{},400);await action(warehouse,'confirm-defects');
   await action(packer,'complete');await action(packer,'complete',{},400);p=(await admin.req('data')).products.find(p=>p.id===output.id);assert.equal(p.inTransit,output.inTransit);assert.equal(p.faulty,output.faulty+3);assert.equal(p.stock,output.stock);assert.equal((await packer.req('packing-orders'))[0].status,'completed');
  });
  await t.test('insufficient materials roll back the whole issue and do not expose another packer order',async()=>{
@@ -95,6 +95,7 @@ test('packing order passes through warehouse and production, then packing separa
   assert.equal((await warehouse.req('packing-orders')).find(r=>r.id===id).purpose,'stock');
   await action(warehouse,'prepare',{inputs:[{productId:raw.id,quantity:5}]});
   await action(warehouse,'issue');await action(packer,'receive-materials');await action(packer,'send-processing');await action(worker,'accept');await action(worker,'finish',{defects:[{productId:output.id,faulty:1,reason:'Xước'}]});
+  assert.equal((await admin.req('data')).products.find(p=>p.id===output.id).faulty,snapshot.faulty);await action(warehouse,'confirm-defects');
   const receive={token:'stock-partial',items:[{productId:output.id,good:2,faulty:0}]};
   await action(worker,'receive',receive,403);await action(packer,'receive',receive);await action(packer,'receive',receive,400);
   await action(packer,'complete',{},400);
@@ -119,7 +120,12 @@ test('packing order passes through warehouse and production, then packing separa
   await action(worker,'finish',{defects:[{productId:output.id,faulty:2}]},400);
   await action(worker,'finish',{defects:[{productId:output.id,faulty:2,reason:'Xước'}]});
   await action(worker,'finish',{defects:[]},400);
-  let p=(await admin.req('data')).products.find(p=>p.id===output.id);assert.equal(p.faulty,before.faulty+2);assert.equal(p.inTransit,before.inTransit+3);
+  let p=(await admin.req('data')).products.find(p=>p.id===output.id);assert.equal(p.faulty,before.faulty);
+  assert.equal((await warehouse.req('packing-orders')).find(r=>r.id===id).defectReview,'pending');
+  await action(packer,'confirm-defects',{},403);await action(worker,'confirm-defects',{},403);
+  const confirmation=await action(warehouse,'confirm-defects');assert.ok(confirmation.faultyReceiptId);
+  await action(warehouse,'confirm-defects',{},409);
+  p=(await admin.req('data')).products.find(p=>p.id===output.id);assert.equal(p.faulty,before.faulty+2);assert.equal(p.inTransit,before.inTransit+3);
   await action(packer,'receive',{token:'bad',items:[{productId:output.id,good:0,faulty:1,reason:'Lỗi'}]},400);
   await action(packer,'receive',{token:'good',items:[{productId:output.id,good:3,faulty:0}]});await action(packer,'complete');
   p=(await admin.req('data')).products.find(p=>p.id===output.id);assert.equal(p.faulty,before.faulty+2);assert.equal(p.inTransit,before.inTransit);
@@ -146,6 +152,17 @@ test('packing order passes through warehouse and production, then packing separa
   await action(packer,'receive-materials',{},400);await action(worker2,'accept',{},403);
   await action(worker,'accept');await action(worker,'finish');await action(packer,'receive',{token:'legacy-return',items:[{productId:output.id,good:1,faulty:0}]});await action(packer,'complete');
   assert.equal((await packer.req('packing-orders')).find(r=>r.id===id).status,'completed');
+ });
+
+ await t.test('all-faulty job waits for warehouse and concurrent confirmations only credit once',async()=>{
+  const before=(await admin.req('data')).products.find(p=>p.id===output.id);
+  id=(await packer.req('packing-orders',{orderDate:'2026-10-30',items:[{productId:output.id,quantity:1}]})).id;
+  await action(warehouse,'prepare',{inputs:[{productId:raw.id,quantity:1}]});await action(warehouse,'issue');await action(packer,'receive-materials');await action(packer,'send-processing');await action(worker,'accept');await action(worker,'finish',{defects:[{productId:output.id,faulty:1,reason:'Hỏng'}]});
+  await action(packer,'complete',{},400);assert.equal((await admin.req('data')).products.find(p=>p.id===output.id).faulty,before.faulty);
+  const outcomes=await Promise.all([action(warehouse,'confirm-defects',{},[200,409]),action(admin,'confirm-defects',{},[200,409])]);assert.deepEqual(outcomes.map(r=>r.status).sort(),[200,409]);
+  assert.equal((await admin.req('data')).products.find(p=>p.id===output.id).faulty,before.faulty+1);await action(packer,'complete');
+  const repair=await warehouse.req('movements',{operation:'send_repair',source:'faulty',items:[{productId:output.id,quantity:1}]});assert.ok(repair.receiptId);
+  const after=(await admin.req('data')).products.find(p=>p.id===output.id);assert.equal(after.faulty,before.faulty);assert.equal(after.stock,before.stock);assert.equal(after.repair,before.repair+1);
  });
 
 });
