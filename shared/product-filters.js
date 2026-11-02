@@ -3,6 +3,7 @@ export const emptyProductFilters={version:'',search:'',brand:'',vehicle:'',color
 const normalize=text=>String(text||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLocaleLowerCase('vi').trim();
 export function matchesProduct(product,filters){
  if(!product)return false;
+ if(filters.materialKind&&product.materialKind!==filters.materialKind)return false;
  if(filters.version&&(filters.version==='__none__'?!!product.version:(product.version||'')!==filters.version))return false;
  if(filters.brand&&product.brand!==filters.brand)return false;
  if(filters.size&&(filters.size==='none'?!!product.size:product.size!==filters.size))return false;
