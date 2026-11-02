@@ -4,7 +4,7 @@ export function BrandModelFilters({brands=[],categories=[],products=[],brand='',
  const names=[...new Set([...[...brands].sort((a,b)=>b.id-a.id).filter(b=>!b.locked).map(b=>b.name),...products.map(p=>p.brand).filter(Boolean)])];
  const selected=brands.find(b=>b.name===brand);
  const models=[...new Set([...[...categories].sort((a,b)=>b.id-a.id).filter(c=>c.type==='vehicle'&&!c.locked&&(!brand||c.brandId===selected?.id)).map(c=>c.name),...products.filter(p=>!brand||p.brand===brand).map(p=>p.vehicle).filter(Boolean)])];
- return <><label>Thương hiệu<select aria-label="Lọc thương hiệu" disabled={disabled} value={brand} onChange={e=>onChange(e.target.value,'')}><option value="">Tất cả thương hiệu</option>{names.map(name=><option key={name}>{name}</option>)}</select></label><label>Dòng sản phẩm<select aria-label="Lọc dòng sản phẩm" disabled={disabled} value={vehicle} onChange={e=>onChange(brand,e.target.value)}><option value="">Tất cả dòng sản phẩm</option>{models.map(name=><option key={name}>{name}</option>)}</select></label></>;
+ return <><label className="brand-filter-field">Thương hiệu<select aria-label="Lọc thương hiệu" disabled={disabled} value={brand} onChange={e=>onChange(e.target.value,'')}><option value="">Tất cả thương hiệu</option>{names.map(name=><option key={name}>{name}</option>)}</select></label><label className="model-filter-field">Dòng sản phẩm<select aria-label="Lọc dòng sản phẩm" disabled={disabled} value={vehicle} onChange={e=>onChange(brand,e.target.value)}><option value="">Tất cả dòng sản phẩm</option>{models.map(name=><option key={name}>{name}</option>)}</select></label></>;
 }
 
 export function ProductBrandFields({brands,categories,product}){
