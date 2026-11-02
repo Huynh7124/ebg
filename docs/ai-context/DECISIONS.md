@@ -1,0 +1,9 @@
+# Architecture Decisions
+
+Only record durable decisions with meaningful tradeoffs.
+
+## Template
+- Date: YYYY-MM-DD
+- Decision: ...
+- Reason: ...
+- Consequences: ...
