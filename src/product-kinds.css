@@ -23,3 +23,5 @@
  .receipt-product-filters label.brand-filter-field,
  .receipt-product-filters label.model-filter-field{grid-column:1 / -1}
 }
+
+.raw-inventory{min-width:220px}.raw-inventory details{margin-top:8px;font-size:12px}.raw-inventory summary{cursor:pointer;color:var(--red)}.raw-inventory details p{white-space:normal;max-width:440px;line-height:1.5}

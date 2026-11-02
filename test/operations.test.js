@@ -98,7 +98,7 @@ test('warehouse operations preserve quantities, snapshots, responsibility and du
   const preview=await admin.req('ops/import-xlsx/preview',payload);assert.equal(preview.errors.length,0);assert.equal(preview.count,3);assert.equal(preview.compositionCount,3);assert.equal(preview.rows.find(row=>row.name==='Ốc cấu tạo').materialKind,'raw');assert.equal(preview.rows.find(row=>row.name==='Cụm A').materialKind,'semi');assert.equal(preview.rows.find(row=>row.name==='Bộ X').materialKind,'finished');
   await admin.req('ops/import-xlsx',{...payload,confirmation:preview.digest});await admin.req('ops/import-xlsx',{...payload,confirmation:preview.digest},400);
   const imported=(await admin.req('data')).products,bolt=imported.find(product=>product.name==='Ốc cấu tạo'),semi=imported.find(product=>product.name==='Cụm A'),finished=imported.find(product=>product.name==='Bộ X');assert.ok(bolt.code.startsWith('SP-'));assert.equal(semi.composition.length,1);assert.equal(finished.composition.length,2);
-  await stock(bolt.id,100);await stock(semi.id,10);await stock(finished.id,5);const counted=await item(bolt.id);assert.deepEqual(counted.embedded,{loose:100,inSemi:20,inFinished:25,total:145});
+  await stock(bolt.id,100);await stock(semi.id,10);await stock(finished.id,5);const counted=await item(bolt.id);assert.deepEqual(counted.embedded,{loose:100,inSemi:20,inFinished:25,total:145});assert.deepEqual(counted.containedIn.map(row=>[row.productId,row.quantity]).sort((a,b)=>a[0]-b[0]),[[semi.id,20],[finished.id,25]].sort((a,b)=>a[0]-b[0]));
   const rough=await create('OPS-ROUGH','rough');await stock(rough,4);assert.equal((await item(rough)).stages.rough,4);
  });
  await t.test('TP/NVL workbook mapping separates same-name roles, saves sizes and preserves stock',async()=>{
