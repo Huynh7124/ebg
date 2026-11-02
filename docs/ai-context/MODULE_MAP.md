@@ -10,7 +10,7 @@ Verified 2026-11-02. Search symbols first; inspect only affected paths and calle
 | People/roles | `shared/roles.js`, `server/roles.js`, `src/Employees.jsx` | roleAccess, managesWarehouse, registerPeople |
 | Product filters/catalog | `src/ProductFilterPanel.jsx`, `src/ProductSearchFilters.jsx`, `src/BrandModelFields.jsx`, `shared/product-filters.js`, `src/CategoriesPage.jsx`, `server/brands.js` | matchesProduct, BrandModelFilters; /api/products-page in server.js |
 | Movements/Anode/repair | `server.js`, `shared/movements.js`, `src/MovementForm.jsx`, `src/ExternalWork.jsx` | /api/movements; /api/receipts/:id/complete |
-| Stage stock | `server/stock-stages.js`, `src/StockStages.jsx`, `shared/stock-stages.js` | changeStock, resolveStockStage, StageTransfer |
+| Stage stock | `server/stock-stages.js`, `src/StockStages.jsx`, `src/CompositionEditor.jsx`, `shared/stock-stages.js` | changeStock, resolveStockStage, StageTransfer; CompositionEditor saves reviewed BOMs via /api/ops/boms |
 | Packing/defects | `server/packing-orders.js`, `src/PackingOrders.jsx`, `src/PackingLinePicker.jsx` | setupPackingOrders; prepare, issue, accept, finish, confirm-defects, receive |
 | Stock work | `server/stock-work-orders.js`, `src/StockWorkOrders.jsx` | setupStockWorkOrders; claim, complete |
 | Operations/legacy | `server/operations.js`, `src/Operations.jsx`, `src/RoleOverview.jsx` | setupOperations; legacy requests, data import/export, role access |

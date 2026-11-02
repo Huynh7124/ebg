@@ -17,3 +17,6 @@ Verified against source on 2026-11-02. Source takes precedence over this map.
 - Printing: outbound/packing document helpers plus Labels in `src/Operations.jsx`; batch QR+name printing uses an iframe, A4 20 labels/page or roll layout. Printing does not mutate inventory.
 - Build: `npm run build` runs Vite and PWA asset generation. Service worker caches public assets, not API data; server connectivity is required for operations.
 - Checks: `npm test` uses node:test; `scripts/check-*.mjs` provide browser checks, generally against temporary databases. Build before production browser checks. Check scripts for dated fixtures before diagnosing a failure.
+
+- Reviewed composition editing: warehouse/Admin can copy a same-unit structure and replace component references in product details via CompositionEditor; existing BOM cycle checks/versioning apply. No automatic identity merge or stock adjustment.
+- Admin dashboard metrics open product or activity lists. Activity detail rows use the same timezone/period aggregation as totals; backlog lists represent current state.
