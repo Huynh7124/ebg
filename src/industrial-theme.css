@@ -2,6 +2,7 @@
 :root{--ebg-red:#c23538;--ebg-red-dark:#9f252b;--ebg-red-soft:#fff4f4;--ebg-ink:#202629;--ebg-muted:#65717a;--ebg-line:#e3e8e7;--ebg-surface-soft:#f7f9f8;--ebg-radius:12px}
 body,.app{background:#fff;color:var(--ebg-ink)}
 .sidebar{box-shadow:4px 0 18px #1c252b08;border-color:var(--ebg-line)}
+.logo-home-button{border:0;background:transparent;padding:0;cursor:pointer}.logo-home-button:hover{filter:none}.logo-home-button:focus-visible{outline:2px solid var(--ebg-red);outline-offset:5px}
 nav button{border:1px solid transparent;transition:background .16s,border-color .16s,color .16s}
 nav button:hover{background:var(--ebg-surface-soft);border-color:var(--ebg-line)}
 nav button.active{background:var(--ebg-red-soft);border-color:#f3d9da;color:var(--ebg-red-dark)}
