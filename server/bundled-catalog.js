@@ -4,7 +4,7 @@ import {changeStock} from './stock-stages.js';
 const normalize=value=>String(value||'').normalize('NFC').trim().replace(/\s+/g,' ').toLocaleLowerCase('vi');
 const identity=p=>[normalize(p.name),p.materialKind,normalize(p.unit)].join('|');
 export function importBundledCatalog(db,dataDir){
- const bundle=JSON.parse(readFileSync(new URL('../imports/catalog-2026-10-30.json',import.meta.url),'utf8'));
+ const bundle=JSON.parse(readFileSync(new URL('../imports/catalog-2026-11-03.json',import.meta.url),'utf8'));
  db.exec('CREATE TABLE IF NOT EXISTS bundled_catalog_imports(id TEXT PRIMARY KEY,report TEXT NOT NULL)');
  const done=db.prepare('SELECT report FROM bundled_catalog_imports WHERE id=?').get(bundle.id);if(done)return {...JSON.parse(done.report),alreadyImported:true};
  const report={source:bundle.id,created:0,matched:0,stockImported:0,compositions:0,review:[],warnings:bundle.warnings};
@@ -12,15 +12,26 @@ export function importBundledCatalog(db,dataDir){
  if(existing.length){mkdirSync(join(dataDir,'backups'),{recursive:true});report.backup=join(dataDir,'backups',`before-catalog-${Date.now()}.db`);db.prepare('VACUUM INTO ?').run(report.backup)}
  db.exec('BEGIN IMMEDIATE');
  try{
+  if(bundle.replace){
+   // This catalog is an explicit full replacement. Keep accounts and settings,
+   // but remove product-related records so no old rows leak into filters or stock.
+   for(const table of ['product_stage_stock','stock_stage_context','stage_transfers','ops_boms','ops_purchases','ops_requests','ops_events','movements','receipts','packing_orders','products']){
+    if(db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?").get(table))db.exec(`DELETE FROM ${table}`);
+   }
+   if(db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='audit'").get())db.exec('DELETE FROM audit');
+   report.replaced=true;
+   existing.length=0;
+   index.clear();
+  }
   for(const [name,type] of [['sourceType',"TEXT NOT NULL DEFAULT ''"],['catalogNotes',"TEXT NOT NULL DEFAULT ''"]])if(!db.prepare('PRAGMA table_info(products)').all().some(c=>c.name===name))db.exec(`ALTER TABLE products ADD COLUMN ${name} ${type}`);
   const ids=new Map(),now=new Date().toISOString();
   for(const row of bundle.rows){
-   const matches=index.get(identity(row))||[];if(matches.length>1){report.review.push({name:row.name,reason:'Nhiều sản phẩm hiện có cùng tên/loại/đơn vị; chưa nhập dòng này'});continue}
+   const matches=bundle.replace?[]:(index.get(identity(row))||[]);if(matches.length>1){report.review.push({name:row.name,reason:'Nhiều sản phẩm hiện có cùng tên/loại/đơn vị; chưa nhập dòng này'});continue}
    let product=matches[0],created=false;
    const brand=db.prepare('SELECT id FROM brands WHERE name=? COLLATE NOCASE').get(row.brand);
    if(!product){
     db.prepare('INSERT OR IGNORE INTO categories(name,type) VALUES(?,?)').run(row.category,'accessory');
-    const id=Number(db.prepare("INSERT INTO products(name,code,category,vehicle,color,stock,min,materialKind,unit,location,size,version,brandId,sourceType,catalogNotes) VALUES(?,?,?,?,?,0,0,?,?,'Kho chính',?,?,?,?,?)").run(row.name,row.code,row.category,row.vehicle,row.color,row.materialKind,row.unit,row.size,row.version,brand?.id||null,row.sourceType||'',row.packaging.join('\n')).lastInsertRowid);
+    const id=Number(db.prepare("INSERT INTO products(name,code,category,vehicle,color,stock,min,materialKind,unit,location,size,version,brandId,sourceType,catalogNotes) VALUES(?,?,?,?,?,0,?, ?,?,'Kho chính',?,?,?,?,?)").run(row.name,row.code,row.category,row.vehicle,row.color,row.min??5,row.materialKind,row.unit,row.size,row.version,brand?.id||null,row.sourceType||'',row.packaging.join('\n')).lastInsertRowid);
     product=db.prepare('SELECT * FROM products WHERE id=?').get(id);index.set(identity(row),[product]);created=true;report.created++;
    }else{
     report.matched++;
