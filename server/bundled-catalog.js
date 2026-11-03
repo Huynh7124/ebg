@@ -18,6 +18,7 @@ export function importBundledCatalog(db,dataDir){
    for(const table of ['product_stage_stock','stock_stage_context','stage_transfers','ops_boms','ops_purchases','ops_requests','ops_events','movements','receipts','packing_orders','products']){
     if(db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?").get(table))db.exec(`DELETE FROM ${table}`);
    }
+   if(db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='categories'").get())db.exec("DELETE FROM categories WHERE type='accessory'");
    if(db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='audit'").get())db.exec('DELETE FROM audit');
    report.replaced=true;
    existing.length=0;
