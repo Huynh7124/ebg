@@ -47,3 +47,20 @@ table th{background:var(--ebg-surface-soft);color:#4e5b63;border-color:var(--ebg
 @media(max-width:380px){.header-logo .brand{width:80px}.header-right{gap:3px}.header-right .bell,.header-right .avatar.small,.header-account,.header-logout,.header-right:has(.header-account:focus) .header-logout,.header-right:has(.header-logout:focus) .header-logout{width:36px;min-width:36px;height:36px;min-height:36px}.top-nav{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:700px){.dash-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.dash-metric{padding:13px;min-height:112px}.dash-metric>.dash-drill>div{min-height:28px;gap:5px}.dash-metric>.dash-drill>div>span{font-size:10px;line-height:1.35}.dash-metric .dash-drill svg{display:none}.dash-metric>.dash-drill>strong{font-size:26px;margin:11px 0 6px}.dash-metric>.dash-drill>p{font-size:9px;line-height:1.45;overflow-wrap:anywhere}}
 @media(max-width:360px){.dash-metrics{gap:6px}.dash-metric{padding:11px}.dash-metric>.dash-drill>div>span{font-size:9px}.dash-metric>.dash-drill>strong{font-size:23px}}
+@media(max-width:700px){
+ .dash-panel-heading{align-items:flex-start;flex-direction:column;gap:8px}
+ .dash-panel-heading h3{font-size:14px;line-height:1.45}
+ .dash-panel-heading>.text-button{font-size:10px;align-self:flex-start}
+ .dash-alert-list>div{align-items:flex-start;flex-direction:column;gap:8px;padding:13px 0}
+ .dash-alert-list>div>span:first-child{min-width:0;width:100%}
+ .dash-alert-list>div>span:last-child{align-self:flex-start;font-size:11px;padding:5px 9px}
+ .notification-backdrop .modal{width:calc(100% - 20px);right:10px;max-width:none;border-radius:12px}
+ .notification-backdrop .modal-header{padding:14px 16px}
+ .notification-backdrop .modal-header h2{font-size:17px}
+ .notification-backdrop .modal>.form-hint{padding:12px 16px;font-size:11px;line-height:1.6}
+ .notification-backdrop .attention-row{padding:14px 16px;gap:9px;align-items:flex-start}
+ .notification-backdrop .attention-row>div{width:100%;min-width:0}
+ .notification-backdrop .attention-row b{font-size:12px;line-height:1.5;overflow-wrap:anywhere}
+ .notification-backdrop .attention-row small{font-size:10px;line-height:1.5}
+ .notification-backdrop .attention-row .secondary{align-self:flex-start;font-size:11px;padding:8px 10px;min-height:36px}
+}
