@@ -1,6 +1,6 @@
 import {managesWarehouse} from '../shared/roles.js';
 export const stockStages=['rough','raw','semi','finished','unclassified'];
-export const stageNames={rough:'Hàng thô',raw:'NVL',semi:'BTP',finished:'TP',unclassified:'Chưa phân loại'};
+export const stageNames={rough:'Hàng CNC',raw:'NVL',semi:'BTP',finished:'TP',unclassified:'Chưa phân loại'};
 const fail=message=>{throw Object.assign(Error(message),{status:400})};
 export function resolveStockStage(db,pid,delta,stage){
  if(stage!==undefined&&stage!==null&&stage!==''){if(!stockStages.includes(stage))fail('Giai đoạn tồn không hợp lệ');return stage}

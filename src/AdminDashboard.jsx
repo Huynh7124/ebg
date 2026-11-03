@@ -5,7 +5,7 @@ import './admin-dashboard.css';
 
 const number=value=>Number(value)||0;
 const format=value=>value.toLocaleString('vi-VN');
-const stages=[['rough','Hàng thô','#64748b'],['unclassified','Chưa phân loại','#94a3b8'],['raw','Nguyên vật liệu','#b8343a'],['semi','Bán thành phẩm','#d89b35'],['finished','Thành phẩm','#32816a']];
+const stages=[['rough','Hàng CNC','#64748b'],['unclassified','Chưa phân loại','#94a3b8'],['raw','Nguyên vật liệu','#b8343a'],['semi','Bán thành phẩm','#d89b35'],['finished','Thành phẩm','#32816a']];
 
 export default function AdminDashboard({products:realProducts,receipts:realReceipts,onProducts,api}){
  const [unit,setUnit]=useState(''),[demo,setDemo]=useState(null),[demoLoading,setDemoLoading]=useState(false),[demoError,setDemoError]=useState('');
