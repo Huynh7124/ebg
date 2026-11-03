@@ -1,5 +1,6 @@
 export const movementTypes={
  receive_cnc:{label:'Nhập từ CNC',kind:'in',bucket:'stock'},
+ receive_anode:{label:'Nhập hàng Anode về',kind:'in',bucket:'stock'},
  receive_repair:{label:'Nhập sửa',kind:'in',bucket:'stock'},
  receive_stock:{label:'Nhập hàng',kind:'in',bucket:'stock'},
  receive_faulty:{label:'Nhập lỗi',kind:'in',bucket:'faulty'},

@@ -145,6 +145,7 @@ app.post('/api/movements',(req,res)=>{
   for(const line of lines){
    const p=db.prepare('SELECT * FROM products WHERE id=?').get(line.productId);
    if(!p||p.locked){db.exec('ROLLBACK');return res.status(400).json({error:`Sản phẩm #${line.productId} không tồn tại hoặc đã khóa`})}
+   if(operation==='receive_anode'&&!p.rawProductId){db.exec('ROLLBACK');return res.status(400).json({error:`${p.code}: nhập Anode về cần chọn mã màu đã liên kết mã thô nguồn`})}
    if(type.kind==='out'&&p[repairFaulty?'faulty':'stock']<line.quantity){db.exec('ROLLBACK');return res.status(400).json({error:`${p.code}: chỉ còn ${p.stock}, không đủ xuất ${line.quantity}`})}
    if((type.kind==='in'||waiting)&&!Number.isSafeInteger(p[type.bucket]+line.quantity)||stockWork&&!Number.isSafeInteger(p.inProduction+line.quantity)){db.exec('ROLLBACK');return res.status(400).json({error:`${p.code}: số lượng vượt giới hạn`})}
    if(!repairFaulty&&(type.bucket==='stock'||type.kind==='out'))line.stage=resolveStockStage(db,p.id,type.kind==='in'?line.quantity:-line.quantity,line.stage);
