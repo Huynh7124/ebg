@@ -31,10 +31,11 @@ table th{background:var(--ebg-surface-soft);color:#4e5b63;border-color:var(--ebg
  .main>header{column-gap:8px;padding-inline:12px}
  .header-logo .brand{width:92px}
  .header-right{display:flex;justify-content:flex-end;align-items:center;gap:4px}
+ .app-role-admin .header-right,.app-role-warehouse .header-right{position:static;grid-column:2;grid-row:1;align-self:center}
  .header-reload{display:none}
  .header-right .bell,.header-right .avatar.small,.header-account,.header-logout,.header-right:has(.header-account:focus) .header-logout,.header-right:has(.header-logout:focus) .header-logout{width:38px;min-width:38px;height:38px;min-height:38px;margin:0;padding:0}
  .header-right .bell svg,.header-account svg,.header-logout svg{width:18px;height:18px}
- .header-stock-actions{left:12px;right:12px;bottom:8px;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+ .app-role-admin .header-stock-actions,.app-role-warehouse .header-stock-actions{position:absolute;left:12px;right:12px;bottom:8px;width:auto;display:grid;grid-template-columns:1fr 1fr;gap:6px;z-index:2}
  .header-stock-actions button{width:100%;height:38px;min-height:38px;padding:0;justify-content:center}
  .top-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));overflow:hidden;width:100%;padding:6px 8px;gap:4px}
  .top-nav button,.top-nav button:first-child,.top-nav button:last-child{width:100%;min-width:0;min-height:48px;margin:0;padding:7px 3px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;line-height:1.2}
