@@ -5,7 +5,7 @@ import catalog from './dashboard-demo-catalog.json' with {type:'json'};
 export function createDemoInventory(){
  const products=catalog.map((p,index)=>{
   const stock=index%13===0?0:index%7===0?4:25+(index*17)%240;
-  const stages={rough:0,unclassified:0,raw:0,semi:0,finished:0};
+  const stages={blank:0,rough:0,unclassified:0,raw:0,semi:0,finished:0};
   stages[p.materialKind]=stock;
   if(p.materialKind==='raw'&&index%4===0){stages.semi=Math.floor(stock/3);stages.raw-=stages.semi}
   return {...p,id:index+1,code:`DEMO-${index+1}`,stock,stages,min:10,locked:0,faulty:index%11===0?3:0,anote:index%9===0?12:0,repair:index%17===0?5:0,inProduction:index%6===0?18:0};
