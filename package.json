@@ -19,6 +19,9 @@
     "test:stock-work": "node scripts/check-stock-work.mjs",
     "test:webcam-qr": "node scripts/check-webcam-qr.mjs",
     "test:qr": "node scripts/check-qr.mjs",
+    "firebase:emulators": "node ./node_modules/firebase-tools/lib/bin/firebase.js emulators:start --project demo-ebg --import=.firebase-data --export-on-exit=.firebase-data",
+    "firebase:import": "node scripts/firebase-import.mjs",
+    "firebase:deploy": "npm run build && node ./node_modules/firebase-tools/lib/bin/firebase.js deploy",
     "backup": "node scripts/backup-database.mjs",
     "backup:restore": "node scripts/restore-backup.mjs",
     "import:kho-ebg": "node scripts/import-kho-ebg.mjs"
@@ -42,6 +45,7 @@
     "express": "^5.3.0",
     "express-rate-limit": "^8.7.1",
     "express-session": "^1.19.0",
+    "firebase": "^13.2.0",
     "helmet": "^8.3.0",
     "lucide-react": "^1.61.0",
     "react": "^19.3.1",
@@ -49,6 +53,8 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",
+    "firebase-admin": "^13.7.0",
+    "firebase-tools": "^15.34.2",
     "vite": "^8.3.5"
   }
 }
