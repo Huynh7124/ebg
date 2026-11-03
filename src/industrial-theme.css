@@ -63,4 +63,9 @@ table th{background:var(--ebg-surface-soft);color:#4e5b63;border-color:var(--ebg
  .notification-backdrop .attention-row b{font-size:12px;line-height:1.5;overflow-wrap:anywhere}
  .notification-backdrop .attention-row small{font-size:10px;line-height:1.5}
  .notification-backdrop .attention-row .secondary{align-self:flex-start;font-size:11px;padding:8px 10px;min-height:36px}
+ .role-overview-admin .ops-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .role-overview-admin .ops-metrics button{display:block;min-height:104px;padding:14px;text-align:left}
+ .role-overview-admin .ops-metrics button span{display:block;font-size:10px;line-height:1.45;min-height:28px}
+ .role-overview-admin .ops-metrics button strong{display:block;font-size:28px;line-height:1;margin-top:12px}
+ .role-overview-admin .ops-metrics button svg{display:none}
 }
