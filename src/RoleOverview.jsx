@@ -1,5 +1,5 @@
 import React from 'react';
-import {AlertTriangle,ArrowRight,ClipboardList,Package,PackageX,ShieldCheck,Users} from 'lucide-react';
+import {AlertTriangle,ArrowRight,Package,PackageX,ShieldCheck,Users} from 'lucide-react';
 import {roleNames} from '../shared/roles.js';
 
 function Shortcuts({items}){
@@ -19,11 +19,6 @@ export default function RoleOverview({role,data,products,onNavigate,onTab}){
  </div>;
  if(role==='warehouse'){const activeProducts=products.filter(product=>!product.locked),empty=activeProducts.filter(product=>Number(product.stock)===0),low=activeProducts.filter(product=>Number(product.stock)>0&&Number(product.stock)<=Number(product.min));return <div className="role-overview role-overview-warehouse">
   <section className="ops-panel warehouse-morning-alert"><div className="ops-section-heading"><div><h3>Kiểm tra đầu ngày</h3><p>Ưu tiên nhập hoặc điều chuyển các mã đã chạm mức tồn tối thiểu.</p></div></div><div className="warehouse-alert-metrics"><button type="button" className="warehouse-alert-empty" onClick={()=>onNavigate('products','empty')}><PackageX size={19}/><span>Hết hàng</span><b>{empty.length}</b><small>mã sản phẩm</small></button><button type="button" className="warehouse-alert-low" onClick={()=>onNavigate('products','low')}><AlertTriangle size={19}/><span>Sắp hết</span><b>{low.length}</b><small>mã sản phẩm</small></button></div>{[...empty,...low].slice(0,6).map(product=><div className="ops-summary-row" key={product.id}><span><b>{product.name}</b><small>{product.code} · Còn {product.stock} / tối thiểu {product.min} {product.unit}</small></span><button className="text-button" onClick={()=>onNavigate('products',Number(product.stock)===0?'empty':'low')}>Xem</button></div>)}{!empty.length&&!low.length&&<div className="role-empty">Tồn kho hiện chưa có mã nào cần bổ sung.</div>}<button className="secondary" onClick={()=>onNavigate('products')}>Xem toàn bộ tồn kho</button></section>
-  <Shortcuts items={[
-   {label:'Nhập kho',detail:'Ghi nhận hàng thực nhận',Icon:Package,onClick:()=>onNavigate('in')},
-   {label:'Xuất kho',detail:'Tạo, xem và in phiếu xuất',Icon:ClipboardList,onClick:()=>onNavigate('out')},
-   {label:'Quản lý nhân viên',detail:'Tài khoản và vai trò nhân viên',Icon:Users,onClick:()=>onNavigate('employees')}
-  ]}/>
  </div>}
  return null;
 }
