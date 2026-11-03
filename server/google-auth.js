@@ -27,7 +27,8 @@ export function registerGoogleAuth(app,db,{publicUser,normalizeEmail,config=goog
    const profileResponse=await fetcher(userInfoUrl,{headers:{authorization:'Bearer '+token.access_token}}),profile=await profileResponse.json();
    const email=normalizeEmail(profile.email);if(!profileResponse.ok||!email||profile.email_verified!==true)return fail(res,'Gmail chưa được Google xác minh.');
    const user=db.prepare('SELECT id,name,role,locked FROM users WHERE email=? COLLATE NOCASE').get(email);
-   if(!user||user.locked)return fail(res,'Gmail này chưa được Admin hoặc nhân viên kho cấp quyền.');
+   if(!user){db.prepare("INSERT INTO google_access_requests(name,email,requestedAt) VALUES(?,?,?) ON CONFLICT(email) DO UPDATE SET name=excluded.name,requestedAt=excluded.requestedAt").run(String(profile.name||email).trim().slice(0,100)||email,email,new Date().toISOString());return fail(res,'Gmail này chưa được cấp quyền. Yêu cầu đã được gửi để Admin hoặc nhân viên kho duyệt.');}
+   if(user.locked)return fail(res,'Tài khoản này đang bị khóa. Vui lòng liên hệ Admin hoặc nhân viên kho.');
    req.session.regenerate(error=>{if(error)return fail(res,'Không thể tạo phiên đăng nhập.');req.session.user={id:user.id,name:user.name,role:user.role};req.session.csrf=randomBytes(24).toString('hex');res.redirect('/')});
   }catch{return fail(res,'Không thể xác minh tài khoản Google. Vui lòng thử lại.')}
  });

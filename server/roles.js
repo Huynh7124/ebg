@@ -42,5 +42,14 @@ export function registerPeople(app,db,audit,bcrypt,normalizeEmail,validEmail,{pa
   const u=db.prepare('SELECT * FROM users WHERE id=?').get(req.params.id);if(!u)return res.status(404).json({error:'Không tìm thấy nhân viên'});if(!mayTarget(req,u))return res.status(403).json({error:'Nhân viên kho không được khóa hoặc mở khóa Admin'});if(!u.locked&&(lastAdmin(u)||u.id===req.session.user.id))return res.status(400).json({error:'Không khóa chính mình hoặc Admin hoạt động cuối cùng'});
   db.prepare('UPDATE users SET locked=? WHERE id=?').run(u.locked?0:1,u.id);if(!u.locked)db.prepare("DELETE FROM sessions WHERE json_extract(data,'$.user.id')=?").run(u.id);audit(req,`${u.locked?'Mở khóa':'Khóa'} nhân viên ${u.username}`);res.json({ok:true});
  });
+ app.post('/api/google-access-requests/:id/approve',guard,(req,res)=>{
+  const request=db.prepare('SELECT * FROM google_access_requests WHERE id=?').get(req.params.id);if(!request)return res.status(404).json({error:'Không tìm thấy yêu cầu đăng nhập Google'});
+  const result=cleanRole(req,req.body.role);if(result.error)return res.status(result.status).json({error:result.error});
+  if(db.prepare('SELECT id FROM users WHERE email=? COLLATE NOCASE').get(request.email))return res.status(400).json({error:'Gmail này đã có tài khoản. Hãy quản lý tại danh sách nhân viên.'});
+  db.exec('BEGIN IMMEDIATE');try{const username=`google-${request.id}`,password=bcrypt.hashSync(randomBytes(24).toString('base64url'),12);db.prepare('INSERT INTO users(name,username,email,password,role) VALUES(?,?,?,?,?)').run(request.name,username,request.email,password,result.role);db.prepare('DELETE FROM google_access_requests WHERE id=?').run(request.id);audit(req,`Duyệt Gmail ${request.email} (${result.role})`);db.exec('COMMIT');res.json({ok:true})}catch{db.exec('ROLLBACK');res.status(400).json({error:'Không thể duyệt Gmail này. Vui lòng thử lại.'})}
+ });
+ app.post('/api/google-access-requests/:id/reject',guard,(req,res)=>{
+  const request=db.prepare('SELECT * FROM google_access_requests WHERE id=?').get(req.params.id);if(!request)return res.status(404).json({error:'Không tìm thấy yêu cầu đăng nhập Google'});db.prepare('DELETE FROM google_access_requests WHERE id=?').run(request.id);audit(req,`Từ chối Gmail ${request.email}`);res.json({ok:true});
+ });
  return list;
 }
