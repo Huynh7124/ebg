@@ -1,5 +1,5 @@
 {
-  "id": "csv-v4-bom-tong-hop-2026-11-04",
+  "id": "csv-v4-bom-direct-nvl-tp-2026-11-04",
   "rows": [
     {
       "key": "csv-1",
@@ -27335,14 +27335,6 @@
       "key": "bom-730",
       "lines": [
         {
-          "key": "bom-731",
-          "quantity": 1
-        },
-        {
-          "key": "bom-732",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
         }
@@ -27351,14 +27343,6 @@
     {
       "key": "bom-734",
       "lines": [
-        {
-          "key": "bom-735",
-          "quantity": 1
-        },
-        {
-          "key": "bom-736",
-          "quantity": 1
-        },
         {
           "key": "bom-733",
           "quantity": 4
@@ -27369,14 +27353,6 @@
       "key": "bom-737",
       "lines": [
         {
-          "key": "bom-738",
-          "quantity": 1
-        },
-        {
-          "key": "bom-739",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
         }
@@ -27385,14 +27361,6 @@
     {
       "key": "bom-740",
       "lines": [
-        {
-          "key": "bom-741",
-          "quantity": 1
-        },
-        {
-          "key": "bom-742",
-          "quantity": 1
-        },
         {
           "key": "bom-733",
           "quantity": 4
@@ -27403,14 +27371,6 @@
       "key": "bom-743",
       "lines": [
         {
-          "key": "bom-744",
-          "quantity": 1
-        },
-        {
-          "key": "bom-745",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
         }
@@ -27419,14 +27379,6 @@
     {
       "key": "bom-746",
       "lines": [
-        {
-          "key": "bom-747",
-          "quantity": 1
-        },
-        {
-          "key": "bom-748",
-          "quantity": 1
-        },
         {
           "key": "bom-733",
           "quantity": 4
@@ -27437,14 +27389,6 @@
       "key": "bom-749",
       "lines": [
         {
-          "key": "bom-750",
-          "quantity": 1
-        },
-        {
-          "key": "bom-751",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
         }
@@ -27453,14 +27397,6 @@
     {
       "key": "bom-752",
       "lines": [
-        {
-          "key": "bom-731",
-          "quantity": 1
-        },
-        {
-          "key": "bom-753",
-          "quantity": 1
-        },
         {
           "key": "bom-733",
           "quantity": 4
@@ -27471,14 +27407,6 @@
       "key": "bom-754",
       "lines": [
         {
-          "key": "bom-735",
-          "quantity": 1
-        },
-        {
-          "key": "bom-755",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
         }
@@ -27487,14 +27415,6 @@
     {
       "key": "bom-756",
       "lines": [
-        {
-          "key": "bom-738",
-          "quantity": 1
-        },
-        {
-          "key": "bom-757",
-          "quantity": 1
-        },
         {
           "key": "bom-733",
           "quantity": 4
@@ -27505,14 +27425,6 @@
       "key": "bom-758",
       "lines": [
         {
-          "key": "bom-741",
-          "quantity": 1
-        },
-        {
-          "key": "bom-759",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
         }
@@ -27521,14 +27433,6 @@
     {
       "key": "bom-760",
       "lines": [
-        {
-          "key": "bom-744",
-          "quantity": 1
-        },
-        {
-          "key": "bom-761",
-          "quantity": 1
-        },
         {
           "key": "bom-733",
           "quantity": 4
@@ -27539,14 +27443,6 @@
       "key": "bom-762",
       "lines": [
         {
-          "key": "bom-747",
-          "quantity": 1
-        },
-        {
-          "key": "bom-763",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
         }
@@ -27555,14 +27451,6 @@
     {
       "key": "bom-764",
       "lines": [
-        {
-          "key": "bom-750",
-          "quantity": 1
-        },
-        {
-          "key": "bom-765",
-          "quantity": 1
-        },
         {
           "key": "bom-733",
           "quantity": 4
@@ -27573,14 +27461,6 @@
       "key": "bom-766",
       "lines": [
         {
-          "key": "bom-767",
-          "quantity": 1
-        },
-        {
-          "key": "bom-732",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
         }
@@ -27589,14 +27469,6 @@
     {
       "key": "bom-768",
       "lines": [
-        {
-          "key": "bom-769",
-          "quantity": 1
-        },
-        {
-          "key": "bom-736",
-          "quantity": 1
-        },
         {
           "key": "bom-733",
           "quantity": 4
@@ -27607,14 +27479,6 @@
       "key": "bom-770",
       "lines": [
         {
-          "key": "bom-771",
-          "quantity": 1
-        },
-        {
-          "key": "bom-739",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
         }
@@ -27623,14 +27487,6 @@
     {
       "key": "bom-772",
       "lines": [
-        {
-          "key": "bom-773",
-          "quantity": 1
-        },
-        {
-          "key": "bom-742",
-          "quantity": 1
-        },
         {
           "key": "bom-733",
           "quantity": 4
@@ -27641,14 +27497,6 @@
       "key": "bom-774",
       "lines": [
         {
-          "key": "bom-775",
-          "quantity": 1
-        },
-        {
-          "key": "bom-745",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
         }
@@ -27657,14 +27505,6 @@
     {
       "key": "bom-776",
       "lines": [
-        {
-          "key": "bom-777",
-          "quantity": 1
-        },
-        {
-          "key": "bom-748",
-          "quantity": 1
-        },
         {
           "key": "bom-733",
           "quantity": 4
@@ -27675,14 +27515,6 @@
       "key": "bom-778",
       "lines": [
         {
-          "key": "bom-779",
-          "quantity": 1
-        },
-        {
-          "key": "bom-751",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
         }
@@ -27691,14 +27523,6 @@
     {
       "key": "bom-780",
       "lines": [
-        {
-          "key": "bom-767",
-          "quantity": 1
-        },
-        {
-          "key": "bom-753",
-          "quantity": 1
-        },
         {
           "key": "bom-733",
           "quantity": 4
@@ -27709,14 +27533,6 @@
       "key": "bom-781",
       "lines": [
         {
-          "key": "bom-769",
-          "quantity": 1
-        },
-        {
-          "key": "bom-755",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
         }
@@ -27725,14 +27541,6 @@
     {
       "key": "bom-782",
       "lines": [
-        {
-          "key": "bom-771",
-          "quantity": 1
-        },
-        {
-          "key": "bom-757",
-          "quantity": 1
-        },
         {
           "key": "bom-733",
           "quantity": 4
@@ -27743,14 +27551,6 @@
       "key": "bom-783",
       "lines": [
         {
-          "key": "bom-773",
-          "quantity": 1
-        },
-        {
-          "key": "bom-759",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
         }
@@ -27759,14 +27559,6 @@
     {
       "key": "bom-784",
       "lines": [
-        {
-          "key": "bom-775",
-          "quantity": 1
-        },
-        {
-          "key": "bom-761",
-          "quantity": 1
-        },
         {
           "key": "bom-733",
           "quantity": 4
@@ -27777,14 +27569,6 @@
       "key": "bom-785",
       "lines": [
         {
-          "key": "bom-777",
-          "quantity": 1
-        },
-        {
-          "key": "bom-763",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
         }
@@ -27793,14 +27577,6 @@
     {
       "key": "bom-786",
       "lines": [
-        {
-          "key": "bom-779",
-          "quantity": 1
-        },
-        {
-          "key": "bom-765",
-          "quantity": 1
-        },
         {
           "key": "bom-733",
           "quantity": 4
@@ -27811,14 +27587,6 @@
       "key": "bom-787",
       "lines": [
         {
-          "key": "bom-788",
-          "quantity": 1
-        },
-        {
-          "key": "bom-732",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
         }
@@ -27827,14 +27595,6 @@
     {
       "key": "bom-789",
       "lines": [
-        {
-          "key": "bom-790",
-          "quantity": 1
-        },
-        {
-          "key": "bom-736",
-          "quantity": 1
-        },
         {
           "key": "bom-733",
           "quantity": 4
@@ -27845,14 +27605,6 @@
       "key": "bom-791",
       "lines": [
         {
-          "key": "bom-792",
-          "quantity": 1
-        },
-        {
-          "key": "bom-739",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
         }
@@ -27861,14 +27613,6 @@
     {
       "key": "bom-793",
       "lines": [
-        {
-          "key": "bom-794",
-          "quantity": 1
-        },
-        {
-          "key": "bom-742",
-          "quantity": 1
-        },
         {
           "key": "bom-733",
           "quantity": 4
@@ -27879,14 +27623,6 @@
       "key": "bom-795",
       "lines": [
         {
-          "key": "bom-796",
-          "quantity": 1
-        },
-        {
-          "key": "bom-745",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
         }
@@ -27895,14 +27631,6 @@
     {
       "key": "bom-797",
       "lines": [
-        {
-          "key": "bom-798",
-          "quantity": 1
-        },
-        {
-          "key": "bom-748",
-          "quantity": 1
-        },
         {
           "key": "bom-733",
           "quantity": 4
@@ -27913,14 +27641,6 @@
       "key": "bom-799",
       "lines": [
         {
-          "key": "bom-800",
-          "quantity": 1
-        },
-        {
-          "key": "bom-751",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
         }
@@ -27929,14 +27649,6 @@
     {
       "key": "bom-801",
       "lines": [
-        {
-          "key": "bom-788",
-          "quantity": 1
-        },
-        {
-          "key": "bom-753",
-          "quantity": 1
-        },
         {
           "key": "bom-733",
           "quantity": 4
@@ -27947,14 +27659,6 @@
       "key": "bom-802",
       "lines": [
         {
-          "key": "bom-790",
-          "quantity": 1
-        },
-        {
-          "key": "bom-755",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
         }
@@ -27963,14 +27667,6 @@
     {
       "key": "bom-803",
       "lines": [
-        {
-          "key": "bom-792",
-          "quantity": 1
-        },
-        {
-          "key": "bom-757",
-          "quantity": 1
-        },
         {
           "key": "bom-733",
           "quantity": 4
@@ -27981,14 +27677,6 @@
       "key": "bom-804",
       "lines": [
         {
-          "key": "bom-794",
-          "quantity": 1
-        },
-        {
-          "key": "bom-759",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
         }
@@ -27997,14 +27685,6 @@
     {
       "key": "bom-805",
       "lines": [
-        {
-          "key": "bom-796",
-          "quantity": 1
-        },
-        {
-          "key": "bom-761",
-          "quantity": 1
-        },
         {
           "key": "bom-733",
           "quantity": 4
@@ -28015,14 +27695,6 @@
       "key": "bom-806",
       "lines": [
         {
-          "key": "bom-798",
-          "quantity": 1
-        },
-        {
-          "key": "bom-763",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
         }
@@ -28031,14 +27703,6 @@
     {
       "key": "bom-807",
       "lines": [
-        {
-          "key": "bom-800",
-          "quantity": 1
-        },
-        {
-          "key": "bom-765",
-          "quantity": 1
-        },
         {
           "key": "bom-733",
           "quantity": 4
@@ -28049,14 +27713,6 @@
       "key": "bom-808",
       "lines": [
         {
-          "key": "bom-809",
-          "quantity": 1
-        },
-        {
-          "key": "bom-732",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
         }
@@ -28065,14 +27721,6 @@
     {
       "key": "bom-810",
       "lines": [
-        {
-          "key": "bom-811",
-          "quantity": 1
-        },
-        {
-          "key": "bom-736",
-          "quantity": 1
-        },
         {
           "key": "bom-733",
           "quantity": 4
@@ -28083,14 +27731,6 @@
       "key": "bom-812",
       "lines": [
         {
-          "key": "bom-813",
-          "quantity": 1
-        },
-        {
-          "key": "bom-739",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
         }
@@ -28099,14 +27739,6 @@
     {
       "key": "bom-814",
       "lines": [
-        {
-          "key": "bom-815",
-          "quantity": 1
-        },
-        {
-          "key": "bom-742",
-          "quantity": 1
-        },
         {
           "key": "bom-733",
           "quantity": 4
@@ -28117,14 +27749,6 @@
       "key": "bom-816",
       "lines": [
         {
-          "key": "bom-817",
-          "quantity": 1
-        },
-        {
-          "key": "bom-745",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
         }
@@ -28133,14 +27757,6 @@
     {
       "key": "bom-818",
       "lines": [
-        {
-          "key": "bom-819",
-          "quantity": 1
-        },
-        {
-          "key": "bom-748",
-          "quantity": 1
-        },
         {
           "key": "bom-733",
           "quantity": 4
@@ -28151,14 +27767,6 @@
       "key": "bom-820",
       "lines": [
         {
-          "key": "bom-821",
-          "quantity": 1
-        },
-        {
-          "key": "bom-751",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
         }
@@ -28167,14 +27775,6 @@
     {
       "key": "bom-822",
       "lines": [
-        {
-          "key": "bom-809",
-          "quantity": 1
-        },
-        {
-          "key": "bom-753",
-          "quantity": 1
-        },
         {
           "key": "bom-733",
           "quantity": 4
@@ -28185,14 +27785,6 @@
       "key": "bom-823",
       "lines": [
         {
-          "key": "bom-811",
-          "quantity": 1
-        },
-        {
-          "key": "bom-755",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
         }
@@ -28201,14 +27793,6 @@
     {
       "key": "bom-824",
       "lines": [
-        {
-          "key": "bom-813",
-          "quantity": 1
-        },
-        {
-          "key": "bom-757",
-          "quantity": 1
-        },
         {
           "key": "bom-733",
           "quantity": 4
@@ -28219,14 +27803,6 @@
       "key": "bom-825",
       "lines": [
         {
-          "key": "bom-815",
-          "quantity": 1
-        },
-        {
-          "key": "bom-759",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
         }
@@ -28235,14 +27811,6 @@
     {
       "key": "bom-826",
       "lines": [
-        {
-          "key": "bom-817",
-          "quantity": 1
-        },
-        {
-          "key": "bom-761",
-          "quantity": 1
-        },
         {
           "key": "bom-733",
           "quantity": 4
@@ -28253,14 +27821,6 @@
       "key": "bom-827",
       "lines": [
         {
-          "key": "bom-819",
-          "quantity": 1
-        },
-        {
-          "key": "bom-763",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
         }
@@ -28269,14 +27829,6 @@
     {
       "key": "bom-828",
       "lines": [
-        {
-          "key": "bom-821",
-          "quantity": 1
-        },
-        {
-          "key": "bom-765",
-          "quantity": 1
-        },
         {
           "key": "bom-733",
           "quantity": 4
@@ -28287,20 +27839,8 @@
       "key": "bom-829",
       "lines": [
         {
-          "key": "bom-731",
-          "quantity": 1
-        },
-        {
-          "key": "bom-830",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-831",
-          "quantity": 1
         }
       ]
     },
@@ -28308,20 +27848,8 @@
       "key": "bom-832",
       "lines": [
         {
-          "key": "bom-735",
-          "quantity": 1
-        },
-        {
-          "key": "bom-833",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-831",
-          "quantity": 1
         }
       ]
     },
@@ -28329,20 +27857,8 @@
       "key": "bom-834",
       "lines": [
         {
-          "key": "bom-738",
-          "quantity": 1
-        },
-        {
-          "key": "bom-835",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-836",
-          "quantity": 1
         }
       ]
     },
@@ -28350,20 +27866,8 @@
       "key": "bom-837",
       "lines": [
         {
-          "key": "bom-741",
-          "quantity": 1
-        },
-        {
-          "key": "bom-838",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-839",
-          "quantity": 1
         }
       ]
     },
@@ -28371,20 +27875,8 @@
       "key": "bom-840",
       "lines": [
         {
-          "key": "bom-750",
-          "quantity": 1
-        },
-        {
-          "key": "bom-841",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-842",
-          "quantity": 1
         }
       ]
     },
@@ -28392,20 +27884,8 @@
       "key": "bom-843",
       "lines": [
         {
-          "key": "bom-731",
-          "quantity": 1
-        },
-        {
-          "key": "bom-844",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-831",
-          "quantity": 1
         }
       ]
     },
@@ -28413,20 +27893,8 @@
       "key": "bom-845",
       "lines": [
         {
-          "key": "bom-735",
-          "quantity": 1
-        },
-        {
-          "key": "bom-846",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-831",
-          "quantity": 1
         }
       ]
     },
@@ -28434,20 +27902,8 @@
       "key": "bom-847",
       "lines": [
         {
-          "key": "bom-738",
-          "quantity": 1
-        },
-        {
-          "key": "bom-848",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-836",
-          "quantity": 1
         }
       ]
     },
@@ -28455,20 +27911,8 @@
       "key": "bom-849",
       "lines": [
         {
-          "key": "bom-741",
-          "quantity": 1
-        },
-        {
-          "key": "bom-850",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-839",
-          "quantity": 1
         }
       ]
     },
@@ -28476,20 +27920,8 @@
       "key": "bom-851",
       "lines": [
         {
-          "key": "bom-750",
-          "quantity": 1
-        },
-        {
-          "key": "bom-852",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-842",
-          "quantity": 1
         }
       ]
     },
@@ -28497,20 +27929,8 @@
       "key": "bom-853",
       "lines": [
         {
-          "key": "bom-767",
-          "quantity": 1
-        },
-        {
-          "key": "bom-830",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-831",
-          "quantity": 1
         }
       ]
     },
@@ -28518,20 +27938,8 @@
       "key": "bom-854",
       "lines": [
         {
-          "key": "bom-769",
-          "quantity": 1
-        },
-        {
-          "key": "bom-833",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-831",
-          "quantity": 1
         }
       ]
     },
@@ -28539,20 +27947,8 @@
       "key": "bom-855",
       "lines": [
         {
-          "key": "bom-771",
-          "quantity": 1
-        },
-        {
-          "key": "bom-856",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-836",
-          "quantity": 1
         }
       ]
     },
@@ -28560,20 +27956,8 @@
       "key": "bom-857",
       "lines": [
         {
-          "key": "bom-773",
-          "quantity": 1
-        },
-        {
-          "key": "bom-858",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-839",
-          "quantity": 1
         }
       ]
     },
@@ -28581,20 +27965,8 @@
       "key": "bom-859",
       "lines": [
         {
-          "key": "bom-779",
-          "quantity": 1
-        },
-        {
-          "key": "bom-860",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-842",
-          "quantity": 1
         }
       ]
     },
@@ -28602,20 +27974,8 @@
       "key": "bom-861",
       "lines": [
         {
-          "key": "bom-767",
-          "quantity": 1
-        },
-        {
-          "key": "bom-862",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-831",
-          "quantity": 1
         }
       ]
     },
@@ -28623,20 +27983,8 @@
       "key": "bom-863",
       "lines": [
         {
-          "key": "bom-769",
-          "quantity": 1
-        },
-        {
-          "key": "bom-864",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-831",
-          "quantity": 1
         }
       ]
     },
@@ -28644,20 +27992,8 @@
       "key": "bom-865",
       "lines": [
         {
-          "key": "bom-771",
-          "quantity": 1
-        },
-        {
-          "key": "bom-866",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-836",
-          "quantity": 1
         }
       ]
     },
@@ -28665,20 +28001,8 @@
       "key": "bom-867",
       "lines": [
         {
-          "key": "bom-773",
-          "quantity": 1
-        },
-        {
-          "key": "bom-868",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-839",
-          "quantity": 1
         }
       ]
     },
@@ -28686,20 +28010,8 @@
       "key": "bom-869",
       "lines": [
         {
-          "key": "bom-779",
-          "quantity": 1
-        },
-        {
-          "key": "bom-870",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-842",
-          "quantity": 1
         }
       ]
     },
@@ -28707,20 +28019,8 @@
       "key": "bom-871",
       "lines": [
         {
-          "key": "bom-788",
-          "quantity": 1
-        },
-        {
-          "key": "bom-830",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-831",
-          "quantity": 1
         }
       ]
     },
@@ -28728,20 +28028,8 @@
       "key": "bom-872",
       "lines": [
         {
-          "key": "bom-790",
-          "quantity": 1
-        },
-        {
-          "key": "bom-833",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-831",
-          "quantity": 1
         }
       ]
     },
@@ -28749,20 +28037,8 @@
       "key": "bom-873",
       "lines": [
         {
-          "key": "bom-792",
-          "quantity": 1
-        },
-        {
-          "key": "bom-874",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-836",
-          "quantity": 1
         }
       ]
     },
@@ -28770,20 +28046,8 @@
       "key": "bom-875",
       "lines": [
         {
-          "key": "bom-794",
-          "quantity": 1
-        },
-        {
-          "key": "bom-876",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-839",
-          "quantity": 1
         }
       ]
     },
@@ -28791,20 +28055,8 @@
       "key": "bom-877",
       "lines": [
         {
-          "key": "bom-800",
-          "quantity": 1
-        },
-        {
-          "key": "bom-878",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-842",
-          "quantity": 1
         }
       ]
     },
@@ -28812,20 +28064,8 @@
       "key": "bom-879",
       "lines": [
         {
-          "key": "bom-788",
-          "quantity": 1
-        },
-        {
-          "key": "bom-880",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-831",
-          "quantity": 1
         }
       ]
     },
@@ -28833,20 +28073,8 @@
       "key": "bom-881",
       "lines": [
         {
-          "key": "bom-790",
-          "quantity": 1
-        },
-        {
-          "key": "bom-882",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-831",
-          "quantity": 1
         }
       ]
     },
@@ -28854,20 +28082,8 @@
       "key": "bom-883",
       "lines": [
         {
-          "key": "bom-792",
-          "quantity": 1
-        },
-        {
-          "key": "bom-884",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-836",
-          "quantity": 1
         }
       ]
     },
@@ -28875,20 +28091,8 @@
       "key": "bom-885",
       "lines": [
         {
-          "key": "bom-794",
-          "quantity": 1
-        },
-        {
-          "key": "bom-886",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-839",
-          "quantity": 1
         }
       ]
     },
@@ -28896,20 +28100,8 @@
       "key": "bom-887",
       "lines": [
         {
-          "key": "bom-800",
-          "quantity": 1
-        },
-        {
-          "key": "bom-888",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-842",
-          "quantity": 1
         }
       ]
     },
@@ -28917,20 +28109,8 @@
       "key": "bom-889",
       "lines": [
         {
-          "key": "bom-809",
-          "quantity": 1
-        },
-        {
-          "key": "bom-830",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-831",
-          "quantity": 1
         }
       ]
     },
@@ -28938,20 +28118,8 @@
       "key": "bom-890",
       "lines": [
         {
-          "key": "bom-811",
-          "quantity": 1
-        },
-        {
-          "key": "bom-833",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-831",
-          "quantity": 1
         }
       ]
     },
@@ -28959,20 +28127,8 @@
       "key": "bom-891",
       "lines": [
         {
-          "key": "bom-813",
-          "quantity": 1
-        },
-        {
-          "key": "bom-892",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-836",
-          "quantity": 1
         }
       ]
     },
@@ -28980,20 +28136,8 @@
       "key": "bom-893",
       "lines": [
         {
-          "key": "bom-815",
-          "quantity": 1
-        },
-        {
-          "key": "bom-894",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-839",
-          "quantity": 1
         }
       ]
     },
@@ -29001,20 +28145,8 @@
       "key": "bom-895",
       "lines": [
         {
-          "key": "bom-821",
-          "quantity": 1
-        },
-        {
-          "key": "bom-896",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-842",
-          "quantity": 1
         }
       ]
     },
@@ -29022,20 +28154,8 @@
       "key": "bom-897",
       "lines": [
         {
-          "key": "bom-809",
-          "quantity": 1
-        },
-        {
-          "key": "bom-898",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-831",
-          "quantity": 1
         }
       ]
     },
@@ -29043,20 +28163,8 @@
       "key": "bom-899",
       "lines": [
         {
-          "key": "bom-811",
-          "quantity": 1
-        },
-        {
-          "key": "bom-900",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-831",
-          "quantity": 1
         }
       ]
     },
@@ -29064,20 +28172,8 @@
       "key": "bom-901",
       "lines": [
         {
-          "key": "bom-813",
-          "quantity": 1
-        },
-        {
-          "key": "bom-902",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-836",
-          "quantity": 1
         }
       ]
     },
@@ -29085,20 +28181,8 @@
       "key": "bom-903",
       "lines": [
         {
-          "key": "bom-815",
-          "quantity": 1
-        },
-        {
-          "key": "bom-904",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 4
-        },
-        {
-          "key": "bom-839",
-          "quantity": 1
         }
       ]
     },
@@ -29106,20 +28190,8 @@
       "key": "bom-905",
       "lines": [
         {
-          "key": "bom-906",
-          "quantity": 1
-        },
-        {
-          "key": "bom-907",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 3
-        },
-        {
-          "key": "bom-908",
-          "quantity": 1
         },
         {
           "key": "bom-909",
@@ -29139,20 +28211,8 @@
       "key": "bom-912",
       "lines": [
         {
-          "key": "bom-913",
-          "quantity": 1
-        },
-        {
-          "key": "bom-907",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 3
-        },
-        {
-          "key": "bom-908",
-          "quantity": 1
         },
         {
           "key": "bom-909",
@@ -29168,20 +28228,8 @@
       "key": "bom-914",
       "lines": [
         {
-          "key": "bom-915",
-          "quantity": 1
-        },
-        {
-          "key": "bom-907",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 3
-        },
-        {
-          "key": "bom-908",
-          "quantity": 1
         },
         {
           "key": "bom-909",
@@ -29201,20 +28249,8 @@
       "key": "bom-917",
       "lines": [
         {
-          "key": "bom-906",
-          "quantity": 1
-        },
-        {
-          "key": "bom-918",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 3
-        },
-        {
-          "key": "bom-908",
-          "quantity": 1
         },
         {
           "key": "bom-909",
@@ -29234,20 +28270,8 @@
       "key": "bom-919",
       "lines": [
         {
-          "key": "bom-913",
-          "quantity": 1
-        },
-        {
-          "key": "bom-918",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 3
-        },
-        {
-          "key": "bom-908",
-          "quantity": 1
         },
         {
           "key": "bom-909",
@@ -29263,20 +28287,8 @@
       "key": "bom-920",
       "lines": [
         {
-          "key": "bom-915",
-          "quantity": 1
-        },
-        {
-          "key": "bom-918",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 3
-        },
-        {
-          "key": "bom-908",
-          "quantity": 1
         },
         {
           "key": "bom-909",
@@ -29296,20 +28308,8 @@
       "key": "bom-921",
       "lines": [
         {
-          "key": "bom-922",
-          "quantity": 1
-        },
-        {
-          "key": "bom-907",
-          "quantity": 1
-        },
-        {
           "key": "bom-733",
           "quantity": 3
-        },
-        {
-          "key": "bom-908",
-          "quantity": 1
         },
         {
           "key": "bom-909",
@@ -29337,10 +28337,6 @@
       "key": "bom-927",
       "lines": [
         {
-          "key": "bom-928",
-          "quantity": 1
-        },
-        {
           "key": "bom-929",
           "quantity": 1
         },
@@ -29367,20 +28363,12 @@
         {
           "key": "bom-935",
           "quantity": 1
-        },
-        {
-          "key": "bom-936",
-          "quantity": 1
         }
       ]
     },
     {
       "key": "bom-937",
       "lines": [
-        {
-          "key": "bom-938",
-          "quantity": 1
-        },
         {
           "key": "bom-939",
           "quantity": 1
@@ -29408,20 +28396,12 @@
         {
           "key": "bom-935",
           "quantity": 1
-        },
-        {
-          "key": "bom-941",
-          "quantity": 1
         }
       ]
     },
     {
       "key": "bom-942",
       "lines": [
-        {
-          "key": "bom-938",
-          "quantity": 1
-        },
         {
           "key": "bom-943",
           "quantity": 1
@@ -29448,10 +28428,6 @@
         },
         {
           "key": "bom-935",
-          "quantity": 1
-        },
-        {
-          "key": "bom-941",
           "quantity": 1
         }
       ]
@@ -29883,14 +28859,6 @@
       "key": "bom-972",
       "lines": [
         {
-          "key": "bom-973",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -29907,14 +28875,6 @@
     {
       "key": "bom-978",
       "lines": [
-        {
-          "key": "bom-979",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
         {
           "key": "bom-975",
           "quantity": 3
@@ -29933,14 +28893,6 @@
       "key": "bom-980",
       "lines": [
         {
-          "key": "bom-981",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -29950,14 +28902,6 @@
         },
         {
           "key": "bom-977",
-          "quantity": 1
-        },
-        {
-          "key": "bom-981",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
           "quantity": 1
         },
         {
@@ -29982,14 +28926,6 @@
       "key": "bom-982",
       "lines": [
         {
-          "key": "bom-983",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -30000,14 +28936,6 @@
         {
           "key": "bom-977",
           "quantity": 2
-        },
-        {
-          "key": "bom-983",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
         },
         {
           "key": "bom-975",
@@ -30031,14 +28959,6 @@
       "key": "bom-985",
       "lines": [
         {
-          "key": "bom-986",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -30059,14 +28979,6 @@
     {
       "key": "bom-988",
       "lines": [
-        {
-          "key": "bom-989",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
         {
           "key": "bom-975",
           "quantity": 3
@@ -30089,14 +29001,6 @@
       "key": "bom-990",
       "lines": [
         {
-          "key": "bom-991",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -30117,14 +29021,6 @@
     {
       "key": "bom-992",
       "lines": [
-        {
-          "key": "bom-993",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
         {
           "key": "bom-975",
           "quantity": 3
@@ -30147,14 +29043,6 @@
       "key": "bom-994",
       "lines": [
         {
-          "key": "bom-995",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -30176,14 +29064,6 @@
       "key": "bom-996",
       "lines": [
         {
-          "key": "bom-997",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -30204,14 +29084,6 @@
     {
       "key": "bom-998",
       "lines": [
-        {
-          "key": "bom-999",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
         {
           "key": "bom-975",
           "quantity": 3
@@ -30238,14 +29110,6 @@
       "key": "bom-1002",
       "lines": [
         {
-          "key": "bom-1003",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -30270,14 +29134,6 @@
     {
       "key": "bom-1004",
       "lines": [
-        {
-          "key": "bom-999",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
         {
           "key": "bom-975",
           "quantity": 3
@@ -30304,14 +29160,6 @@
       "key": "bom-1007",
       "lines": [
         {
-          "key": "bom-1003",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -30337,14 +29185,6 @@
       "key": "bom-1008",
       "lines": [
         {
-          "key": "bom-1009",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -30361,14 +29201,6 @@
     {
       "key": "bom-1011",
       "lines": [
-        {
-          "key": "bom-1012",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
         {
           "key": "bom-975",
           "quantity": 3
@@ -30387,14 +29219,6 @@
       "key": "bom-1013",
       "lines": [
         {
-          "key": "bom-1014",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -30412,14 +29236,6 @@
       "key": "bom-1015",
       "lines": [
         {
-          "key": "bom-1016",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -30436,14 +29252,6 @@
     {
       "key": "bom-1017",
       "lines": [
-        {
-          "key": "bom-1014",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
         {
           "key": "bom-975",
           "quantity": 3
@@ -30466,14 +29274,6 @@
       "key": "bom-1018",
       "lines": [
         {
-          "key": "bom-1016",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -30494,14 +29294,6 @@
     {
       "key": "bom-1019",
       "lines": [
-        {
-          "key": "bom-1020",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
         {
           "key": "bom-975",
           "quantity": 3
@@ -30524,14 +29316,6 @@
       "key": "bom-1021",
       "lines": [
         {
-          "key": "bom-1022",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -30552,14 +29336,6 @@
     {
       "key": "bom-1023",
       "lines": [
-        {
-          "key": "bom-1024",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
         {
           "key": "bom-975",
           "quantity": 3
@@ -30582,14 +29358,6 @@
       "key": "bom-1025",
       "lines": [
         {
-          "key": "bom-1026",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -30610,14 +29378,6 @@
     {
       "key": "bom-1027",
       "lines": [
-        {
-          "key": "bom-1028",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
         {
           "key": "bom-975",
           "quantity": 3
@@ -30640,14 +29400,6 @@
       "key": "bom-1029",
       "lines": [
         {
-          "key": "bom-1030",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -30669,14 +29421,6 @@
       "key": "bom-1031",
       "lines": [
         {
-          "key": "bom-1032",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -30694,14 +29438,6 @@
       "key": "bom-1033",
       "lines": [
         {
-          "key": "bom-1034",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -30718,14 +29454,6 @@
     {
       "key": "bom-1035",
       "lines": [
-        {
-          "key": "bom-1036",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
         {
           "key": "bom-975",
           "quantity": 3
@@ -30752,14 +29480,6 @@
       "key": "bom-1037",
       "lines": [
         {
-          "key": "bom-1038",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -30784,14 +29504,6 @@
     {
       "key": "bom-1039",
       "lines": [
-        {
-          "key": "bom-1036",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
         {
           "key": "bom-975",
           "quantity": 3
@@ -30818,14 +29530,6 @@
       "key": "bom-1040",
       "lines": [
         {
-          "key": "bom-1038",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -30851,14 +29555,6 @@
       "key": "bom-1041",
       "lines": [
         {
-          "key": "bom-1042",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -30868,10 +29564,6 @@
         },
         {
           "key": "bom-977",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1043",
           "quantity": 1
         }
       ]
@@ -30880,14 +29572,6 @@
       "key": "bom-1044",
       "lines": [
         {
-          "key": "bom-1045",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -30898,10 +29582,6 @@
         {
           "key": "bom-977",
           "quantity": 2
-        },
-        {
-          "key": "bom-1046",
-          "quantity": 1
         }
       ]
     },
@@ -30909,14 +29589,6 @@
       "key": "bom-1047",
       "lines": [
         {
-          "key": "bom-1048",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -30926,10 +29598,6 @@
         },
         {
           "key": "bom-977",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1043",
           "quantity": 1
         }
       ]
@@ -30938,14 +29606,6 @@
       "key": "bom-1049",
       "lines": [
         {
-          "key": "bom-1050",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -30956,24 +29616,12 @@
         {
           "key": "bom-977",
           "quantity": 2
-        },
-        {
-          "key": "bom-1046",
-          "quantity": 1
         }
       ]
     },
     {
       "key": "bom-1051",
       "lines": [
-        {
-          "key": "bom-1048",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
         {
           "key": "bom-975",
           "quantity": 3
@@ -30988,10 +29636,6 @@
         },
         {
           "key": "bom-984",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1043",
           "quantity": 1
         }
       ]
@@ -31000,14 +29644,6 @@
       "key": "bom-1052",
       "lines": [
         {
-          "key": "bom-1050",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -31021,10 +29657,6 @@
         },
         {
           "key": "bom-984",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1046",
           "quantity": 1
         }
       ]
@@ -31033,14 +29665,6 @@
       "key": "bom-1053",
       "lines": [
         {
-          "key": "bom-1054",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -31054,10 +29678,6 @@
         },
         {
           "key": "bom-987",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1043",
           "quantity": 1
         }
       ]
@@ -31066,14 +29686,6 @@
       "key": "bom-1055",
       "lines": [
         {
-          "key": "bom-1056",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -31087,10 +29699,6 @@
         },
         {
           "key": "bom-987",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1046",
           "quantity": 1
         }
       ]
@@ -31099,14 +29707,6 @@
       "key": "bom-1057",
       "lines": [
         {
-          "key": "bom-1058",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -31120,10 +29720,6 @@
         },
         {
           "key": "bom-984",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1043",
           "quantity": 1
         }
       ]
@@ -31132,14 +29728,6 @@
       "key": "bom-1059",
       "lines": [
         {
-          "key": "bom-1060",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -31154,24 +29742,12 @@
         {
           "key": "bom-984",
           "quantity": 1
-        },
-        {
-          "key": "bom-1046",
-          "quantity": 1
         }
       ]
     },
     {
       "key": "bom-1061",
       "lines": [
-        {
-          "key": "bom-1062",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
         {
           "key": "bom-975",
           "quantity": 3
@@ -31186,10 +29762,6 @@
         },
         {
           "key": "bom-987",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1043",
           "quantity": 1
         }
       ]
@@ -31198,14 +29770,6 @@
       "key": "bom-1063",
       "lines": [
         {
-          "key": "bom-1064",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -31220,24 +29784,12 @@
         {
           "key": "bom-987",
           "quantity": 1
-        },
-        {
-          "key": "bom-1046",
-          "quantity": 1
         }
       ]
     },
     {
       "key": "bom-1065",
       "lines": [
-        {
-          "key": "bom-1066",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
         {
           "key": "bom-975",
           "quantity": 3
@@ -31248,10 +29800,6 @@
         },
         {
           "key": "bom-977",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1043",
           "quantity": 1
         },
         {
@@ -31268,14 +29816,6 @@
       "key": "bom-1067",
       "lines": [
         {
-          "key": "bom-1068",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -31286,10 +29826,6 @@
         {
           "key": "bom-977",
           "quantity": 2
-        },
-        {
-          "key": "bom-1046",
-          "quantity": 1
         },
         {
           "key": "bom-1000",
@@ -31305,14 +29841,6 @@
       "key": "bom-1069",
       "lines": [
         {
-          "key": "bom-1066",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -31322,10 +29850,6 @@
         },
         {
           "key": "bom-977",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1043",
           "quantity": 1
         },
         {
@@ -31342,14 +29866,6 @@
       "key": "bom-1070",
       "lines": [
         {
-          "key": "bom-1068",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -31360,10 +29876,6 @@
         {
           "key": "bom-977",
           "quantity": 2
-        },
-        {
-          "key": "bom-1046",
-          "quantity": 1
         },
         {
           "key": "bom-1005",
@@ -31379,14 +29891,6 @@
       "key": "bom-1071",
       "lines": [
         {
-          "key": "bom-1072",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -31396,10 +29900,6 @@
         },
         {
           "key": "bom-977",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1043",
           "quantity": 1
         }
       ]
@@ -31408,14 +29908,6 @@
       "key": "bom-1073",
       "lines": [
         {
-          "key": "bom-1074",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -31426,10 +29918,6 @@
         {
           "key": "bom-977",
           "quantity": 2
-        },
-        {
-          "key": "bom-1046",
-          "quantity": 1
         }
       ]
     },
@@ -31437,14 +29925,6 @@
       "key": "bom-1075",
       "lines": [
         {
-          "key": "bom-1076",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -31454,18 +29934,6 @@
         },
         {
           "key": "bom-977",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1043",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1076",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
           "quantity": 1
         },
         {
@@ -31482,10 +29950,6 @@
         },
         {
           "key": "bom-984",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1043",
           "quantity": 1
         }
       ]
@@ -31494,14 +29958,6 @@
       "key": "bom-1077",
       "lines": [
         {
-          "key": "bom-1078",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -31512,18 +29968,6 @@
         {
           "key": "bom-977",
           "quantity": 2
-        },
-        {
-          "key": "bom-1046",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1078",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
         },
         {
           "key": "bom-975",
@@ -31539,10 +29983,6 @@
         },
         {
           "key": "bom-984",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1046",
           "quantity": 1
         }
       ]
@@ -31551,14 +29991,6 @@
       "key": "bom-1079",
       "lines": [
         {
-          "key": "bom-1080",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -31572,10 +30004,6 @@
         },
         {
           "key": "bom-987",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1043",
           "quantity": 1
         }
       ]
@@ -31584,14 +30012,6 @@
       "key": "bom-1081",
       "lines": [
         {
-          "key": "bom-1082",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -31605,10 +30025,6 @@
         },
         {
           "key": "bom-987",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1046",
           "quantity": 1
         }
       ]
@@ -31617,14 +30033,6 @@
       "key": "bom-1083",
       "lines": [
         {
-          "key": "bom-1084",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -31638,10 +30046,6 @@
         },
         {
           "key": "bom-984",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1043",
           "quantity": 1
         }
       ]
@@ -31650,14 +30054,6 @@
       "key": "bom-1085",
       "lines": [
         {
-          "key": "bom-1086",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -31672,24 +30068,12 @@
         {
           "key": "bom-984",
           "quantity": 1
-        },
-        {
-          "key": "bom-1046",
-          "quantity": 1
         }
       ]
     },
     {
       "key": "bom-1087",
       "lines": [
-        {
-          "key": "bom-1088",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
         {
           "key": "bom-975",
           "quantity": 3
@@ -31704,10 +30088,6 @@
         },
         {
           "key": "bom-987",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1043",
           "quantity": 1
         }
       ]
@@ -31716,14 +30096,6 @@
       "key": "bom-1089",
       "lines": [
         {
-          "key": "bom-1090",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -31738,24 +30110,12 @@
         {
           "key": "bom-987",
           "quantity": 1
-        },
-        {
-          "key": "bom-1046",
-          "quantity": 1
         }
       ]
     },
     {
       "key": "bom-1091",
       "lines": [
-        {
-          "key": "bom-1092",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
         {
           "key": "bom-975",
           "quantity": 3
@@ -31766,10 +30126,6 @@
         },
         {
           "key": "bom-977",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1043",
           "quantity": 1
         }
       ]
@@ -31778,14 +30134,6 @@
       "key": "bom-1093",
       "lines": [
         {
-          "key": "bom-1094",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -31796,10 +30144,6 @@
         {
           "key": "bom-977",
           "quantity": 2
-        },
-        {
-          "key": "bom-1046",
-          "quantity": 1
         }
       ]
     },
@@ -31807,14 +30151,6 @@
       "key": "bom-1095",
       "lines": [
         {
-          "key": "bom-1096",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -31824,10 +30160,6 @@
         },
         {
           "key": "bom-977",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1043",
           "quantity": 1
         },
         {
@@ -31844,14 +30176,6 @@
       "key": "bom-1097",
       "lines": [
         {
-          "key": "bom-1098",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -31862,10 +30186,6 @@
         {
           "key": "bom-977",
           "quantity": 2
-        },
-        {
-          "key": "bom-1046",
-          "quantity": 1
         },
         {
           "key": "bom-1000",
@@ -31881,14 +30201,6 @@
       "key": "bom-1099",
       "lines": [
         {
-          "key": "bom-1096",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -31898,10 +30210,6 @@
         },
         {
           "key": "bom-977",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1043",
           "quantity": 1
         },
         {
@@ -31918,14 +30226,6 @@
       "key": "bom-1100",
       "lines": [
         {
-          "key": "bom-1098",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1010",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
         },
@@ -31936,10 +30236,6 @@
         {
           "key": "bom-977",
           "quantity": 2
-        },
-        {
-          "key": "bom-1046",
-          "quantity": 1
         },
         {
           "key": "bom-1005",
@@ -31955,14 +30251,6 @@
       "key": "bom-1101",
       "lines": [
         {
-          "key": "bom-1102",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1103",
-          "quantity": 1
-        },
-        {
           "key": "bom-1104",
           "quantity": 3
         },
@@ -31972,10 +30260,6 @@
         },
         {
           "key": "bom-977",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1105",
           "quantity": 1
         }
       ]
@@ -31984,14 +30268,6 @@
       "key": "bom-1106",
       "lines": [
         {
-          "key": "bom-1107",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1103",
-          "quantity": 1
-        },
-        {
           "key": "bom-1104",
           "quantity": 3
         },
@@ -32002,10 +30278,6 @@
         {
           "key": "bom-977",
           "quantity": 2
-        },
-        {
-          "key": "bom-1108",
-          "quantity": 1
         }
       ]
     },
@@ -32013,14 +30285,6 @@
       "key": "bom-1109",
       "lines": [
         {
-          "key": "bom-1110",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1111",
-          "quantity": 1
-        },
-        {
           "key": "bom-1104",
           "quantity": 3
         },
@@ -32030,10 +30294,6 @@
         },
         {
           "key": "bom-977",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1105",
           "quantity": 1
         }
       ]
@@ -32042,14 +30302,6 @@
       "key": "bom-1112",
       "lines": [
         {
-          "key": "bom-1113",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1111",
-          "quantity": 1
-        },
-        {
           "key": "bom-1104",
           "quantity": 3
         },
@@ -32060,24 +30312,12 @@
         {
           "key": "bom-977",
           "quantity": 2
-        },
-        {
-          "key": "bom-1108",
-          "quantity": 1
         }
       ]
     },
     {
       "key": "bom-1114",
       "lines": [
-        {
-          "key": "bom-1115",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1103",
-          "quantity": 1
-        },
         {
           "key": "bom-1104",
           "quantity": 3
@@ -32089,24 +30329,12 @@
         {
           "key": "bom-1116",
           "quantity": 1
-        },
-        {
-          "key": "bom-1105",
-          "quantity": 1
         }
       ]
     },
     {
       "key": "bom-1117",
       "lines": [
-        {
-          "key": "bom-1118",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1103",
-          "quantity": 1
-        },
         {
           "key": "bom-1104",
           "quantity": 3
@@ -32122,20 +30350,12 @@
         {
           "key": "bom-1119",
           "quantity": 1
-        },
-        {
-          "key": "bom-1108",
-          "quantity": 1
         }
       ]
     },
     {
       "key": "bom-1120",
       "lines": [
-        {
-          "key": "bom-1121",
-          "quantity": 1
-        },
         {
           "key": "bom-1122",
           "quantity": 1
@@ -32158,34 +30378,14 @@
       "key": "bom-1126",
       "lines": [
         {
-          "key": "bom-1127",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
-        },
-        {
-          "key": "bom-1105",
-          "quantity": 1
         }
       ]
     },
     {
       "key": "bom-1128",
       "lines": [
-        {
-          "key": "bom-1127",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
         {
           "key": "bom-975",
           "quantity": 3
@@ -32197,10 +30397,6 @@
         {
           "key": "bom-977",
           "quantity": 1
-        },
-        {
-          "key": "bom-1105",
-          "quantity": 1
         }
       ]
     },
@@ -32208,30 +30404,14 @@
       "key": "bom-1129",
       "lines": [
         {
-          "key": "bom-1130",
-          "quantity": 1
-        },
-        {
-          "key": "bom-974",
-          "quantity": 1
-        },
-        {
           "key": "bom-975",
           "quantity": 3
-        },
-        {
-          "key": "bom-1105",
-          "quantity": 1
         }
       ]
     },
     {
       "key": "bom-1131",
       "lines": [
-        {
-          "key": "bom-1131",
-          "quantity": 1
-        },
         {
           "key": "bom-1122",
           "quantity": 2
@@ -32317,7 +30497,19 @@
       "key": "bom-1149",
       "lines": [
         {
-          "key": "bom-1150",
+          "key": "bom-1151",
+          "quantity": 1
+        },
+        {
+          "key": "bom-1152",
+          "quantity": 1
+        },
+        {
+          "key": "bom-1153",
+          "quantity": 2
+        },
+        {
+          "key": "csv-577",
           "quantity": 2
         },
         {
@@ -32335,70 +30527,12 @@
         {
           "key": "csv-577",
           "quantity": 2
-        },
-        {
-          "key": "bom-1150",
-          "quantity": 2
-        },
-        {
-          "key": "bom-1151",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1152",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1153",
-          "quantity": 2
-        },
-        {
-          "key": "csv-577",
-          "quantity": 2
-        }
-      ]
-    },
-    {
-      "key": "bom-1151",
-      "lines": [
-        {
-          "key": "bom-1154",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1155",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1156",
-          "quantity": 1
-        }
-      ]
-    },
-    {
-      "key": "bom-1152",
-      "lines": [
-        {
-          "key": "bom-1154",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1157",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1156",
-          "quantity": 1
         }
       ]
     },
     {
       "key": "bom-1158",
       "lines": [
-        {
-          "key": "bom-1150",
-          "quantity": 2
-        },
         {
           "key": "bom-1159",
           "quantity": 1
@@ -32416,47 +30550,14 @@
           "quantity": 2
         },
         {
-          "key": "bom-1161",
-          "quantity": 2
-        },
-        {
-          "key": "bom-1162",
-          "quantity": 2
-        },
-        {
           "key": "bom-1163",
           "quantity": 2
-        },
-        {
-          "key": "bom-1164",
-          "quantity": 2
-        }
-      ]
-    },
-    {
-      "key": "bom-1159",
-      "lines": [
-        {
-          "key": "bom-1165",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1166",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1156",
-          "quantity": 1
         }
       ]
     },
     {
       "key": "bom-1167",
       "lines": [
-        {
-          "key": "bom-1165",
-          "quantity": 1
-        },
         {
           "key": "bom-1168",
           "quantity": 1
@@ -32721,18 +30822,6 @@
       "key": "bom-1193",
       "lines": [
         {
-          "key": "bom-1194",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1195",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1196",
-          "quantity": 1
-        },
-        {
           "key": "bom-1197",
           "quantity": 1
         },
@@ -32749,22 +30838,6 @@
           "quantity": 1
         },
         {
-          "key": "bom-1201",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1202",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1203",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1204",
-          "quantity": 1
-        },
-        {
           "key": "bom-1205",
           "quantity": 1
         },
@@ -32778,14 +30851,6 @@
         },
         {
           "key": "bom-1206",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1207",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1208",
           "quantity": 1
         },
         {
@@ -32815,30 +30880,6 @@
         {
           "key": "csv-630",
           "quantity": 2
-        },
-        {
-          "key": "bom-1215",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1216",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1217",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1218",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1219",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1220",
-          "quantity": 5
         },
         {
           "key": "bom-1221",
@@ -32878,18 +30919,6 @@
       "key": "bom-1226",
       "lines": [
         {
-          "key": "bom-1227",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1228",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1196",
-          "quantity": 1
-        },
-        {
           "key": "bom-1197",
           "quantity": 1
         },
@@ -32906,22 +30935,6 @@
           "quantity": 1
         },
         {
-          "key": "bom-1201",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1202",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1203",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1204",
-          "quantity": 1
-        },
-        {
           "key": "bom-1205",
           "quantity": 1
         },
@@ -32935,14 +30948,6 @@
         },
         {
           "key": "bom-1206",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1207",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1208",
           "quantity": 1
         },
         {
@@ -32972,30 +30977,6 @@
         {
           "key": "csv-630",
           "quantity": 2
-        },
-        {
-          "key": "bom-1215",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1216",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1217",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1218",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1219",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1220",
-          "quantity": 5
         },
         {
           "key": "bom-1221",
@@ -33035,14 +31016,6 @@
       "key": "bom-1229",
       "lines": [
         {
-          "key": "bom-1230",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1231",
-          "quantity": 1
-        },
-        {
           "key": "bom-1198",
           "quantity": 1
         },
@@ -33052,22 +31025,6 @@
         },
         {
           "key": "bom-1200",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1201",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1202",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1203",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1204",
           "quantity": 1
         },
         {
@@ -33084,14 +31041,6 @@
         },
         {
           "key": "bom-1206",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1207",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1208",
           "quantity": 1
         },
         {
@@ -33113,30 +31062,6 @@
         {
           "key": "csv-630",
           "quantity": 2
-        },
-        {
-          "key": "bom-1215",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1216",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1217",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1218",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1219",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1220",
-          "quantity": 5
         },
         {
           "key": "bom-1221",
@@ -33176,14 +31101,6 @@
       "key": "bom-1232",
       "lines": [
         {
-          "key": "bom-1233",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1234",
-          "quantity": 1
-        },
-        {
           "key": "bom-1198",
           "quantity": 1
         },
@@ -33193,22 +31110,6 @@
         },
         {
           "key": "bom-1200",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1201",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1202",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1203",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1204",
           "quantity": 1
         },
         {
@@ -33225,14 +31126,6 @@
         },
         {
           "key": "bom-1206",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1207",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1208",
           "quantity": 1
         },
         {
@@ -33258,30 +31151,6 @@
         {
           "key": "csv-630",
           "quantity": 2
-        },
-        {
-          "key": "bom-1215",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1216",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1217",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1218",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1219",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1220",
-          "quantity": 5
         },
         {
           "key": "bom-1221",
@@ -33321,26 +31190,6 @@
       "key": "bom-1235",
       "lines": [
         {
-          "key": "bom-1236",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1237",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1238",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1239",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1240",
-          "quantity": 1
-        },
-        {
           "key": "bom-1198",
           "quantity": 1
         },
@@ -33350,22 +31199,6 @@
         },
         {
           "key": "bom-1200",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1201",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1202",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1203",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1204",
           "quantity": 1
         },
         {
@@ -33382,14 +31215,6 @@
         },
         {
           "key": "bom-1206",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1207",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1208",
           "quantity": 1
         },
         {
@@ -33429,30 +31254,6 @@
           "quantity": 2
         },
         {
-          "key": "bom-1215",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1216",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1217",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1218",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1219",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1220",
-          "quantity": 5
-        },
-        {
           "key": "bom-1221",
           "quantity": 1
         },
@@ -33490,22 +31291,6 @@
       "key": "bom-1241",
       "lines": [
         {
-          "key": "bom-1242",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1243",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1244",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1245",
-          "quantity": 1
-        },
-        {
           "key": "bom-1198",
           "quantity": 1
         },
@@ -33515,22 +31300,6 @@
         },
         {
           "key": "bom-1200",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1201",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1202",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1203",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1204",
           "quantity": 1
         },
         {
@@ -33547,14 +31316,6 @@
         },
         {
           "key": "bom-1206",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1207",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1208",
           "quantity": 1
         },
         {
@@ -33580,30 +31341,6 @@
         {
           "key": "csv-630",
           "quantity": 2
-        },
-        {
-          "key": "bom-1215",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1216",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1217",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1218",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1219",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1220",
-          "quantity": 5
         },
         {
           "key": "bom-1221",
@@ -33643,22 +31380,6 @@
       "key": "bom-1247",
       "lines": [
         {
-          "key": "bom-1248",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1249",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1250",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1251",
-          "quantity": 1
-        },
-        {
           "key": "bom-1198",
           "quantity": 1
         },
@@ -33668,22 +31389,6 @@
         },
         {
           "key": "bom-1200",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1201",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1202",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1203",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1204",
           "quantity": 1
         },
         {
@@ -33700,14 +31405,6 @@
         },
         {
           "key": "bom-1206",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1207",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1208",
           "quantity": 1
         },
         {
@@ -33733,30 +31430,6 @@
         {
           "key": "bom-1213",
           "quantity": 1
-        },
-        {
-          "key": "bom-1215",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1216",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1217",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1218",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1219",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1220",
-          "quantity": 5
         },
         {
           "key": "bom-1221",
@@ -33808,22 +31481,6 @@
       "key": "bom-1256",
       "lines": [
         {
-          "key": "bom-1257",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1258",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1250",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1259",
-          "quantity": 1
-        },
-        {
           "key": "bom-1198",
           "quantity": 1
         },
@@ -33833,22 +31490,6 @@
         },
         {
           "key": "bom-1200",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1201",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1202",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1203",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1204",
           "quantity": 1
         },
         {
@@ -33865,14 +31506,6 @@
         },
         {
           "key": "bom-1206",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1207",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1208",
           "quantity": 1
         },
         {
@@ -33898,30 +31531,6 @@
         {
           "key": "bom-1213",
           "quantity": 1
-        },
-        {
-          "key": "bom-1215",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1216",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1217",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1218",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1219",
-          "quantity": 5
-        },
-        {
-          "key": "bom-1220",
-          "quantity": 5
         },
         {
           "key": "bom-1221",
@@ -33993,14 +31602,6 @@
           "quantity": 1
         },
         {
-          "key": "bom-1267",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1268",
-          "quantity": 1
-        },
-        {
           "key": "bom-1269",
           "quantity": 1
         },
@@ -34054,14 +31655,6 @@
           "quantity": 1
         },
         {
-          "key": "bom-1276",
-          "quantity": 1
-        },
-        {
-          "key": "bom-1268",
-          "quantity": 1
-        },
-        {
           "key": "bom-1269",
           "quantity": 1
         },
@@ -34099,10 +31692,6 @@
       "key": "bom-1277",
       "lines": [
         {
-          "key": "bom-1278",
-          "quantity": 1
-        },
-        {
           "key": "bom-1279",
           "quantity": 1
         },
@@ -34115,10 +31704,6 @@
     {
       "key": "bom-1281",
       "lines": [
-        {
-          "key": "bom-1278",
-          "quantity": 1
-        },
         {
           "key": "bom-1282",
           "quantity": 1
@@ -34133,10 +31718,6 @@
       "key": "bom-1283",
       "lines": [
         {
-          "key": "bom-1278",
-          "quantity": 1
-        },
-        {
           "key": "bom-1284",
           "quantity": 1
         },
@@ -34149,10 +31730,6 @@
     {
       "key": "bom-1285",
       "lines": [
-        {
-          "key": "bom-1278",
-          "quantity": 1
-        },
         {
           "key": "bom-1286",
           "quantity": 1
@@ -34167,10 +31744,6 @@
       "key": "bom-1287",
       "lines": [
         {
-          "key": "bom-1278",
-          "quantity": 1
-        },
-        {
           "key": "bom-1288",
           "quantity": 1
         },
@@ -34183,10 +31756,6 @@
     {
       "key": "bom-1289",
       "lines": [
-        {
-          "key": "bom-1278",
-          "quantity": 1
-        },
         {
           "key": "bom-1290",
           "quantity": 1
@@ -34201,10 +31770,6 @@
       "key": "bom-1291",
       "lines": [
         {
-          "key": "bom-1278",
-          "quantity": 1
-        },
-        {
           "key": "bom-1292",
           "quantity": 1
         },
@@ -34217,10 +31782,6 @@
     {
       "key": "bom-1293",
       "lines": [
-        {
-          "key": "bom-1294",
-          "quantity": 1
-        },
         {
           "key": "bom-1295",
           "quantity": 1
@@ -34235,10 +31796,6 @@
       "key": "bom-1296",
       "lines": [
         {
-          "key": "bom-1294",
-          "quantity": 1
-        },
-        {
           "key": "bom-1297",
           "quantity": 1
         },
@@ -34251,10 +31808,6 @@
     {
       "key": "bom-1298",
       "lines": [
-        {
-          "key": "bom-1294",
-          "quantity": 1
-        },
         {
           "key": "bom-1299",
           "quantity": 1
@@ -34269,10 +31822,6 @@
       "key": "bom-1300",
       "lines": [
         {
-          "key": "bom-1294",
-          "quantity": 1
-        },
-        {
           "key": "bom-1301",
           "quantity": 1
         },
@@ -34285,10 +31834,6 @@
     {
       "key": "bom-1302",
       "lines": [
-        {
-          "key": "bom-1294",
-          "quantity": 1
-        },
         {
           "key": "bom-1303",
           "quantity": 1
@@ -34303,10 +31848,6 @@
       "key": "bom-1304",
       "lines": [
         {
-          "key": "bom-1294",
-          "quantity": 1
-        },
-        {
           "key": "bom-1305",
           "quantity": 1
         },
@@ -34319,10 +31860,6 @@
     {
       "key": "bom-1306",
       "lines": [
-        {
-          "key": "bom-1294",
-          "quantity": 1
-        },
         {
           "key": "bom-1307",
           "quantity": 1
@@ -34337,10 +31874,6 @@
       "key": "bom-1308",
       "lines": [
         {
-          "key": "bom-1309",
-          "quantity": 1
-        },
-        {
           "key": "bom-1310",
           "quantity": 1
         },
@@ -34353,10 +31886,6 @@
     {
       "key": "bom-1311",
       "lines": [
-        {
-          "key": "bom-1309",
-          "quantity": 1
-        },
         {
           "key": "bom-1312",
           "quantity": 1
@@ -34371,10 +31900,6 @@
       "key": "bom-1313",
       "lines": [
         {
-          "key": "bom-1309",
-          "quantity": 1
-        },
-        {
           "key": "bom-1314",
           "quantity": 1
         },
@@ -34387,10 +31912,6 @@
     {
       "key": "bom-1315",
       "lines": [
-        {
-          "key": "bom-1309",
-          "quantity": 1
-        },
         {
           "key": "bom-1316",
           "quantity": 1
@@ -34405,10 +31926,6 @@
       "key": "bom-1317",
       "lines": [
         {
-          "key": "bom-1309",
-          "quantity": 1
-        },
-        {
           "key": "bom-1318",
           "quantity": 1
         },
@@ -34421,10 +31938,6 @@
     {
       "key": "bom-1319",
       "lines": [
-        {
-          "key": "bom-1309",
-          "quantity": 1
-        },
         {
           "key": "bom-1320",
           "quantity": 1
@@ -34439,10 +31952,6 @@
       "key": "bom-1321",
       "lines": [
         {
-          "key": "bom-1309",
-          "quantity": 1
-        },
-        {
           "key": "bom-1322",
           "quantity": 1
         },
@@ -34455,10 +31964,6 @@
     {
       "key": "bom-1323",
       "lines": [
-        {
-          "key": "bom-1324",
-          "quantity": 1
-        },
         {
           "key": "bom-1325",
           "quantity": 1
@@ -34473,10 +31978,6 @@
       "key": "bom-1326",
       "lines": [
         {
-          "key": "bom-1324",
-          "quantity": 1
-        },
-        {
           "key": "bom-1327",
           "quantity": 1
         },
@@ -34489,10 +31990,6 @@
     {
       "key": "bom-1328",
       "lines": [
-        {
-          "key": "bom-1324",
-          "quantity": 1
-        },
         {
           "key": "bom-1329",
           "quantity": 1
@@ -34507,10 +32004,6 @@
       "key": "bom-1330",
       "lines": [
         {
-          "key": "bom-1324",
-          "quantity": 1
-        },
-        {
           "key": "bom-1331",
           "quantity": 1
         },
@@ -34523,10 +32016,6 @@
     {
       "key": "bom-1332",
       "lines": [
-        {
-          "key": "bom-1324",
-          "quantity": 1
-        },
         {
           "key": "bom-1333",
           "quantity": 1
@@ -34541,10 +32030,6 @@
       "key": "bom-1334",
       "lines": [
         {
-          "key": "bom-1324",
-          "quantity": 1
-        },
-        {
           "key": "bom-1335",
           "quantity": 1
         },
@@ -34557,10 +32042,6 @@
     {
       "key": "bom-1336",
       "lines": [
-        {
-          "key": "bom-1324",
-          "quantity": 1
-        },
         {
           "key": "bom-1337",
           "quantity": 1
@@ -34575,10 +32056,6 @@
       "key": "bom-1338",
       "lines": [
         {
-          "key": "bom-1339",
-          "quantity": 1
-        },
-        {
           "key": "bom-1340",
           "quantity": 1
         },
@@ -34591,10 +32068,6 @@
     {
       "key": "bom-1341",
       "lines": [
-        {
-          "key": "bom-1339",
-          "quantity": 1
-        },
         {
           "key": "bom-1342",
           "quantity": 1
@@ -34609,10 +32082,6 @@
       "key": "bom-1343",
       "lines": [
         {
-          "key": "bom-1339",
-          "quantity": 1
-        },
-        {
           "key": "bom-1344",
           "quantity": 1
         },
@@ -34625,10 +32094,6 @@
     {
       "key": "bom-1345",
       "lines": [
-        {
-          "key": "bom-1339",
-          "quantity": 1
-        },
         {
           "key": "bom-1346",
           "quantity": 1
@@ -34643,10 +32108,6 @@
       "key": "bom-1347",
       "lines": [
         {
-          "key": "bom-1339",
-          "quantity": 1
-        },
-        {
           "key": "bom-1348",
           "quantity": 1
         },
@@ -34659,10 +32120,6 @@
     {
       "key": "bom-1349",
       "lines": [
-        {
-          "key": "bom-1339",
-          "quantity": 1
-        },
         {
           "key": "bom-1350",
           "quantity": 1
@@ -34677,10 +32134,6 @@
       "key": "bom-1351",
       "lines": [
         {
-          "key": "bom-1339",
-          "quantity": 1
-        },
-        {
           "key": "bom-1352",
           "quantity": 1
         },
@@ -34693,10 +32146,6 @@
     {
       "key": "bom-1353",
       "lines": [
-        {
-          "key": "bom-1354",
-          "quantity": 1
-        },
         {
           "key": "bom-1355",
           "quantity": 1
@@ -34711,10 +32160,6 @@
       "key": "bom-1356",
       "lines": [
         {
-          "key": "bom-1354",
-          "quantity": 1
-        },
-        {
           "key": "bom-1357",
           "quantity": 1
         },
@@ -34727,10 +32172,6 @@
     {
       "key": "bom-1358",
       "lines": [
-        {
-          "key": "bom-1354",
-          "quantity": 1
-        },
         {
           "key": "bom-1359",
           "quantity": 1
@@ -34745,10 +32186,6 @@
       "key": "bom-1360",
       "lines": [
         {
-          "key": "bom-1354",
-          "quantity": 1
-        },
-        {
           "key": "bom-1361",
           "quantity": 1
         },
@@ -34761,10 +32198,6 @@
     {
       "key": "bom-1362",
       "lines": [
-        {
-          "key": "bom-1354",
-          "quantity": 1
-        },
         {
           "key": "bom-1363",
           "quantity": 1
@@ -34779,10 +32212,6 @@
       "key": "bom-1364",
       "lines": [
         {
-          "key": "bom-1354",
-          "quantity": 1
-        },
-        {
           "key": "bom-1365",
           "quantity": 1
         },
@@ -34795,10 +32224,6 @@
     {
       "key": "bom-1366",
       "lines": [
-        {
-          "key": "bom-1354",
-          "quantity": 1
-        },
         {
           "key": "bom-1367",
           "quantity": 1
@@ -34813,10 +32238,6 @@
       "key": "bom-1368",
       "lines": [
         {
-          "key": "bom-1369",
-          "quantity": 1
-        },
-        {
           "key": "bom-1370",
           "quantity": 1
         },
@@ -34829,10 +32250,6 @@
     {
       "key": "bom-1371",
       "lines": [
-        {
-          "key": "bom-1369",
-          "quantity": 1
-        },
         {
           "key": "bom-1372",
           "quantity": 1
@@ -34847,10 +32264,6 @@
       "key": "bom-1373",
       "lines": [
         {
-          "key": "bom-1369",
-          "quantity": 1
-        },
-        {
           "key": "bom-1374",
           "quantity": 1
         },
@@ -34863,10 +32276,6 @@
     {
       "key": "bom-1375",
       "lines": [
-        {
-          "key": "bom-1369",
-          "quantity": 1
-        },
         {
           "key": "bom-1376",
           "quantity": 1
@@ -34881,10 +32290,6 @@
       "key": "bom-1377",
       "lines": [
         {
-          "key": "bom-1369",
-          "quantity": 1
-        },
-        {
           "key": "bom-1378",
           "quantity": 1
         },
@@ -34897,10 +32302,6 @@
     {
       "key": "bom-1379",
       "lines": [
-        {
-          "key": "bom-1369",
-          "quantity": 1
-        },
         {
           "key": "bom-1380",
           "quantity": 1
@@ -34915,10 +32316,6 @@
       "key": "bom-1381",
       "lines": [
         {
-          "key": "bom-1369",
-          "quantity": 1
-        },
-        {
           "key": "bom-1382",
           "quantity": 1
         },
@@ -34931,10 +32328,6 @@
     {
       "key": "bom-1383",
       "lines": [
-        {
-          "key": "bom-1384",
-          "quantity": 1
-        },
         {
           "key": "bom-1385",
           "quantity": 1
@@ -34949,10 +32342,6 @@
       "key": "bom-1386",
       "lines": [
         {
-          "key": "bom-1384",
-          "quantity": 1
-        },
-        {
           "key": "bom-1387",
           "quantity": 1
         },
@@ -34965,10 +32354,6 @@
     {
       "key": "bom-1388",
       "lines": [
-        {
-          "key": "bom-1384",
-          "quantity": 1
-        },
         {
           "key": "bom-1389",
           "quantity": 1
@@ -34983,10 +32368,6 @@
       "key": "bom-1390",
       "lines": [
         {
-          "key": "bom-1384",
-          "quantity": 1
-        },
-        {
           "key": "bom-1391",
           "quantity": 1
         },
@@ -34999,10 +32380,6 @@
     {
       "key": "bom-1392",
       "lines": [
-        {
-          "key": "bom-1384",
-          "quantity": 1
-        },
         {
           "key": "bom-1393",
           "quantity": 1
@@ -35017,10 +32394,6 @@
       "key": "bom-1394",
       "lines": [
         {
-          "key": "bom-1384",
-          "quantity": 1
-        },
-        {
           "key": "bom-1395",
           "quantity": 1
         },
@@ -35034,10 +32407,6 @@
       "key": "bom-1396",
       "lines": [
         {
-          "key": "bom-1384",
-          "quantity": 1
-        },
-        {
           "key": "bom-1397",
           "quantity": 1
         },
@@ -35050,10 +32419,6 @@
     {
       "key": "bom-1398",
       "lines": [
-        {
-          "key": "bom-1399",
-          "quantity": 1
-        },
         {
           "key": "bom-1400",
           "quantity": 1
@@ -35072,10 +32437,6 @@
       "key": "bom-1403",
       "lines": [
         {
-          "key": "bom-1404",
-          "quantity": 1
-        },
-        {
           "key": "bom-1405",
           "quantity": 1
         },
@@ -35092,10 +32453,6 @@
     {
       "key": "bom-1406",
       "lines": [
-        {
-          "key": "bom-1407",
-          "quantity": 1
-        },
         {
           "key": "bom-1408",
           "quantity": 1
@@ -35114,10 +32471,6 @@
       "key": "bom-1409",
       "lines": [
         {
-          "key": "bom-1410",
-          "quantity": 1
-        },
-        {
           "key": "bom-1411",
           "quantity": 1
         },
@@ -35134,10 +32487,6 @@
     {
       "key": "bom-1412",
       "lines": [
-        {
-          "key": "bom-1407",
-          "quantity": 1
-        },
         {
           "key": "bom-1400",
           "quantity": 1
@@ -35156,10 +32505,6 @@
       "key": "bom-1413",
       "lines": [
         {
-          "key": "bom-1410",
-          "quantity": 1
-        },
-        {
           "key": "bom-1414",
           "quantity": 1
         },
@@ -35177,10 +32522,6 @@
       "key": "bom-1415",
       "lines": [
         {
-          "key": "bom-1416",
-          "quantity": 1
-        },
-        {
           "key": "bom-1417",
           "quantity": 1
         },
@@ -35193,10 +32534,6 @@
     {
       "key": "bom-1418",
       "lines": [
-        {
-          "key": "bom-1419",
-          "quantity": 1
-        },
         {
           "key": "bom-1420",
           "quantity": 1
@@ -35314,7 +32651,8 @@
   "warnings": [
     "Đã kết hợp tồn kho v4 với BOM 1631 dòng",
     "Ghép theo tên sản phẩm; 291 sản phẩm có cấu tạo",
-    "Tính NVL trong BTP, TP và tồn NVL còn rời"
+    "Tính NVL trong BTP, TP và tồn NVL còn rời",
+    "Mô hình tính đơn giản: chỉ tính NVL trực tiếp trong TP, bỏ qua tầng BTP"
   ],
   "sources": [
     "imports/danh-sach-hang-hoa-import.csv",
