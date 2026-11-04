@@ -1,5 +1,5 @@
 {
-  "id": "csv-danh-sach-hang-hoa-v4-bom-by-name-2026-11-03",
+  "id": "csv-v4-bom-tong-hop-2026-11-04",
   "rows": [
     {
       "key": "csv-1",
@@ -35281,6 +35281,10 @@
         {
           "key": "bom-1122",
           "quantity": 5
+        },
+        {
+          "key": "bom-1432",
+          "quantity": 1
         }
       ]
     },
@@ -35290,6 +35294,10 @@
         {
           "key": "bom-1122",
           "quantity": 5
+        },
+        {
+          "key": "bom-1432",
+          "quantity": 1
         }
       ]
     },
@@ -35304,13 +35312,13 @@
     }
   ],
   "warnings": [
-    "Nguồn sản phẩm: imports/danh-sach-hang-hoa-import.csv",
-    "Nguồn định mức: imports/danh-sach-dinh-muc-bom-master.csv",
-    "Liên kết định mức theo tên, không dùng mã",
-    "Đã tạo 1434 sản phẩm và 291 cấu tạo"
+    "Đã kết hợp tồn kho v4 với BOM 1631 dòng",
+    "Ghép theo tên sản phẩm; 291 sản phẩm có cấu tạo",
+    "Tính NVL trong BTP, TP và tồn NVL còn rời"
   ],
   "sources": [
-    "imports/danh-sach-hang-hoa-import.csv"
+    "imports/danh-sach-hang-hoa-import.csv",
+    "imports/danh-sach-tong-hop-san-pham-bom.csv"
   ],
   "replace": true
 }
