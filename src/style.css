@@ -188,3 +188,4 @@ form .ops-actions,form .packing-print-toolbar{justify-content:center}.worker-ord
   .header-logout.open{display:flex!important}
 }
 .table-footer{position:relative}.table-footer .product-pagination{display:flex;justify-content:center;align-items:center;gap:6px;flex:1}.table-footer>span:first-child{min-width:190px}.pagination-ellipsis{padding:0 4px;color:var(--muted)}
+.table-footer .product-pagination button{min-width:36px;height:36px;padding:0 10px;border:1px solid #d8dee6;border-radius:7px;background:#fff;color:#334155;font-size:12px;font-weight:600}.table-footer .product-pagination button:hover:not(:disabled){background:#f4f6f8;border-color:#b9c2ce}.table-footer .product-pagination button.current{background:var(--red);border-color:var(--red);color:#fff}.table-footer .product-pagination button:disabled{color:#9aa4b2;background:#f8fafb}.table-footer .pagination-ellipsis{font-size:14px;font-weight:700;color:#64748b}
