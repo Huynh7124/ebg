@@ -187,3 +187,4 @@ form .ops-actions,form .packing-print-toolbar{justify-content:center}.worker-ord
   .header-logout{display:none!important}
   .header-logout.open{display:flex!important}
 }
+.table-footer{position:relative}.table-footer .product-pagination{display:flex;justify-content:center;align-items:center;gap:6px;flex:1}.table-footer>span:first-child{min-width:190px}.pagination-ellipsis{padding:0 4px;color:var(--muted)}
