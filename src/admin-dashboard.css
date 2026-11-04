@@ -20,3 +20,5 @@
 .dash-metric>.dash-drill>strong,.dash-priority.dash-drill>strong,.dash-status-legend>.dash-drill>b{margin:auto 0 0}
 .dash-metric>.dash-drill>p,.dash-priority.dash-drill small{margin-top:0}
 .dash-priority.dash-drill>svg{align-self:flex-end;margin-top:auto}
+
+.dash-activity-totals .dash-drill{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;text-align:left;min-height:112px;gap:8px}.dash-activity-totals .dash-drill>strong{margin:auto 0 0}.dash-activity-totals .dash-drill>small{margin-top:0}
