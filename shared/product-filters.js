@@ -11,9 +11,9 @@ export function matchesProduct(product,filters){
  const haystack=normalize(rawHaystack);
  const rawTerms=String(filters.search||'').normalize('NFC').trim().toLocaleLowerCase('vi').split(/\s+/).filter(Boolean);
  const colorAliases={do:'đỏ',tim:'tím',bac:'bạc',den:'đen',trang:'trắng',vang:'vàng',nau:'nâu',xam:'xám'};
- const colorTerms=rawTerms.filter(term=>colorAliases[normalize(term)]),colorText=normalize(product.color||'')+' '+haystack;
+ const colorTerms=rawTerms.filter(term=>colorAliases[normalize(term)]),colorWords=new Set(normalize(product.name).split(/[^a-z0-9đ]+/).filter(Boolean)),colorText=normalize(product.color||'');
  const terms=rawTerms.filter(term=>!colorAliases[normalize(term)]).map(term=>({term,normalized:normalize(term),accented:/[\u0300-\u036f]/.test(term.normalize('NFD'))||/[ăâđêôơưáàảãạấầẩẫậắằẳẵặéèẻẽẹếềểệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ]/i.test(term)}));
- return ((!colorTerms.length||colorTerms.every(term=>colorText.includes(normalize(colorAliases[normalize(term)]))))&&(!terms.length||terms.every(({term,normalized,accented})=>accented?rawHaystack.includes(term):haystack.includes(normalized)))&&(!filters.vehicle||product.vehicle===filters.vehicle)&&(!filters.color||product.color===filters.color)&&(!filters.unitType||(filters.unitType==='unclassified'?!product.unitType:product.unitType===filters.unitType)));
+ return ((!colorTerms.length||colorTerms.every(term=>colorText===normalize(colorAliases[normalize(term)])||colorWords.has(normalize(colorAliases[normalize(term)]))))&&(!terms.length||terms.every(({term,normalized,accented})=>accented?rawHaystack.includes(term):haystack.includes(normalized)))&&(!filters.vehicle||product.vehicle===filters.vehicle)&&(!filters.color||product.color===filters.color)&&(!filters.unitType||(filters.unitType==='unclassified'?!product.unitType:product.unitType===filters.unitType)));
 }
 export function matchesReceipt(receipt,products,filters){
  if(!Object.values(filters).some(Boolean))return true;
