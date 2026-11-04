@@ -13,7 +13,7 @@ import Operations from './Operations.jsx';
 import PackingOrders from './PackingOrders.jsx';
 import {materialKinds} from '../shared/operations.js';
 import PasswordInput from './PasswordInput.jsx';
-import {unitTypeNames} from '../shared/product-filters.js';
+import {unitTypeNames,matchesProduct} from '../shared/product-filters.js';
 import ReceiptList from './ReceiptList.jsx';
 import ReceiptDetails from './ReceiptDetails.jsx';
 import MovementForm from './MovementForm.jsx';
@@ -39,7 +39,7 @@ function ProductKinds({products,value,onChange,status='all'}){const groups=[['',
 
 function usePagedProducts(enabled,filters,refreshKey){
  const [result,setResult]=useState({items:[],total:0,nextCursor:null,loading:false,error:''}),sentinel=useRef(null),generation=useRef(0),key=JSON.stringify(filters);
- const request=async(cursor,replace,signal,current)=>{setResult(previous=>({...previous,loading:true,error:''}));try{const page=await getProductPage(filters,cursor,{signal});if(current!==generation.current)return;setResult(previous=>({items:replace?page.items:[...previous.items,...page.items],total:page.total,nextCursor:page.nextCursor,loading:false,error:''}))}catch(error){if(error.name==='AbortError'||current!==generation.current)return;setResult(previous=>({...previous,loading:false,error:error.message}))}};
+ const request=async(cursor,replace,signal,current)=>{setResult(previous=>({...previous,loading:true,error:''}));try{const page=await getProductPage(filters,cursor,{signal});if(current!==generation.current)return;const pageItems=filters.search?page.items.filter(product=>matchesProduct(product,filters)):page.items;setResult(previous=>({items:replace?pageItems:[...previous.items,...pageItems],total:page.total,nextCursor:page.nextCursor,loading:false,error:''}))}catch(error){if(error.name==='AbortError'||current!==generation.current)return;setResult(previous=>({...previous,loading:false,error:error.message}))}};
  useEffect(()=>{if(!enabled)return;const current=++generation.current,controller=new AbortController(),timer=setTimeout(()=>request(0,true,controller.signal,current),filters.search?300:0);return()=>{clearTimeout(timer);controller.abort()}},[enabled,key,refreshKey]);
  useEffect(()=>{if(!enabled||result.nextCursor===null||result.loading)return;const target=sentinel.current;if(!target)return;const observer=new IntersectionObserver(entries=>{if(entries[0].isIntersecting&&!result.loading&&result.nextCursor!==null)request(result.nextCursor,false,undefined,generation.current)},{rootMargin:'300px'});observer.observe(target);return()=>observer.disconnect()},[enabled,key,result.nextCursor,result.loading]);
  return {...result,sentinel};
